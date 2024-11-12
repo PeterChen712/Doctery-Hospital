@@ -12,7 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('prescriptions', function (Blueprint $table) {
-            $table->id();
+            $table->id('prescription_id');
+            $table->foreignId('record_id')->constrained('medical_records', 'record_id');
+            $table->foreignId('medicine_id')->constrained('medicines', 'medicine_id');
+            $table->integer('quantity');
+            $table->text('dosage');
+            $table->text('instructions');
+            $table->enum('status', ['PENDING', 'PROCESSED', 'COMPLETED']);
+            $table->datetime('valid_until');
             $table->timestamps();
         });
     }

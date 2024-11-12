@@ -12,7 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('medical_records', function (Blueprint $table) {
-            $table->id();
+            $table->id('record_id');
+            $table->foreignId('patient_id')->constrained('patients', 'patient_id');
+            $table->foreignId('doctor_id')->constrained('doctors', 'doctor_id');
+            $table->text('symptoms');
+            $table->text('diagnosis');
+            $table->text('medical_action');
+            $table->text('lab_results')->nullable();
+            $table->datetime('treatment_date');
+            $table->text('notes')->nullable();
+            $table->enum('status', ['PENDING', 'IN_PROGRESS', 'COMPLETED']);
+            $table->datetime('follow_up_date')->nullable();
             $table->timestamps();
         });
     }
