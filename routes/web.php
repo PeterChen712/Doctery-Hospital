@@ -6,9 +6,10 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Doctor\MedicalRecordController;
 use App\Http\Controllers\Doctor\AppointmentController;
 use App\Http\Controllers\Doctor\ScheduleController as DoctorScheduleController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\NotificationController; 
 
 // Public Routes
 Route::get('/', function () {
@@ -17,10 +18,9 @@ Route::get('/', function () {
 
 // Auth Routes
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
-
+    // Dashboard Routes
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -29,6 +29,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 // Admin Routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
+    
     // User Management
     Route::resource('users', UserController::class);
     
@@ -42,6 +45,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 
 // Doctor Routes
 Route::middleware(['auth', 'role:doctor'])->prefix('doctor')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'doctor'])->name('doctor.dashboard');
+    
     // Medical Records
     Route::resource('medical-records', MedicalRecordController::class);
     
@@ -58,6 +64,9 @@ Route::middleware(['auth', 'role:doctor'])->prefix('doctor')->group(function () 
 
 // Patient Routes
 Route::middleware(['auth', 'role:patient'])->prefix('patient')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'patient'])->name('patient.dashboard');
+    
     // Appointments
     Route::resource('appointments', AppointmentController::class)->except(['edit', 'destroy']);
     
@@ -71,16 +80,5 @@ Route::middleware(['auth', 'role:patient'])->prefix('patient')->group(function (
     Route::resource('feedback', FeedbackController::class)->only(['store', 'update']);
 });
 
-// Shared Routes
-Route::middleware(['auth'])->group(function () {
-    // Notifications
-    Route::get('/notifications', [NotificationController::class, 'notifications'])->name('notifications');
-    Route::patch('/notifications/{notification}', [NotificationController::class, 'markNotificationAsRead'])->name('notifications.read');
-    
-    // Download Medical Records (with proper authorization)
-    Route::get('/medical-records/{record}/download', [MedicalRecordController::class, 'download'])
-        ->middleware('can:view,record')
-        ->name('medical-records.download');
-});
 
 require __DIR__.'/auth.php';

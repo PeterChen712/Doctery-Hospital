@@ -13,7 +13,7 @@ class DashboardController extends Controller
     public function admin()
     {
         $activeDoctors = Doctor::where('is_available', true)
-            ->whereHas('schedules', function($query) {
+            ->whereHas('schedules', function ($query) {
                 $query->whereDate('schedule_date', today());
             })
             ->with('user')

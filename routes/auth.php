@@ -9,6 +9,8 @@ use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Doctor\MedicalRecordController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -56,4 +58,13 @@ Route::middleware('auth')->group(function () {
 
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'notifications'])->name('notifications');
+    Route::patch('/notifications/{notification}', [NotificationController::class, 'markNotificationAsRead'])->name('notifications.read');
+    
+    // Download Medical Records (with proper authorization)
+    Route::get('/medical-records/{record}/download', [MedicalRecordController::class, 'download'])
+        ->middleware('can:view,record')
+        ->name('medical-records.download');
 });
