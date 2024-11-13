@@ -10,10 +10,25 @@ use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
+    public function index()
+    {
+        if (Auth::user()->role="admin") {
+            return $this->admin();
+        }
+        if (Auth::user()->role="doctor") {
+            return $this->doctor();
+        }
+        if (Auth::user()->role="patient") {
+            return $this->patient();
+        }
+
+        return redirect('/');
+    }
+
     public function admin()
     {
         $activeDoctors = Doctor::where('is_available', true)
-            ->whereHas('schedules', function ($query) {
+            ->whereHas('schedules', function($query) {
                 $query->whereDate('schedule_date', today());
             })
             ->with('user')

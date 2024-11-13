@@ -17,6 +17,7 @@ class AdminUserSeeder extends Seeder
             'phone_number' => '123456789',
             'address' => 'Hospital Address',
             'is_active' => true,
+            'role' => 'ADMIN',
         ]);
 
         $admin->assignRole('admin');

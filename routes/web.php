@@ -44,7 +44,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
 });
 
 // Doctor Routes
-Route::middleware(['auth', 'role:doctor'])->prefix('doctor')->group(function () {
+Route::middleware(['auth', 'role:DOCTOR'])->prefix('doctor')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'doctor'])->name('doctor.dashboard');
     
