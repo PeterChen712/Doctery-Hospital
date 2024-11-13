@@ -12,13 +12,13 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        if (Auth::user()->role="admin") {
+        if (Auth::user()->role=="ADMIN") {
             return $this->admin();
         }
-        if (Auth::user()->role="doctor") {
+        if (Auth::user()->role=="DOCTOR") {
             return $this->doctor();
         }
-        if (Auth::user()->role="patient") {
+        if (Auth::user()->role=="PATIENT") {
             return $this->patient();
         }
 
