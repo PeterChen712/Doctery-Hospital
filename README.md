@@ -265,7 +265,7 @@ erDiagram
         int appointment_id FK
         int rating
         text review
-        text doctor_response
+        text doctor_response 
         boolean is_public
         datetime created_at
         datetime updated_at

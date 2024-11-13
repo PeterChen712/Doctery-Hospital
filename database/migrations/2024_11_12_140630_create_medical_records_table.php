@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('record_id');
             $table->foreignId('patient_id')->constrained('patients', 'patient_id');
             $table->foreignId('doctor_id')->constrained('doctors', 'doctor_id');
+            $table->foreignId('creator_doctor_id')->constrained('doctors', 'doctor_id');
             $table->text('symptoms');
             $table->text('diagnosis');
             $table->text('medical_action');
