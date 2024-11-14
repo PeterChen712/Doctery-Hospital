@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Model;
 
 class User extends Authenticatable implements CanResetPassword
 {
@@ -23,7 +24,9 @@ class User extends Authenticatable implements CanResetPassword
         'profile_image',
         'phone_number',
         'address',
-        'is_active'
+        'is_active',
+        'auth_provider',
+        'auth_provider_id',
     ];
 
     protected $hidden = [

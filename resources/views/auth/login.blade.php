@@ -1,3 +1,12 @@
+<style>
+    .social-link {
+        margin-right: 10px;
+    }
+    .social-link img {
+        width: 30px;
+    }
+</style>
+
 <x-guest-layout>
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -27,14 +36,14 @@
         <!-- Remember Me -->
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
+                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
+                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
             </label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
+        <div class="flex items-center justify-between mt-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}">
+                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
                     {{ __('Forgot your password?') }}
                 </a>
             @endif
@@ -43,5 +52,25 @@
                 {{ __('Log in') }}
             </x-primary-button>
         </div>
+
+        {{-- Social Login Section --}}
+        <div class="flex items-center mt-4">
+
+            {{-- Login with Google --}}
+            <a title="Login with Google" href="{{ route('auth.redirection', 'google') }}" class="social-link inline-block px-3 py-2 rounded-lg shadow">
+                <img src="{{ asset('assets/icons/google.png') }}" />
+            </a>
+
+            {{-- Login with Facebook --}}
+            <a title="Login with Facebook" href="{{ route('auth.redirection', 'facebook') }}" class="social-link inline-block px-3 py-2 rounded-lg shadow">
+                <img src="{{ asset('assets/icons/facebook.jpeg') }}" />
+            </a>
+
+            {{-- Login with Github --}}
+            <a title="Login with Github" href="{{ route('auth.redirection', 'github') }}" class="social-link inline-block px-3 py-2 rounded-lg shadow">
+                <img src="{{ asset('assets/icons/github.png') }}" />
+            </a>
+        </div>
+
     </form>
 </x-guest-layout>
