@@ -88,6 +88,10 @@ Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
 
+    // User Setup
+    Route::get('/user-setup', [UserSetupController::class, 'show'])->name('user.setup');
+    Route::post('/user-setup', [UserSetupController::class, 'store'])->name('user.setup.store');
+
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'notifications'])->name('notifications');
     Route::patch('/notifications/{notification}', [NotificationController::class, 'markNotificationAsRead'])->name('notifications.read');
