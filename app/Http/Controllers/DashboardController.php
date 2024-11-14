@@ -12,17 +12,22 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        if (Auth::user()->role=="ADMIN") {
-            return $this->admin();
-        }
-        if (Auth::user()->role=="DOCTOR") {
-            return $this->doctor();
-        }
-        if (Auth::user()->role=="PATIENT") {
-            return $this->patient();
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('login');
         }
 
-        return redirect('/');
+        switch ($user->role) {
+            case 'admin':
+                return $this->admin();
+            case 'doctor':
+                return $this->doctor();
+            case 'patient':
+                return $this->patient();
+            default:
+                return redirect('/');
+        }
     }
 
     public function admin()
@@ -62,6 +67,12 @@ class DashboardController extends Controller
 
     public function patient()
     {
+        $patient = Auth::user()->patient;
+
+        if (!$patient) {
+            return redirect()->route('user.setup')->withErrors(['error' => 'Please complete your profile setup.']);
+        }
+
         $treatments = MedicalRecord::with(['doctor', 'prescriptions.medicine'])
             ->where('patient_id', Auth::user()->patient->patient_id)
             ->latest()

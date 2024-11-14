@@ -18,7 +18,7 @@ class DoctorSeeder extends Seeder
             'phone_number' => '1234567890',
             'address' => 'Jl Tamalanrea No 123',
             'is_active' => true,
-            'role' => 'DOCTOR',
+            'role' => 'doctor',
         ]);
         
         $doctor->assignRole('doctor');
