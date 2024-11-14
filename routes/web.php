@@ -80,5 +80,4 @@ Route::middleware(['auth', 'role:patient'])->prefix('patient')->group(function (
     Route::resource('feedback', FeedbackController::class)->only(['store', 'update']);
 });
 
-
 require __DIR__.'/auth.php';
