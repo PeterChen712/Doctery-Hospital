@@ -11,9 +11,12 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Model;
 
+use Notification;
+
+
 class User extends Authenticatable implements CanResetPassword
 {
-    use HasApiTokens, HasRoles, Notifiable, HasFactory;
+    use HasApiTokens, HasRoles, HasFactory;
 
     protected $primaryKey = 'user_id';
     protected $fillable = [
@@ -46,12 +49,12 @@ class User extends Authenticatable implements CanResetPassword
     }
 
     public function patient()
-{
-    return $this->hasOne(Patient::class, 'user_id', 'user_id');
-}
-
-    public function notifications()
     {
-        return $this->hasMany(UserNotification::class, 'user_id');
+        return $this->hasOne(Patient::class, 'user_id', 'user_id');
+    }
+
+    public function customNotifications()
+    {
+        return $this->hasMany(UserNotification::class, 'user_id', 'user_id');
     }
 }

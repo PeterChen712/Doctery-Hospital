@@ -1,40 +1,68 @@
-
-@extends('layouts.admin')
+@extends('layouts.patient')
 
 @section('content')
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Recent Treatments -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Medical History -->
         <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold mb-4">Recent Treatments</h3>
-            <div class="divide-y">
-                @foreach($treatments as $treatment)
-                    <div class="py-3">
-                        <span class="font-medium">{{ $treatment->doctor->user->username }}</span>
-                        <span class="text-sm text-gray-500 ml-2">{{ $treatment->treatment_date->format('d M Y') }}</span>
-                        <div class="mt-1 text-sm">
-                            @foreach($treatment->prescriptions as $prescription)
-                                <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-2">
-                                    {{ $prescription->medicine->name }}
-                                </span>
-                            @endforeach
-                        </div>
+            <h2 class="text-xl font-semibold mb-4">Medical Actions</h2>
+            <div class="space-y-4">
+                @forelse($medicalRecords as $record)
+                    <div class="border-b pb-4">
+                        <p class="font-medium">{{ $record->treatment_date->format('M d, Y') }}</p>
+                        <p class="text-gray-600">Doctor: Dr. {{ $record->doctor->user->username }}</p>
+                        <p class="text-gray-600">Diagnosis: {{ $record->diagnosis }}</p>
+                        <p class="text-gray-600">Medical Action: {{ $record->medical_action }}</p>
                     </div>
-                @endforeach
+                @empty
+                    <p class="text-gray-500">No medical actions recorded.</p>
+                @endforelse
             </div>
         </div>
 
         <!-- Upcoming Appointments -->
         <div class="bg-white rounded-lg shadow p-6">
-            <h3 class="text-lg font-semibold mb-4">Upcoming Appointments</h3>
-            <div class="divide-y">
-                @foreach($upcomingAppointments as $appointment)
-                    <div class="py-3">
-                        <span class="font-medium">Dr. {{ $appointment->doctor->user->username }}</span>
-                        <span class="text-sm text-gray-500 ml-2">
-                            {{ $appointment->appointment_date->format('d M Y H:i') }}
-                        </span>
+            <h2 class="text-xl font-semibold mb-4">Upcoming Appointments</h2>
+            <div class="space-y-4">
+                @forelse($appointments as $appointment)
+                    <div class="border-b pb-4">
+                        <p class="font-medium">Dr. {{ $appointment->doctor->user->username }}</p>
+                        <p class="text-sm text-gray-500">{{ $appointment->appointment_date->format('M d, Y h:i A') }}</p>
                     </div>
-                @endforeach
+                @empty
+                    <p class="text-gray-500">No upcoming appointments.</p>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Active Prescriptions -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Prescribed Medicines</h2>
+            <div class="space-y-4">
+                @forelse($prescriptions as $prescription)
+                    <div class="border-b pb-4">
+                        <p class="font-medium">{{ $prescription->medicine_name }}</p>
+                        <p class="text-gray-600">Dosage: {{ $prescription->dosage }}</p>
+                        <p class="text-gray-600">Instructions: {{ $prescription->instructions }}</p>
+                    </div>
+                @empty
+                    <p class="text-gray-500">No prescribed medicines.</p>
+                @endforelse
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold mb-4">Notifications</h2>
+            <div class="space-y-4">
+                @forelse($notifications as $notification)
+                    <div class="border-b pb-4 {{ $notification->is_read ? 'opacity-50' : '' }}">
+                        <p class="font-medium">{{ $notification->title }}</p>
+                        <p class="text-sm">{{ $notification->message }}</p>
+                        <p class="text-sm text-gray-500">{{ $notification->scheduled_for->format('M d, Y h:i A') }}</p>
+                    </div>
+                @empty
+                    <p class="text-gray-500">No notifications.</p>
+                @endforelse
             </div>
         </div>
     </div>

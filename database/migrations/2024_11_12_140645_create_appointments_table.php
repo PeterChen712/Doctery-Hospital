@@ -6,28 +6,27 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('appointments', function (Blueprint $table) {
             $table->id('appointment_id');
-            $table->foreignId('patient_id')->constrained('patients', 'patient_id');
-            $table->foreignId('doctor_id')->constrained('doctors', 'doctor_id');
-            $table->foreignId('schedule_id')->constrained('doctor_schedules', 'schedule_id');
+            $table->foreignId('patient_id')->constrained('patients', 'patient_id')->onDelete('cascade');
+            $table->foreignId('doctor_id')->constrained('doctors', 'doctor_id')->onDelete('cascade');
+            $table->foreignId('schedule_id')->constrained('doctor_schedules', 'schedule_id')->onDelete('cascade');
             $table->datetime('appointment_date');
-            $table->enum('status', ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED']);
+            $table->enum('status', ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'])->default('PENDING');
             $table->text('reason')->nullable();
             $table->text('notes')->nullable();
+            $table->text('symptoms')->nullable();
             $table->boolean('is_rescheduled')->default(false);
             $table->timestamps();
+
+            // Add indexes
+            $table->index('appointment_date');
+            $table->index('status');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('appointments');

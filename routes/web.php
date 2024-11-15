@@ -3,9 +3,11 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\MedicineController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Doctor\MedicalRecordController;
-use App\Http\Controllers\Doctor\AppointmentController;
+use App\Http\Controllers\Doctor\MedicalRecordController as DoctorMedicalRecordController;
+use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\ScheduleController as DoctorScheduleController;
+use App\Http\Controllers\Patient\AppointmentController as PatientAppointmentController;
+use App\Http\Controllers\Patient\MedicalRecordController as PatientMedicalRecordController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\NotificationController;
@@ -28,56 +30,56 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
-    // Dashboard
+Route::middleware(['auth'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
-    
-    // User Management
     Route::resource('users', UserController::class);
-    
-    // Medicine Management
     Route::resource('medicines', MedicineController::class);
-    
-    // Reports and Statistics
     Route::get('/reports/users', [UserController::class, 'reports'])->name('admin.reports.users');
     Route::get('/reports/medicines', [MedicineController::class, 'reports'])->name('admin.reports.medicines');
 });
 
 // Doctor Routes
-Route::middleware(['auth', 'role:DOCTOR'])->prefix('doctor')->group(function () {
-    // Dashboard
+Route::middleware(['auth'])->prefix('doctor')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'doctor'])->name('doctor.dashboard');
     
+    // Appointments
+    Route::get('/appointments', [DoctorAppointmentController::class, 'index'])->name('doctor.appointments.index');
+    Route::get('/appointments/{appointment}', [DoctorAppointmentController::class, 'show'])->name('doctor.appointments.show');
+    Route::put('/appointments/{appointment}/confirm', [DoctorAppointmentController::class, 'confirm'])->name('doctor.appointments.confirm');
+    Route::put('/appointments/{appointment}/complete', [DoctorAppointmentController::class, 'complete'])->name('doctor.appointments.complete');
+    
+    // Schedules
+    // Route::resource('schedules', ScheduleController::class);
+    
     // Medical Records
-    Route::resource('medical-records', MedicalRecordController::class);
-    
-    // Doctor Schedules
-    Route::resource('schedules', DoctorScheduleController::class);
-    
-    // Appointments Management
-    Route::get('/appointments', [AppointmentController::class, 'doctorAppointments'])->name('doctor.appointments');
-    Route::patch('/appointments/{appointment}/status', [AppointmentController::class, 'updateStatus'])->name('doctor.appointments.status');
-    
-    // Patient History
-    Route::get('/patients/{patient}/history', [MedicalRecordController::class, 'patientHistory'])->name('doctor.patient.history');
+    Route::get('/patients', [DoctorMedicalRecordController::class, 'index'])->name('doctor.patients.index');
+    Route::get('/patients/{patient}', [DoctorMedicalRecordController::class, 'show'])->name('doctor.patients.show');
+    Route::post('/patients/{patient}/records', [DoctorMedicalRecordController::class, 'store'])->name('doctor.patients.records.store');
 });
 
 // Patient Routes
-Route::middleware(['auth', 'role:patient'])->prefix('patient')->group(function () {
-    // Dashboard
+Route::middleware(['auth'])->prefix('patient')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'patient'])->name('patient.dashboard');
     
     // Appointments
-    Route::resource('appointments', AppointmentController::class)->except(['edit', 'destroy']);
+    Route::get('/appointments', [PatientAppointmentController::class, 'index'])->name('patient.appointments.index');
+    Route::get('/appointments/create', [PatientAppointmentController::class, 'create'])->name('patient.appointments.create');
+    Route::post('/appointments', [PatientAppointmentController::class, 'store'])->name('patient.appointments.store');
+    Route::get('/appointments/{appointment}', [PatientAppointmentController::class, 'show'])->name('patient.appointments.show');
+    Route::put('/appointments/{appointment}/cancel', [PatientAppointmentController::class, 'cancel'])->name('patient.appointments.cancel');
+    Route::put('/appointments/{appointment}/reschedule', [PatientAppointmentController::class, 'reschedule'])->name('patient.appointments.reschedule');
+    Route::get('/doctors/{doctor}/schedules', [PatientAppointmentController::class, 'getDoctorSchedules']);
     
-    // Medical History
-    Route::get('/medical-records', [MedicalRecordController::class, 'myRecords'])->name('patient.medical-records');
-    
-    // Prescriptions
-    Route::get('/prescriptions', [MedicalRecordController::class, 'myPrescriptions'])->name('patient.prescriptions');
+    // Medical Records
+    Route::get('/medical-records', [PatientMedicalRecordController::class, 'myRecords'])->name('patient.medical-records');
+    Route::get('/prescriptions', [PatientMedicalRecordController::class, 'myPrescriptions'])->name('patient.prescriptions');
     
     // Feedback
     Route::resource('feedback', FeedbackController::class)->only(['store', 'update']);
+
+    // UserNotification
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('patient.notifications');
+    Route::patch('/notifications/{notification}', [NotificationController::class, 'markAsRead'])->name('patient.notifications.markAsRead');
 });
 
 require __DIR__.'/auth.php';

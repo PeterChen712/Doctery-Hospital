@@ -25,7 +25,7 @@ class NotificationController extends Controller
 
         $notification->update(['is_read' => true]);
 
-        return response()->json(['message' => 'Notification marked as read']);
+        return response()->json(['message' => 'UserNotification marked as read']);
     }
 
     public function destroy(UserNotification $notification)
@@ -36,6 +36,6 @@ class NotificationController extends Controller
 
         $notification->delete();
 
-        return response()->json(['message' => 'Notification deleted']);
+        return response()->json(['message' => 'UserNotification deleted']);
     }
 }

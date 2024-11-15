@@ -39,4 +39,18 @@ class Patient extends Model
     {
         return $this->hasMany(Feedback::class, 'patient_id');
     }
+
+    public function prescriptions()
+    {
+        return $this->hasManyThrough(
+            Prescription::class,
+            MedicalRecord::class,
+            'patient_id',     
+            'medical_record_id', 
+            'patient_id',      
+            'record_id'
+        );
+    }
+
+    
 }

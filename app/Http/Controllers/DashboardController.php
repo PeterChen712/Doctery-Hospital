@@ -7,6 +7,8 @@ use App\Models\Doctor;
 use App\Models\MedicalRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Notification;
+
 
 class DashboardController extends Controller
 {
@@ -33,7 +35,7 @@ class DashboardController extends Controller
     public function admin()
     {
         $activeDoctors = Doctor::where('is_available', true)
-            ->whereHas('schedules', function($query) {
+            ->whereHas('schedules', function ($query) {
                 $query->whereDate('schedule_date', today());
             })
             ->with('user')
@@ -67,23 +69,39 @@ class DashboardController extends Controller
 
     public function patient()
     {
-        $patient = Auth::user()->patient;
+        $user = Auth::user();
+        $patient = $user->patient;
 
-        if (!$patient) {
-            return redirect()->route('user.setup')->withErrors(['error' => 'Please complete your profile setup.']);
-        }
-
-        $treatments = MedicalRecord::with(['doctor', 'prescriptions.medicine'])
-            ->where('patient_id', Auth::user()->patient->patient_id)
-            ->latest()
+        $appointments = $patient->appointments()
+            ->with('doctor.user')
+            ->where('status', '!=', 'CANCELLED')
+            ->where('appointment_date', '>=', now())
+            ->orderBy('appointment_date')
+            ->take(5)
             ->get();
 
-        $upcomingAppointments = Auth::user()->patient
-            ->appointments()
-            ->where('appointment_date', '>', now())
-            ->with('doctor')
+        $medicalRecords = $patient->medicalRecords()
+            ->with(['doctor.user', 'prescriptions'])
+            ->latest('treatment_date')
             ->get();
 
-        return view('patient.dashboard', compact('treatments', 'upcomingAppointments'));
+        $prescriptions = $patient->medicalRecords()
+            ->with(['doctor.user', 'prescriptions'])
+            ->whereHas('prescriptions')
+            ->latest('treatment_date')
+            ->get();
+
+        // Fix: Use user_notifications table
+        $notifications = $user->customNotifications()
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        return view('patient.dashboard', compact(
+            'appointments',
+            'medicalRecords',
+            'prescriptions',
+            'notifications'
+        ));
     }
 }
