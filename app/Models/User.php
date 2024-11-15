@@ -16,7 +16,7 @@ use Notification;
 
 class User extends Authenticatable implements CanResetPassword
 {
-    use HasApiTokens, HasRoles, HasFactory;
+    use HasApiTokens, HasRoles, HasFactory, Notifiable;
 
     protected $primaryKey = 'user_id';
     protected $fillable = [

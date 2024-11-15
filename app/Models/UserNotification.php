@@ -3,80 +3,60 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class UserNotification extends Model
 {
-    // Specify the table name
     protected $table = 'notifications';
+    protected $primaryKey = 'id';
+    public $incrementing = false;
+    protected $keyType = 'string';
 
-    // Specify the primary key
-    protected $primaryKey = 'notification_id';
-
-    // Primary key is auto-incrementing integer
-    protected $keyType = 'int';
-    public $incrementing = true;
-
-    // Disable timestamps (we only have created_at)
-    public $timestamps = false;
-
-    // Fillable attributes
     protected $fillable = [
         'user_id',
         'title',
-        'message',
+        'data',
         'type',
-        'is_read',
-        'created_at', // Include if you might set it manually
+        'notifiable_type',
+        'notifiable_id'
     ];
 
-    // Cast attributes
     protected $casts = [
-        'is_read' => 'boolean',
-        'created_at' => 'datetime',
+        'data' => 'array',
+        'read_at' => 'datetime'
     ];
 
-    // Notification types
-    const TYPE_APPOINTMENT = 'APPOINTMENT';
-    const TYPE_PRESCRIPTION = 'PRESCRIPTION';
-    const TYPE_GENERAL = 'GENERAL';
-
-    /**
-     * Relationship: Notification belongs to a User.
-     */
+    // Relationships
     public function user()
     {
-        // Adjust foreign and local keys if necessary
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
-    /**
-     * Scope for unread notifications.
-     */
-    public function scopeUnread($query)
+    public function notifiable()
     {
-        return $query->where('is_read', false);
+        return $this->morphTo();
     }
 
-    /**
-     * Mark notification as read.
-     */
+    // Scopes
+    public function scopeUnread(Builder $query)
+    {
+        return $query->whereNull('read_at');
+    }
+
+    public function scopeRead(Builder $query)
+    {
+        return $query->whereNotNull('read_at');
+    }
+
+    // Helper Methods
     public function markAsRead()
     {
-        $this->update(['is_read' => true]);
+        $this->read_at = now();
+        $this->save();
     }
 
-    /**
-     * Create a new notification.
-     */
-    public static function notify($userId, $title, $message, $type = self::TYPE_GENERAL)
+    public function isRead()
     {
-        return self::create([
-            'user_id'    => $userId,
-            'title'      => $title,
-            'message'    => $message,
-            'type'       => $type,
-            'is_read'    => false,
-            'created_at' => now(),
-        ]);
+        return $this->read_at !== null;
     }
 }

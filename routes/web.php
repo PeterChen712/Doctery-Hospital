@@ -30,12 +30,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['auth'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
-    Route::resource('users', UserController::class);
-    Route::resource('medicines', MedicineController::class);
-    Route::get('/reports/users', [UserController::class, 'reports'])->name('admin.reports.users');
-    Route::get('/reports/medicines', [MedicineController::class, 'reports'])->name('admin.reports.medicines');
+    
+    // Users Management
+    Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
+    Route::get('/users/create', [UserController::class, 'create'])->name('admin.users.create');
+    Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('admin.users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
+
+    // Medicines Management
+    Route::resource('medicines', MedicineController::class, ['as' => 'admin']);
+
+    // Reports
+    // Route::get('/reports/users', [ReportController::class, 'users'])->name('admin.reports.users');
+    // Route::get('/reports/medicines', [ReportController::class, 'medicines'])->name('admin.reports.medicines');
 });
 
 // Doctor Routes

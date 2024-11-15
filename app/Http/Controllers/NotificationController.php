@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class NotificationController extends Controller
 {
-    public function notifications()
+    public function index()
     {
         $notifications = UserNotification::where('user_id', Auth::id())
             ->orderBy('created_at', 'desc')
@@ -17,25 +17,24 @@ class NotificationController extends Controller
         return view('notifications.index', compact('notifications'));
     }
 
-    public function markNotificationAsRead(UserNotification $notification)
+    // Additional methods for notification management
+    public function markAsRead($id)
     {
-        if ($notification->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
+        $notification = UserNotification::findOrFail($id);
+        
+        if ($notification->user_id === Auth::id()) {
+            $notification->markAsRead();
         }
 
-        $notification->update(['is_read' => true]);
-
-        return response()->json(['message' => 'UserNotification marked as read']);
+        return back();
     }
 
-    public function destroy(UserNotification $notification)
+    public function markAllAsRead()
     {
-        if ($notification->user_id !== Auth::id()) {
-            return response()->json(['message' => 'Unauthorized'], 403);
-        }
+        UserNotification::where('user_id', Auth::id())
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
 
-        $notification->delete();
-
-        return response()->json(['message' => 'UserNotification deleted']);
+        return back();
     }
 }
