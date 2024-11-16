@@ -38,7 +38,7 @@ class AppointmentController extends Controller
     {
         $validated = $request->validate([
             'doctor_id' => 'required|exists:doctors,doctor_id',
-            'schedule_id' => 'required|exists:doctor_schedules,schedule_id',
+            'schedule_id' => 'required|exists:schedules,schedule_id',
             'appointment_date' => 'required|date|after:today',
             'reason' => 'required|string|max:500',
             'symptoms' => 'nullable|string|max:500'
@@ -103,7 +103,7 @@ class AppointmentController extends Controller
         }
 
         $validated = $request->validate([
-            'schedule_id' => 'required|exists:doctor_schedules,schedule_id',
+            'schedule_id' => 'required|exists:schedules,schedule_id',
             'appointment_date' => 'required|date|after:today',
         ]);
 

@@ -6,29 +6,40 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('prescriptions', function (Blueprint $table) {
-            $table->id('prescription_id');
-            $table->foreignId('record_id')->constrained('medical_records', 'record_id');
+            $table->uuid('id')->primary();
+            $table->foreignId('doctor_id')->constrained('users', 'user_id');
+            $table->foreignId('patient_id')->constrained('users', 'user_id');
+            $table->foreignId('record_id')->constrained('medical_records', 'record_id'); // Changed from medical_record_id
+            $table->text('notes')->nullable();
+            $table->enum('status', ['PENDING', 'PROCESSING', 'COMPLETED', 'CANCELLED'])->default('PENDING');
+            $table->timestamp('processed_at')->nullable();
+            $table->timestamps();
+
+            // Add indexes
+            $table->index('doctor_id');
+            $table->index('patient_id');
+            $table->index('record_id'); // Updated index
+            $table->index('status');
+        });
+
+        // Create prescription_medicines pivot table
+        Schema::create('prescription_medicines', function (Blueprint $table) {
+            $table->id();
+            $table->foreignUuid('prescription_id')->constrained('prescriptions')->onDelete('cascade');
             $table->foreignId('medicine_id')->constrained('medicines', 'medicine_id');
-            $table->integer('quantity');
-            $table->text('dosage');
-            $table->text('instructions');
-            $table->enum('status', ['PENDING', 'PROCESSED', 'COMPLETED']);
-            $table->datetime('valid_until');
+            $table->string('dosage');
+            $table->string('frequency');
+            $table->string('duration');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
+        Schema::dropIfExists('prescription_medicines');
         Schema::dropIfExists('prescriptions');
     }
 };

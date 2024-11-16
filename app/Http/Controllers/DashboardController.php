@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Doctor;
 use App\Models\MedicalRecord;
+use App\Models\Appointment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Notification;
@@ -52,19 +53,44 @@ class DashboardController extends Controller
 
     public function doctor()
     {
-        $recentPatients = MedicalRecord::with('patient')
-            ->where('doctor_id', Auth::user()->doctor->doctor_id)
+        $recentPatients = MedicalRecord::with('patient.user')
+            ->where('doctor_id', Auth::id())
+            ->latest('treatment_date')
+            ->take(5)
+            ->get();
+
+        $todayAppointments = Appointment::with('patient.user')
+            ->where('doctor_id', Auth::id())
+            ->whereDate('appointment_date', today())
+            ->get();
+
+        $ongoingTreatments = MedicalRecord::with('patient.user')
+            ->where('doctor_id', Auth::id())
+            ->where('status', 'ONGOING')
             ->latest()
             ->take(5)
             ->get();
 
-        $todayAppointments = Auth::user()->doctor
-            ->appointments()
-            ->whereDate('appointment_date', today())
-            ->with('patient')
-            ->get();
+        $todayPatients = MedicalRecord::where('doctor_id', Auth::user()->id)
+            ->whereDate('treatment_date', today())
+            ->count();
 
-        return view('doctor.dashboard', compact('recentPatients', 'todayAppointments'));
+        $pendingAppointments = Appointment::where('doctor_id', Auth::id())
+            ->where('status', 'PENDING')
+            ->count();
+
+        $followUps = MedicalRecord::where('doctor_id', Auth::id())
+            ->whereDate('follow_up_date', today())
+            ->count();
+
+        return view('doctor.dashboard', compact(
+            'recentPatients',
+            'todayAppointments',
+            'ongoingTreatments',
+            'todayPatients',
+            'pendingAppointments',
+            'followUps'
+        ));
     }
 
     public function patient()

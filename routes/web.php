@@ -6,6 +6,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Doctor\MedicalRecordController as DoctorMedicalRecordController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\ScheduleController as DoctorScheduleController;
+use App\Http\Controllers\Doctor\DoctorPatientController;
+use App\Http\Controllers\Doctor\PrescriptionController as DoctorPrescriptionController;
 use App\Http\Controllers\Patient\AppointmentController as PatientAppointmentController;
 use App\Http\Controllers\Patient\MedicalRecordController as PatientMedicalRecordController;
 use App\Http\Controllers\DashboardController;
@@ -51,22 +53,27 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 });
 
 // Doctor Routes
-Route::middleware(['auth'])->prefix('doctor')->group(function () {
+Route::middleware(['auth', 'doctor'])->prefix('doctor')->group(function () {
+    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'doctor'])->name('doctor.dashboard');
+    
+    // Patient Management
+    Route::get('/patients', [DoctorPatientController::class, 'index'])->name('doctor.patients.index');
+    Route::get('/patients/{patient}', [DoctorPatientController::class, 'show'])->name('doctor.patients.show');
+    
+    // Medical Records Management
+    Route::resource('records', DoctorMedicalRecordController::class, ['as' => 'doctor']);
     
     // Appointments
     Route::get('/appointments', [DoctorAppointmentController::class, 'index'])->name('doctor.appointments.index');
     Route::get('/appointments/{appointment}', [DoctorAppointmentController::class, 'show'])->name('doctor.appointments.show');
-    Route::put('/appointments/{appointment}/confirm', [DoctorAppointmentController::class, 'confirm'])->name('doctor.appointments.confirm');
-    Route::put('/appointments/{appointment}/complete', [DoctorAppointmentController::class, 'complete'])->name('doctor.appointments.complete');
-    
+    Route::put('/appointments/{appointment}', [DoctorAppointmentController::class, 'update'])->name('doctor.appointments.update');
+
     // Schedules
-    // Route::resource('schedules', ScheduleController::class);
-    
-    // Medical Records
-    Route::get('/patients', [DoctorMedicalRecordController::class, 'index'])->name('doctor.patients.index');
-    Route::get('/patients/{patient}', [DoctorMedicalRecordController::class, 'show'])->name('doctor.patients.show');
-    Route::post('/patients/{patient}/records', [DoctorMedicalRecordController::class, 'store'])->name('doctor.patients.records.store');
+    Route::resource('schedules', DoctorScheduleController::class, ['as' => 'doctor']);
+
+    // Prescriptions
+    Route::resource('prescriptions', DoctorPrescriptionController::class, ['as' => 'doctor']);
 });
 
 // Patient Routes

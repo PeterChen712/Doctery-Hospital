@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id('appointment_id');
             $table->foreignId('patient_id')->constrained('patients', 'patient_id')->onDelete('cascade');
             $table->foreignId('doctor_id')->constrained('doctors', 'doctor_id')->onDelete('cascade');
-            $table->foreignId('schedule_id')->constrained('doctor_schedules', 'schedule_id')->onDelete('cascade');
+            $table->foreignId('schedule_id')->constrained('schedules', 'schedule_id')->onDelete('cascade');
             $table->datetime('appointment_date');
             $table->enum('status', ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'])->default('PENDING');
             $table->text('reason')->nullable();

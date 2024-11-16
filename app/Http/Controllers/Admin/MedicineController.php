@@ -11,21 +11,14 @@ class MedicineController extends Controller
 {
     public function index(Request $request)
     {
-        $medicines = Medicine::when($request->status, function($query, $status) {
-            if ($status === 'available') {
-                return $query->where('is_available', true)->where('stock', '>', 0);
-            } elseif ($status === 'out-of-stock') {
-                return $query->where('stock', 0);
-            } elseif ($status === 'expired') {
-                return $query->whereDate('expiry_date', '<', now());
-            }
-        })
-        ->when($request->search, function($query, $search) {
-            return $query->where('name', 'like', "%{$search}%");
-        })
-        ->latest()
-        ->paginate(10);
+        $query = Medicine::query();
 
+        // If searching for available only
+        if ($request->available) {
+            $query->available();
+        }
+
+        $medicines = $query->latest()->paginate(10);
         return view('admin.medicines.index', compact('medicines'));
     }
 
@@ -92,7 +85,7 @@ class MedicineController extends Controller
         }
 
         $validated['is_available'] = $request->stock > 0;
-        
+
         $medicine->update($validated);
 
         return redirect()

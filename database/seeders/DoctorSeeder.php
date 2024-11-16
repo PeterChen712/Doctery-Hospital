@@ -25,7 +25,7 @@ class DoctorSeeder extends Seeder
 
         Doctor::create([
             'user_id' => $doctor->user_id,
-            'specialization' => 'Obat Penyakit Dalam',
+            'specialization' => 'Penyakit Dalam',
             'license_number' => 'DOC123456',
             'education' => 'Universitas Hasanuddin',
             'experience' => '10 Tahun',

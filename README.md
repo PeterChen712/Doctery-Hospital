@@ -133,8 +133,8 @@ erDiagram
     MEDICINES ||--o{ MEDICAL_RECORDS : "prescribed in"
     MEDICAL_RECORDS ||--o{ PRESCRIPTIONS : "has"
     MEDICINES ||--o{ PRESCRIPTIONS : "contains"
-    DOCTORS ||--o{ DOCTOR_SCHEDULES : "has"
-    DOCTOR_SCHEDULES ||--o{ APPOINTMENTS : "available for"
+    DOCTORS ||--o{ schedules : "has"
+    schedules ||--o{ APPOINTMENTS : "available for"
 
     USERS {
         int user_id PK
@@ -245,7 +245,7 @@ erDiagram
         datetime updated_at
     }
 
-    DOCTOR_SCHEDULES {
+    schedules {
         int schedule_id PK
         int doctor_id FK
         date schedule_date

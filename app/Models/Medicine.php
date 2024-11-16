@@ -30,4 +30,11 @@ class Medicine extends Model
     {
         return $this->hasMany(Prescription::class, 'medicine_id');
     }
+
+    public function scopeAvailable($query)
+    {
+        return $query->where('is_available', true)
+            ->where('stock', '>', 0)
+            ->whereDate('expiry_date', '>', now());
+    }
 }
