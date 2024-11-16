@@ -20,7 +20,7 @@ class PatientSeeder extends Seeder
             'phone_number' => '123123123',
             'address' => 'Patient Address',
             'is_active' => true,
-            'role' => 'PATIENT',
+            'role' => 'patient',
         ]);
 
         $patient->assignRole('patient');
