@@ -28,13 +28,12 @@
                             </path>
                         </svg>
                     </button>
-                    <span
-                        class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white cursor-pointer select-none ml-2"
-                        id="sidebar-toggle">Patient Portal</span>
+                    <a href="/"
+                        class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white cursor-pointer select-none ml-2 hover:text-gray-600 dark:hover:text-gray-300"
+                        id="sidebar-toggle">Patient Portal</a>
                 </div>
 
                 <div class="flex items-center">
-
                     <div class="flex items-center ms-3">
                         <x-dropdown align="right" width="48">
                             <x-slot name="trigger">
@@ -190,98 +189,105 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const sidebarToggle = document.getElementById('sidebar-toggle');
-            const sidebar = document.getElementById('logo-sidebar');
-            const mainContent = document.getElementById('main-content');
-            let isSidebarOpen = true;
+    // Get DOM elements
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('logo-sidebar');
+    const mainContent = document.getElementById('main-content');
+    const betaNotification = document.querySelector('.bg-blue-900');
+    const closeButton = betaNotification?.querySelector('button');
+    let isSidebarOpen = true;
 
-            function toggleSidebar() {
-                if (isSidebarOpen) {
-                    sidebar.style.transform = 'translateX(-100%)';
-                    mainContent.style.marginLeft = '0';
-                } else {
-                    sidebar.style.transform = 'translateX(0)';
-                    mainContent.style.marginLeft = '16rem';
-                }
-                isSidebarOpen = !isSidebarOpen;
-            }
+    // Function to open sidebar
+    function openSidebar() {
+        sidebar.style.transform = 'translateX(0)';
+        mainContent.style.marginLeft = '16rem';
+        isSidebarOpen = true;
+    }
 
-            sidebarToggle.addEventListener('click', toggleSidebar);
+    // Function to close sidebar
+    function closeSidebar() {
+        sidebar.style.transform = 'translateX(-100%)';
+        mainContent.style.marginLeft = '0';
+        isSidebarOpen = false;
+    }
 
-            // Handle both sidebar toggles
-            const sidebarToggles = document.querySelectorAll('[data-drawer-toggle]');
-            sidebarToggles.forEach(toggle => {
-                toggle.addEventListener('click', function() {
-                    const targetId = this.getAttribute('data-drawer-target');
-                    const targetElement = document.getElementById(targetId);
+    // Handle hover events for both the sidebar toggle and the sidebar itself
+    sidebarToggle.addEventListener('mouseenter', function() {
+        openSidebar();
+    });
 
-                    if (targetElement) {
-                        if (targetId === 'logo-sidebar') {
-                            targetElement.classList.toggle('-translate-x-full');
-                        } else if (targetId === 'cta-button-sidebar') {
-                            // Handle CTA button sidebar
-                            // You can add specific behavior for CTA sidebar here
-                            targetElement.classList.toggle('translate-x-0');
-                            targetElement.classList.toggle('translate-x-full');
-                        }
-                    }
-                });
-            });
-
-            // Close sidebars when clicking outside
-            document.addEventListener('click', function(event) {
-                const sidebar = document.getElementById('logo-sidebar');
-                const ctaSidebar = document.getElementById('cta-button-sidebar');
-                const sidebarButton = document.querySelector('[data-drawer-target="logo-sidebar"]');
-                const ctaButton = document.querySelector('[data-drawer-target="cta-button-sidebar"]');
-
-                // Check if click is outside both sidebars and their toggle buttons
-                if (!sidebar?.contains(event.target) &&
-                    !ctaSidebar?.contains(event.target) &&
-                    !sidebarButton?.contains(event.target) &&
-                    !ctaButton?.contains(event.target)) {
-
-                    // Close sidebars on mobile
-                    if (window.innerWidth < 640) {
-                        sidebar?.classList.add('-translate-x-full');
-                        ctaSidebar?.classList.remove('translate-x-0');
-                        ctaSidebar?.classList.add('translate-x-full');
-                    }
-                }
-            });
-
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                const sidebar = document.getElementById('logo-sidebar');
-                const ctaSidebar = document.getElementById('cta-button-sidebar');
-
-                if (window.innerWidth >= 640) {
-                    sidebar?.classList.remove('-translate-x-full');
-                    mainContent.style.marginLeft = '16rem';
-                    isSidebarOpen = true;
-                } else {
-                    sidebar?.classList.add('-translate-x-full');
-                    ctaSidebar?.classList.remove('translate-x-0');
-                    ctaSidebar?.classList.add('translate-x-full');
-                    mainContent.style.marginLeft = '0';
-                    isSidebarOpen = false;
-                }
-            });
-
-            const betaNotification = document.querySelector('.bg-blue-900');
-            const closeButton = betaNotification?.querySelector('button');
-
-            closeButton?.addEventListener('click', function() {
-                betaNotification.style.display = 'none';
-                // Optional: Save state to localStorage or make API call to remember user's preference
-                localStorage.setItem('betaNotificationClosed', 'true');
-            });
-
-            // Check if notification was previously closed
-            if (localStorage.getItem('betaNotificationClosed') === 'true') {
-                betaNotification.style.display = 'none';
+    // Combine sidebar and toggle for hover detection
+    const sidebarElements = [sidebar, sidebarToggle];
+    
+    sidebarElements.forEach(element => {
+        element.addEventListener('mouseenter', function() {
+            openSidebar();
+        });
+        
+        element.addEventListener('mouseleave', function(e) {
+            // Check if the mouse isn't entering another monitored element
+            const isEnteringOtherElement = sidebarElements.some(el => 
+                el !== element && el.contains(e.relatedTarget)
+            );
+            
+            if (!isEnteringOtherElement) {
+                closeSidebar();
             }
         });
+    });
+
+    // Handle click for navigation
+    sidebarToggle.addEventListener('click', function(e) {
+        // Handle navigation to home
+        window.location.href = '/';
+    });
+
+    // Handle mobile menu button toggle
+    const sidebarToggles = document.querySelectorAll('[data-drawer-toggle]');
+    sidebarToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent default behavior
+            const targetId = this.getAttribute('data-drawer-target');
+            const targetElement = document.getElementById(targetId);
+
+            if (targetElement && targetId === 'logo-sidebar') {
+                if (isSidebarOpen) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            }
+        });
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth < 640) { // mobile view
+            closeSidebar();
+        }
+    });
+
+    // Beta notification handling
+    if (closeButton) {
+        closeButton.addEventListener('click', function() {
+            betaNotification.style.display = 'none';
+            localStorage.setItem('betaNotificationClosed', 'true');
+        });
+
+        if (localStorage.getItem('betaNotificationClosed') === 'true') {
+            betaNotification.style.display = 'none';
+        }
+    }
+
+    // Initialize sidebar state
+    if (window.innerWidth < 640) {
+        closeSidebar();
+    }
+
+    // Add smooth transitions
+    sidebar.classList.add('transition-transform', 'duration-300', 'ease-in-out');
+    mainContent.classList.add('transition-[margin]', 'duration-300', 'ease-in-out');
+});
     </script>
 </body>
 
