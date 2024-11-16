@@ -14,6 +14,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\ReportController;
 
 // Public Routes
 Route::get('/', function () {
@@ -47,9 +48,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Medicines Management
     Route::resource('medicines', MedicineController::class, ['as' => 'admin']);
 
-    // Reports
-    // Route::get('/reports/users', [ReportController::class, 'users'])->name('admin.reports.users');
-    // Route::get('/reports/medicines', [ReportController::class, 'medicines'])->name('admin.reports.medicines');
+    // Reports Routes
+    Route::get('/reports/users', [ReportController::class, 'users'])->name('admin.reports.users');
+    Route::get('/reports/medicines', [ReportController::class, 'medicines'])->name('admin.reports.medicines');
+    Route::get('/reports/appointments', [ReportController::class, 'appointments'])->name('admin.reports.appointments');
+    Route::get('/reports/prescriptions', [ReportController::class, 'prescriptions'])->name('admin.reports.prescriptions');
+    
+    // Report Exports
+    Route::get('/reports/users/export', [ReportController::class, 'exportUsers'])->name('admin.reports.users.export');
+    Route::get('/reports/medicines/export', [ReportController::class, 'exportMedicines'])->name('admin.reports.medicines.export');
 });
 
 // Doctor Routes
