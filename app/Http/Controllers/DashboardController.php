@@ -21,16 +21,19 @@ class DashboardController extends Controller
             return redirect()->route('login');
         }
 
-        switch ($user->role) {
-            case 'admin':
-                return $this->admin();
-            case 'doctor':
-                return $this->doctor();
-            case 'patient':
-                return $this->patient();
-            default:
-                return redirect('/');
+        if (Auth::user()->role == 'admin') {
+            return redirect()->route('admin.dashboard');
         }
+
+        if (Auth::user()->role == 'doctor') {
+            return redirect()->route('doctor.dashboard');
+        }
+
+        if (Auth::user()->role == 'patient') {
+            return redirect()->route('patient.dashboard');
+        }
+
+        return redirect('/');
     }
 
     public function admin()

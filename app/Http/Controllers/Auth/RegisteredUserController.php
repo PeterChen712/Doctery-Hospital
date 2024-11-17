@@ -59,6 +59,12 @@ class RegisteredUserController extends Controller
         return Socialite::driver('google')->redirect();
     }
 
+    public function redirectToGoogleRegister(): RedirectResponse
+    {
+        return Socialite::driver('google')->redirect();
+
+    }
+
     /**
      * Handle Google callback and user registration/login.
      */
@@ -106,5 +112,58 @@ class RegisteredUserController extends Controller
             return redirect()->route('login')
                 ->withErrors(['error' => 'Google authentication failed: ' . $e->getMessage()]);
         }
+    }
+
+    public function handleGoogleRegisterCallback(): RedirectResponse
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+
+            // Check if user already exists
+            $existingUser = User::where('email', $googleUser->email)->first();
+
+            if ($existingUser) {
+                // Inform the user that the account exists
+                return redirect()->route('login')->withErrors([
+                    'email' => 'An account with this email already exists. Please login.',
+                ]);
+            }
+
+            // Create new user
+            $user = User::create([
+                'username' => $this->generateUsername($googleUser->email),
+                'email' => $googleUser->email,
+                'password' => Hash::make(Str::random(24)),
+                'auth_provider' => 'google',
+                'auth_provider_id' => $googleUser->id,
+                'email_verified_at' => now(),
+            ]);
+
+            event(new Registered($user));
+
+            Auth::login($user);
+
+            // Redirect to user setup or home
+            return redirect()->route('user.setup');
+
+        } catch (Exception $e) {
+            return redirect()->route('register')
+                ->withErrors(['error' => 'Google registration failed: ' . $e->getMessage()]);
+        }
+    }
+
+    private function generateUsername(string $email): string
+    {
+        $baseUsername = explode('@', $email)[0];
+        $username = $baseUsername;
+        $counter = 1;
+
+        // Ensure the username is unique
+        while (User::where('username', $username)->exists()) {
+            $username = $baseUsername . $counter;
+            $counter++;
+        }
+
+        return $username;
     }
 }

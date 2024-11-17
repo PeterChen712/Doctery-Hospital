@@ -1,0 +1,462 @@
+/* Import Inter font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Root Variables */
+:root {
+    /* Colors */
+    --primary-color: #4361ee;
+    --primary-light: #4895ef;
+    --primary-dark: #3730a3;
+    --success-color: #4caf50;
+    --error-color: #f44336;
+    --warning-color: #ff9800;
+    --info-color: #2196f3;
+    
+    /* Neutral Colors */
+    --white: #ffffff;
+    --grey-50: #f9fafb;
+    --grey-100: #f3f4f6;
+    --grey-200: #e5e7eb;
+    --grey-300: #d1d5db;
+    --grey-400: #9ca3af;
+    --grey-500: #6b7280;
+    --grey-600: #4b5563;
+    --grey-700: #374151;
+    --grey-800: #1f2937;
+    --grey-900: #111827;
+    
+    /* Spacing */
+    --space-xs: 0.25rem;  /* 4px */
+    --space-sm: 0.5rem;   /* 8px */
+    --space-md: 1rem;     /* 16px */
+    --space-lg: 1.5rem;   /* 24px */
+    --space-xl: 2rem;     /* 32px */
+    --space-2xl: 3rem;    /* 48px */
+    
+    /* Font Sizes */
+    --text-xs: 0.75rem;   /* 12px */
+    --text-sm: 0.875rem;  /* 14px */
+    --text-base: 1rem;    /* 16px */
+    --text-lg: 1.125rem;  /* 18px */
+    --text-xl: 1.25rem;   /* 20px */
+    --text-2xl: 1.5rem;   /* 24px */
+    --text-3xl: 2rem;     /* 32px */
+    
+    /* Border Radius */
+    --radius-sm: 0.25rem;  /* 4px */
+    --radius-md: 0.375rem; /* 6px */
+    --radius-lg: 0.5rem;   /* 8px */
+    --radius-xl: 1rem;     /* 16px */
+    
+    /* Transitions */
+    --transition-fast: 150ms;
+    --transition-normal: 250ms;
+    --transition-slow: 350ms;
+    
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Reset & Base Styles */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+    color: var(--grey-800);
+    background-color: var(--grey-50);
+}
+
+/* Container Styles */
+.container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-md);
+}
+
+/* Content Layout */
+.login__content,
+.register__content {
+    display: flex;
+    background-color: var(--white);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    width: 100%;
+    max-width: 1100px;
+    min-height: 600px;
+    box-shadow: var(--shadow-lg);
+}
+
+/* Image Styles */
+.login__img,
+.register__img {
+    width: 50%;
+    object-fit: cover;
+    background-position: center;
+}
+
+/* Form Container */
+.login__form,
+.register__form {
+    width: 50%;
+    padding: var(--space-2xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+}
+
+/* Typography */
+.login__title,
+.register__title {
+    font-size: var(--text-3xl);
+    font-weight: 700;
+    color: var(--grey-900);
+    margin-bottom: var(--space-xs);
+}
+
+.login__title span,
+.register__title span {
+    color: var(--primary-color);
+}
+
+.login__description,
+.register__description {
+    color: var(--grey-600);
+    font-size: var(--text-base);
+}
+
+/* Form Elements */
+.login__inputs,
+.register__inputs {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.login__label,
+.register__label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--grey-700);
+    margin-bottom: var(--space-xs);
+}
+
+.login__box,
+.register__box {
+    position: relative;
+}
+
+.login__input,
+.register__input {
+    width: 100%;
+    padding: var(--space-md);
+    font-size: var(--text-base);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--radius-lg);
+    background-color: var(--white);
+    transition: all var(--transition-fast);
+}
+
+.login__input:hover,
+.register__input:hover {
+    border-color: var(--grey-300);
+}
+
+.login__input:focus,
+.register__input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+}
+
+/* Password Eye Icon */
+.login__eye,
+.register__eye {
+    position: absolute;
+    right: var(--space-md);
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: var(--text-xl);
+    color: var(--grey-400);
+    cursor: pointer;
+    transition: color var(--transition-fast);
+}
+
+.login__eye:hover,
+.register__eye:hover {
+    color: var(--grey-600);
+}
+
+/* Error Messages */
+.login__error,
+.register__error {
+    color: var(--error-color);
+    font-size: var(--text-sm);
+    margin-top: var(--space-xs);
+}
+
+/* Button Styles */
+.login__buttons,
+.register__buttons {
+    display: flex;
+    gap: var(--space-md);
+    margin-top: var(--space-lg);
+}
+
+.login__button,
+.register__button {
+    flex: 1;
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--text-base);
+    font-weight: 500;
+    text-align: center;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-decoration: none;
+}
+
+.login__button,
+.register__button {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+}
+
+.login__button:hover,
+.register__button:hover {
+    background-color: var(--primary-dark);
+}
+
+.login__button-ghost,
+.register__button-ghost {
+    background-color: transparent;
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.login__button-ghost:hover,
+.register__button-ghost:hover {
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+/* Remember Me Checkbox */
+.login__check {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-top: var(--space-md);
+}
+
+.login__check-input {
+    width: 16px;
+    height: 16px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--grey-300);
+    cursor: pointer;
+}
+
+.login__check-label {
+    font-size: var(--text-sm);
+    color: var(--grey-600);
+    cursor: pointer;
+}
+
+/* Forgot Password Link */
+.login__forgot {
+    display: inline-block;
+    font-size: var(--text-sm);
+    color: var(--primary-color);
+    text-decoration: none;
+    margin-top: var(--space-md);
+    transition: color var(--transition-fast);
+}
+
+.login__forgot:hover {
+    color: var(--primary-dark);
+}
+
+/* Social Login Section */
+.login__social,
+.register__social {
+    margin-top: var(--space-xl);
+}
+
+.login__social-text,
+.register__social-text {
+    text-align: center;
+    font-size: var(--text-sm);
+    color: var(--grey-500);
+    margin-bottom: var(--space-md);
+    position: relative;
+}
+
+.login__social-text::before,
+.login__social-text::after,
+.register__social-text::before,
+.register__social-text::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 25%;
+    height: 1px;
+    background-color: var(--grey-200);
+}
+
+.login__social-text::before,
+.register__social-text::before {
+    left: 0;
+}
+
+.login__social-text::after,
+.register__social-text::after {
+    right: 0;
+}
+
+.login__social-button,
+.register__social-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-md);
+    width: 100%;
+    padding: var(--space-md);
+    border: 1px solid var(--grey-200);
+    border-radius: var(--radius-lg);
+    background-color: var(--white);
+    color: var(--grey-700);
+    font-size: var(--text-base);
+    text-decoration: none;
+    transition: all var(--transition-fast);
+}
+
+.login__social-button:hover,
+.register__social-button:hover {
+    background-color: var(--grey-50);
+    border-color: var(--grey-300);
+}
+
+.login__social-icon,
+.register__social-icon {
+    width: 24px;
+    height: 24px;
+}
+
+/* Status Messages */
+.login__status {
+    padding: var(--space-md);
+    border-radius: var(--radius-lg);
+    background-color: var(--info-color);
+    color: var(--white);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-lg);
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .login__content,
+    .register__content {
+        flex-direction: column-reverse;
+        max-height: none;
+    }
+
+    .login__img,
+    .register__img {
+        width: 100%;
+        height: 200px;
+    }
+
+    .login__form,
+    .register__form {
+        width: 100%;
+        padding: var(--space-xl);
+    }
+
+    .login__buttons,
+    .register__buttons {
+        flex-direction: column;
+    }
+
+    .login__social-text::before,
+    .login__social-text::after,
+    .register__social-text::before,
+    .register__social-text::after {
+        width: 20%;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-color: #4895ef;
+        --primary-dark: #3b82f6;
+    }
+
+    body {
+        background-color: var(--grey-900);
+        color: var(--grey-100);
+    }
+
+    .login__content,
+    .register__content {
+        background-color: var(--grey-800);
+    }
+
+    .login__title,
+    .register__title {
+        color: var(--white);
+    }
+
+    .login__description,
+    .register__description {
+        color: var(--grey-300);
+    }
+
+    .login__input,
+    .register__input {
+        background-color: var(--grey-700);
+        border-color: var(--grey-600);
+        color: var(--white);
+    }
+
+    .login__input:hover,
+    .register__input:hover {
+        border-color: var(--grey-500);
+    }
+
+    .login__input::placeholder,
+    .register__input::placeholder {
+        color: var(--grey-400);
+    }
+
+    .login__label,
+    .register__label {
+        color: var(--grey-300);
+    }
+
+    .login__social-button,
+    .register__social-button {
+        background-color: var(--grey-700);
+        border-color: var(--grey-600);
+        color: var(--white);
+    }
+
+    .login__social-button:hover,
+    .register__social-button:hover {
+        background-color: var(--grey-600);
+    }
+
+    .login__check-label {
+        color: var(--grey-300);
+    }
+}
