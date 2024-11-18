@@ -12,6 +12,7 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Model;
 
 use Notification;
+use Illuminate\Support\Facades\Storage;
 
 
 class User extends Authenticatable implements CanResetPassword
@@ -61,5 +62,19 @@ class User extends Authenticatable implements CanResetPassword
     public function medicalRecords()
     {
         return $this->hasMany(MedicalRecord::class, 'patient_id', 'user_id');
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    public function getProfileImageUrlAttribute()
+    {
+        if ($this->profile_image) {
+            return Storage::url($this->profile_image);
+        }
+
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->username);
     }
 }

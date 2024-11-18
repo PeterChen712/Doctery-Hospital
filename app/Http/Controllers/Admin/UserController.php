@@ -47,6 +47,7 @@ class UserController extends Controller
             'username' => $validated['username'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'role'=> $validated['role'],
             'phone_number' => $validated['phone_number'],
             'address' => $validated['address'],
             'is_active' => true
@@ -85,6 +86,7 @@ class UserController extends Controller
         $user->update([
             'username' => $validated['username'],
             'email' => $validated['email'],
+            'role' => $validated['role'],
             'phone_number' => $validated['phone_number'],
             'address' => $validated['address']
         ]);
@@ -99,7 +101,7 @@ class UserController extends Controller
             $user->save();
         }
 
-        $user->syncRoles($validated['role']);
+        // $user->syncRoles($validated['role']);
 
         return redirect()->route('admin.users.index')
             ->with('success', 'User updated successfully');

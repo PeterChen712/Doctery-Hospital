@@ -6,6 +6,7 @@ use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\Doctor;
 use App\Models\Patient;
 use Illuminate\Http\RedirectResponse;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
@@ -13,8 +14,17 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
+
 class ProfileController extends Controller
 {
+    public function show()
+    {
+        $user = Auth::user();
+        $patient = $user->patient;
+        
+        return view('patient.profile.show', compact('user', 'patient'));
+    }
+
     /**
      * Display the user's profile form.
      */
@@ -103,7 +113,7 @@ class ProfileController extends Controller
     {
         $file = $request->file('profile_image');
         $filename = time() . '_' . $file->getClientOriginalName();
-        
+
         // Delete old image if exists
         if ($request->user()->profile_image) {
             Storage::delete('public/profile-images/' . $request->user()->profile_image);
@@ -111,7 +121,7 @@ class ProfileController extends Controller
 
         // Store new image
         $file->storeAs('public/profile-images', $filename);
-        
+
         return $filename;
     }
 
@@ -146,4 +156,27 @@ class ProfileController extends Controller
 
         Patient::where('user_id', $user->user_id)->update($validated);
     }
+
+    public function showAvatar($id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->profile_image) {
+            // For binary/blob data
+            return response()->file(Storage::disk('public')->path($user->profile_image));
+        } else {
+            return redirect('https://ui-avatars.com/api/?name=' . urlencode($user->username) . '&background=random');
+        }
+    }
+
+    // private function storeImage($file)
+    // {
+    //     $imageContent = file_get_contents($file->getPathname());
+
+    //     // Optional: Resize/compress image before storing
+    //     $image = Image::make($imageContent);
+    //     $image->fit(300, 300);
+
+    //     return $image->encode('jpg', 80)->encoded;
+    // }
 }

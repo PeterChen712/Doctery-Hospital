@@ -53,9 +53,17 @@
                                 <button type="button"
                                     class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
                                     <span class="sr-only">Open user menu</span>
-                                    <img class="w-8 h-8 rounded-full"
-                                        src="{{ Auth::user()->profile_image ? Storage::url(Auth::user()->profile_image) : 'https://ui-avatars.com/api/?name=' . Auth::user()->username }}"
-                                        alt="user photo">
+                                    @if (Auth::user()->profile_image)
+                                        <img class="w-8 h-8 rounded-full"
+                                            src="{{ route('avatar.show', Auth::user()->user_id) }}"
+                                            alt="{{ Auth::user()->username }}">
+                                    @else
+                                        <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                                            <span class="text-gray-600 font-medium text-sm">
+                                                {{ substr(Auth::user()->username, 0, 1) }}
+                                            </span>
+                                        </div>
+                                    @endif
                                 </button>
                             </x-slot>
 
@@ -67,12 +75,9 @@
                                 </div>
 
                                 <ul class="py-1">
+                                   
                                     <li>
-                                        <a href="{{ route('patient.dashboard') }}"
-                                            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600">Dashboard</a>
-                                    </li>
-                                    <li>
-                                        <a href="{{ route('profile.edit') }}"
+                                        <a href="{{ route('patient.profile.show') }}"
                                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-600">Profile</a>
                                     </li>
                                     <li>
@@ -100,12 +105,23 @@
 
             <!-- User Profile Section -->
             <div class="flex flex-col items-center pb-6 border-b border-gray-200 dark:border-gray-700">
-                <img class="w-20 h-20 mb-3 rounded-full shadow-lg"
-                    src="{{ Auth::user()->profile_image ? Storage::url(Auth::user()->profile_image) : 'https://ui-avatars.com/api/?name=' . Auth::user()->username }}"
-                    alt="{{ Auth::user()->username }} profile image">
+                @if (Auth::user()->profile_image)
+                    <img class="w-20 h-20 mb-3 rounded-full shadow-lg"
+                        src="{{ route('avatar.show', Auth::user()->user_id) }}" alt="{{ Auth::user()->username }}">
+                @else
+                    <div class="w-20 h-20 mb-3 rounded-full shadow-lg bg-gray-300 flex items-center justify-center">
+                        <span class="text-gray-600 font-medium text-xl">
+                            {{ substr(Auth::user()->username, 0, 1) }}
+                        </span>
+                    </div>
+                @endif
                 <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">{{ Auth::user()->username }}</h5>
                 <span class="text-sm text-gray-500 dark:text-gray-400">{{ Auth::user()->email }}</span>
             </div>
+
+
+
+
 
             <!-- Navigation Menu -->
             <ul class="space-y-2 font-medium">
@@ -202,105 +218,105 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-    // Get DOM elements
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    const sidebar = document.getElementById('logo-sidebar');
-    const mainContent = document.getElementById('main-content');
-    const betaNotification = document.querySelector('.bg-blue-900');
-    const closeButton = betaNotification?.querySelector('button');
-    let isSidebarOpen = true;
+            // Get DOM elements
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const sidebar = document.getElementById('logo-sidebar');
+            const mainContent = document.getElementById('main-content');
+            const betaNotification = document.querySelector('.bg-blue-900');
+            const closeButton = betaNotification?.querySelector('button');
+            let isSidebarOpen = true;
 
-    // Function to open sidebar
-    function openSidebar() {
-        sidebar.style.transform = 'translateX(0)';
-        mainContent.style.marginLeft = '16rem';
-        isSidebarOpen = true;
-    }
-
-    // Function to close sidebar
-    function closeSidebar() {
-        sidebar.style.transform = 'translateX(-100%)';
-        mainContent.style.marginLeft = '0';
-        isSidebarOpen = false;
-    }
-
-    // Handle hover events for both the sidebar toggle and the sidebar itself
-    sidebarToggle.addEventListener('mouseenter', function() {
-        openSidebar();
-    });
-
-    // Combine sidebar and toggle for hover detection
-    const sidebarElements = [sidebar, sidebarToggle];
-    
-    sidebarElements.forEach(element => {
-        element.addEventListener('mouseenter', function() {
-            openSidebar();
-        });
-        
-        element.addEventListener('mouseleave', function(e) {
-            // Check if the mouse isn't entering another monitored element
-            const isEnteringOtherElement = sidebarElements.some(el => 
-                el !== element && el.contains(e.relatedTarget)
-            );
-            
-            if (!isEnteringOtherElement) {
-                closeSidebar();
+            // Function to open sidebar
+            function openSidebar() {
+                sidebar.style.transform = 'translateX(0)';
+                mainContent.style.marginLeft = '16rem';
+                isSidebarOpen = true;
             }
-        });
-    });
 
-    // Handle click for navigation
-    sidebarToggle.addEventListener('click', function(e) {
-        // Handle navigation to home
-        window.location.href = '/';
-    });
+            // Function to close sidebar
+            function closeSidebar() {
+                sidebar.style.transform = 'translateX(-100%)';
+                mainContent.style.marginLeft = '0';
+                isSidebarOpen = false;
+            }
 
-    // Handle mobile menu button toggle
-    const sidebarToggles = document.querySelectorAll('[data-drawer-toggle]');
-    sidebarToggles.forEach(toggle => {
-        toggle.addEventListener('click', function(e) {
-            e.preventDefault(); // Prevent default behavior
-            const targetId = this.getAttribute('data-drawer-target');
-            const targetElement = document.getElementById(targetId);
+            // Handle hover events for both the sidebar toggle and the sidebar itself
+            sidebarToggle.addEventListener('mouseenter', function() {
+                openSidebar();
+            });
 
-            if (targetElement && targetId === 'logo-sidebar') {
-                if (isSidebarOpen) {
-                    closeSidebar();
-                } else {
+            // Combine sidebar and toggle for hover detection
+            const sidebarElements = [sidebar, sidebarToggle];
+
+            sidebarElements.forEach(element => {
+                element.addEventListener('mouseenter', function() {
                     openSidebar();
+                });
+
+                element.addEventListener('mouseleave', function(e) {
+                    // Check if the mouse isn't entering another monitored element
+                    const isEnteringOtherElement = sidebarElements.some(el =>
+                        el !== element && el.contains(e.relatedTarget)
+                    );
+
+                    if (!isEnteringOtherElement) {
+                        closeSidebar();
+                    }
+                });
+            });
+
+            // Handle click for navigation
+            sidebarToggle.addEventListener('click', function(e) {
+                // Handle navigation to home
+                window.location.href = '/';
+            });
+
+            // Handle mobile menu button toggle
+            const sidebarToggles = document.querySelectorAll('[data-drawer-toggle]');
+            sidebarToggles.forEach(toggle => {
+                toggle.addEventListener('click', function(e) {
+                    e.preventDefault(); // Prevent default behavior
+                    const targetId = this.getAttribute('data-drawer-target');
+                    const targetElement = document.getElementById(targetId);
+
+                    if (targetElement && targetId === 'logo-sidebar') {
+                        if (isSidebarOpen) {
+                            closeSidebar();
+                        } else {
+                            openSidebar();
+                        }
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth < 640) { // mobile view
+                    closeSidebar();
+                }
+            });
+
+            // Beta notification handling
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    betaNotification.style.display = 'none';
+                    localStorage.setItem('betaNotificationClosed', 'true');
+                });
+
+                if (localStorage.getItem('betaNotificationClosed') === 'true') {
+                    betaNotification.style.display = 'none';
                 }
             }
+
+            // Initialize sidebar state
+            if (window.innerWidth < 640) {
+                closeSidebar();
+            }
+
+            // Add smooth transitions
+            sidebar.classList.add('transition-transform', 'duration-300', 'ease-in-out');
+            mainContent.classList.add('transition-[margin]', 'duration-300', 'ease-in-out');
         });
-    });
-
-    // Handle window resize
-    window.addEventListener('resize', function() {
-        if (window.innerWidth < 640) { // mobile view
-            closeSidebar();
-        }
-    });
-
-    // Beta notification handling
-    if (closeButton) {
-        closeButton.addEventListener('click', function() {
-            betaNotification.style.display = 'none';
-            localStorage.setItem('betaNotificationClosed', 'true');
-        });
-
-        if (localStorage.getItem('betaNotificationClosed') === 'true') {
-            betaNotification.style.display = 'none';
-        }
-    }
-
-    // Initialize sidebar state
-    if (window.innerWidth < 640) {
-        closeSidebar();
-    }
-
-    // Add smooth transitions
-    sidebar.classList.add('transition-transform', 'duration-300', 'ease-in-out');
-    mainContent.classList.add('transition-[margin]', 'duration-300', 'ease-in-out');
-});
     </script>
 </body>
 
