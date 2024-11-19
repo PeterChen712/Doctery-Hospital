@@ -9,7 +9,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
-use Illuminate\Database\Eloquent\Model;
 
 use Notification;
 use Illuminate\Support\Facades\Storage;
@@ -17,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable implements CanResetPassword
 {
+    
     use HasApiTokens, HasRoles, HasFactory, Notifiable;
 
     protected $primaryKey = 'user_id';
@@ -78,3 +78,4 @@ class User extends Authenticatable implements CanResetPassword
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->username);
     }
 }
+

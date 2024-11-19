@@ -40,7 +40,6 @@ class UserController extends Controller
             'role' => 'required|exists:roles,name',
             'phone_number' => 'required|string|max:15',
             'address' => 'required|string|max:255',
-            'profile_image' => 'nullable|image|max:2048'
         ]);
 
         $user = User::create([

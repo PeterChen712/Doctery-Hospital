@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\Patient;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Patient;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-
-class PatientProfileController extends Controller
+class CompleteProfileController extends Controller
 {
     public function create()
     {

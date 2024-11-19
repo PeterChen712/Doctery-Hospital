@@ -10,7 +10,7 @@ use App\Http\Controllers\Doctor\DoctorPatientController;
 use App\Http\Controllers\Doctor\PrescriptionController as DoctorPrescriptionController;
 use App\Http\Controllers\Patient\AppointmentController as PatientAppointmentController;
 use App\Http\Controllers\Patient\MedicalRecordController as PatientMedicalRecordController;
-use App\Http\Controllers\Patient\PatientProfileController as CompletePatientProfile;
+use App\Http\Controllers\Patient\CompleteProfileController;
 use App\Http\Controllers\Patient\ProfileController as SetupProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
@@ -107,11 +107,11 @@ Route::middleware(['auth'])->prefix('patient')->group(function () {
 
     // Profile routes
 
-    Route::get('/profile/create', [CompletePatientProfile::class, 'create'])->name('patient.profile.create');
-    Route::post('/profile', [CompletePatientProfile::class, 'store'])->name('patient.profile.store');
+    Route::get('/profile/create', [CompleteProfileController::class, 'create'])->name('patient.profile.create');
+    Route::post('/profile', [CompleteProfileController::class, 'store'])->name('patient.profile.store');
     Route::get('/profile', [SetupProfileController::class, 'show'])->name('patient.profile.show');
-    Route::get('/profile/modify', [SetupProfileController::class, 'edit'])->name('patient.profile.edit');
-    Route::put('/profile/modify', [SetupProfileController::class, 'update'])->name('patient.profile.update'); // Changed name
+    Route::get('/profile/edit', [SetupProfileController::class, 'edit'])->name('patient.profile.edit');
+    Route::put('/profile', [SetupProfileController::class, 'update'])->name('patient.profile.update'); // Changed name
 });
 
 require __DIR__ . '/auth.php';
