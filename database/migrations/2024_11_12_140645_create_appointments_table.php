@@ -14,6 +14,7 @@ return new class extends Migration
             $table->foreignId('doctor_id')->constrained('doctors', 'doctor_id')->onDelete('cascade');
             $table->foreignId('schedule_id')->constrained('schedules', 'schedule_id')->onDelete('cascade');
             $table->datetime('appointment_date');
+            $table->time('appointment_time'); // add
             $table->enum('status', ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'])->default('PENDING');
             $table->text('reason')->nullable();
             $table->text('notes')->nullable();

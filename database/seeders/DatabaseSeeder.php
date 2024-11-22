@@ -18,7 +18,8 @@ class DatabaseSeeder extends Seeder
             RoleAndPermissionSeeder::class,
             AdminUserSeeder::class,
             DoctorSeeder::class,
-            PatientSeeder::class
+            PatientSeeder::class,
+            ScheduleSeeder::class,
         ]);
     }
 }

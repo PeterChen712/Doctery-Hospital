@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Doctor\MedicalRecordController as DoctorMedicalRecordController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\ScheduleController as DoctorScheduleController;
+use App\Http\Controllers\Doctor\ProfileController as DoctorProfileController;
 use App\Http\Controllers\Doctor\DoctorPatientController;
 use App\Http\Controllers\Doctor\PrescriptionController as DoctorPrescriptionController;
 use App\Http\Controllers\Patient\AppointmentController as PatientAppointmentController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 
 // Public Routes
 Route::get('/', function () {
@@ -29,9 +31,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Profile Routes
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('user.profile.edit'); // Changed name
+    Route::patch('/profile', [ProfileController::class, 'update'])
+        ->name('user.profile.update'); // Changed name
+    Route::delete('/profile', [ProfileController::class, 'destroy'])
+        ->name('user.profile.destroy'); // Changed name
     Route::get('/avatar/{id}', [ProfileController::class, 'showAvatar'])->name('avatar.show');
 });
 
@@ -52,34 +57,72 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::get('/reports/appointments', [ReportController::class, 'appointments'])->name('admin.reports.appointments');
     Route::get('/reports/prescriptions', [ReportController::class, 'prescriptions'])->name('admin.reports.prescriptions');
 
+
     // Report Exports
     Route::get('/reports/users/export', [ReportController::class, 'exportUsers'])->name('admin.reports.users.export');
     Route::get('/reports/medicines/export', [ReportController::class, 'exportMedicines'])->name('admin.reports.medicines.export');
+
+    // Profile Management for Admin
+    Route::get('profile', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
+    Route::put('profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+
+   
 });
 
-// Doctor Routes
-Route::middleware(['auth', 'doctor'])->prefix('doctor')->group(function () {
+
+// // Doctor Routes
+// Route::middleware(['auth', 'doctor'])->prefix('doctor')->group(function () {
+//     // Dashboard
+//     Route::get('/dashboard', [DashboardController::class, 'doctor'])->name('doctor.dashboard');
+
+//     // Patient Management
+//     Route::get('patients', [DoctorPatientController::class, 'index'])->name('patients.index');
+//     Route::get('patients/{patient}', [DoctorPatientController::class, 'show'])->name('patients.show');
+//     Route::get('patients/{patient}/history', [DoctorPatientController::class, 'history'])->name('patients.history');
+
+//     // Medical Records
+//     Route::resource('medical-records', DoctorMedicalRecordController::class);
+//     Route::post('medical-records/{record}/prescribe', [DoctorMedicalRecordController::class, 'prescribe'])->name('medical-records.prescribe');
+
+//     // Appointment Management
+//     Route::resource('appointments', DoctorAppointmentController::class);
+//     Route::post('appointments/{appointment}/confirm', [DoctorAppointmentController::class, 'confirm'])->name('appointments.confirm');
+//     Route::post('appointments/{appointment}/cancel', [DoctorAppointmentController::class, 'cancel'])->name('appointments.cancel');
+//     Route::post('appointments/{appointment}/complete', [DoctorAppointmentController::class, 'complete'])->name('appointments.complete');
+
+//     // Schedules
+//     Route::resource('schedules', DoctorScheduleController::class, ['as' => 'doctor']);
+//     Route::post('schedules/{schedule}/toggle', [DoctorScheduleController::class, 'toggleStatus'])->name('schedules.toggle');
+//     Route::get('schedules/available/{doctor}', [DoctorScheduleController::class, 'getAvailableSlots'])->name('schedules.available');
+
+//     // Prescriptions
+//     Route::resource('prescriptions', DoctorPrescriptionController::class, ['as' => 'doctor']);
+
+//     // Profile Management - Updated name
+//     Route::get('profile', [DoctorProfileController::class, 'edit'])
+//         ->name('doctor.profile.edit'); // Changed name
+//     Route::put('profile', [DoctorProfileController::class, 'update'])
+//         ->name('doctor.profile.update'); // Changed name
+// });
+
+
+
+Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(function () {
     // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'doctor'])->name('doctor.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'doctor'])->name('dashboard');
 
-    // Patient Management
-    Route::get('/patients', [DoctorPatientController::class, 'index'])->name('doctor.patients.index');
-    Route::get('/patients/{patient}', [DoctorPatientController::class, 'show'])->name('doctor.patients.show');
+    // Profile routes
+    Route::get('/profile', [DoctorProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [DoctorProfileController::class, 'update'])->name('profile.update');
 
-    // Medical Records Management
-    Route::resource('records', DoctorMedicalRecordController::class, ['as' => 'doctor']);
-
-    // Appointments
-    Route::get('/appointments', [DoctorAppointmentController::class, 'index'])->name('doctor.appointments.index');
-    Route::get('/appointments/{appointment}', [DoctorAppointmentController::class, 'show'])->name('doctor.appointments.show');
-    Route::put('/appointments/{appointment}', [DoctorAppointmentController::class, 'update'])->name('doctor.appointments.update');
-
-    // Schedules
-    Route::resource('schedules', DoctorScheduleController::class, ['as' => 'doctor']);
-
-    // Prescriptions
-    Route::resource('prescriptions', DoctorPrescriptionController::class, ['as' => 'doctor']);
+    // Doctor resources
+    Route::resource('appointments', DoctorAppointmentController::class);
+    Route::resource('records', DoctorMedicalRecordController::class);
+    Route::resource('schedules', DoctorScheduleController::class);
+    Route::resource('patients', DoctorPatientController::class);
+    Route::resource('prescriptions', DoctorPrescriptionController::class); // Add this line
 });
+
 
 // Patient Routes
 Route::middleware(['auth'])->prefix('patient')->group(function () {
@@ -93,6 +136,9 @@ Route::middleware(['auth'])->prefix('patient')->group(function () {
     Route::put('/appointments/{appointment}/cancel', [PatientAppointmentController::class, 'cancel'])->name('patient.appointments.cancel');
     Route::put('/appointments/{appointment}/reschedule', [PatientAppointmentController::class, 'reschedule'])->name('patient.appointments.reschedule');
     Route::get('/doctors/{doctor}/schedules', [PatientAppointmentController::class, 'getDoctorSchedules']);
+    
+    Route::get('doctor-schedules/{doctor}', [DoctorScheduleController::class, 'getAvailableSchedules'])
+        ->name('doctor.schedules.available');
 
     // Medical Records
     Route::get('/medical-records', [PatientMedicalRecordController::class, 'myRecords'])->name('patient.medical-records');
@@ -106,11 +152,10 @@ Route::middleware(['auth'])->prefix('patient')->group(function () {
     Route::patch('/notifications/{notification}', [NotificationController::class, 'markAsRead'])->name('patient.notifications.markAsRead');
 
     // Profile routes
-
-    Route::get('/profile/create', [CompleteProfileController::class, 'create'])->name('patient.profile.create');
-    Route::post('/profile', [CompleteProfileController::class, 'store'])->name('patient.profile.store');
+    Route::get('/profile/create', [CompleteProfileController::class, 'create'])->name('profile.create');
+    Route::post('/profile', [CompleteProfileController::class, 'store'])->name('profile.store');
     Route::get('/profile', [SetupProfileController::class, 'show'])->name('patient.profile.show');
-    Route::get('/profile/edit', [SetupProfileController::class, 'edit'])->name('patient.profile.edit');
+    Route::get('/profile/edit', [SetupProfileController::class, 'edit'])->name('patient.profile.edit'); // Changed name
     Route::put('/profile', [SetupProfileController::class, 'update'])->name('patient.profile.update'); // Changed name
 });
 

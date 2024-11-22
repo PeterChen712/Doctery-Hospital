@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\UserSetupController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Doctor\MedicalRecordController;
 use App\Http\Controllers\SocialiteController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -89,6 +90,9 @@ Route::middleware('web')->group(function () {
     });
 
     Route::middleware('auth')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'edit'])
+        ->name('user.profile.edit'); // Ensure name is unique
+
         Route::get('verify-email', EmailVerificationPromptController::class)
             ->name('verification.notice');
 

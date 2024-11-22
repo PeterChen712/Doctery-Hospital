@@ -25,7 +25,7 @@
                         <option value="">Choose a doctor</option>
                         @foreach ($doctors as $doctor)
                             <option value="{{ $doctor->doctor_id }}">
-                                Dr. {{ $doctor->user->username }}
+                                {{ $doctor->user->username }}
                             </option>
                         @endforeach
                     </select>
@@ -62,30 +62,61 @@
         </div>
     </div>
 
-    @push('scripts')
-        <script>
-            document.getElementById('doctor_id').addEventListener('change', function() {
-                const doctorId = this.value;
-                const scheduleSelect = document.getElementById('schedule_id');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const doctorSelect = document.getElementById('doctor_id');
+            const scheduleSelect = document.getElementById('schedule_id');
 
-                if (doctorId) {
-                    fetch(`/patient/doctors/${doctorId}/schedules`)
-                        .then(response => response.json())
-                        .then(data => {
-                            scheduleSelect.innerHTML = '<option value="">Select a schedule</option>';
-                            data.schedules.forEach(schedule => {
-                                scheduleSelect.innerHTML += `
-                        <option value="${schedule.schedule_id}">
-                            ${schedule.day} - ${schedule.start_time}
-                        </option>`;
-                            });
-                            scheduleSelect.disabled = false;
+            doctorSelect.addEventListener('change', async function() {
+                const doctorId = this.value;
+                console.log('Selected doctor ID:', doctorId); // Debug log
+
+                scheduleSelect.disabled = true;
+                scheduleSelect.innerHTML = '<option value="">Loading schedules...</option>';
+
+                if (!doctorId) return;
+
+                try {
+                    const url = `/patient/doctor-schedules/${doctorId}`;
+                    console.log('Fetching URL:', url);
+
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .content,
+                            'Accept': 'application/json'
+                        },
+                        credentials: 'same-origin'
+                    });
+
+                    console.log('Response status:', response.status);
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    scheduleSelect.innerHTML = '<option value="">Select a schedule</option>';
+                    if (data && data.length > 0) {
+                        data.forEach(schedule => {
+                            const option = document.createElement('option');
+                            option.value = schedule.schedule_id;
+                            const date = new Date(schedule.schedule_date).toLocaleDateString();
+                            option.textContent =
+                                `${date} (${schedule.start_time} - ${schedule.end_time})`;
+                            scheduleSelect.appendChild(option);
                         });
-                } else {
-                    scheduleSelect.innerHTML = '<option value="">Select doctor first</option>';
-                    scheduleSelect.disabled = true;
+                        scheduleSelect.disabled = false;
+                    } else {
+                        scheduleSelect.innerHTML = '<option value="">No available schedules</option>';
+                    }
+                } catch (error) {
+                    console.error('Detailed error:', error); // Debug log
+                    scheduleSelect.innerHTML =
+                        '<option value="">Failed to load schedules. Please try again.</option>';
                 }
             });
-        </script>
-    @endpush
+        });
+    </script>
 @endsection

@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\DoctorSchedule;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
-   
+
 
     public function index()
     {
@@ -27,7 +28,7 @@ class AppointmentController extends Controller
     public function create()
     {
         $doctors = Doctor::with(['user', 'schedules' => function ($query) {
-            $query->where('date', '>', now())
+            $query->where('schedule_date', '>', now())
                 ->where('is_available', true);
         }])->get();
 
@@ -45,8 +46,8 @@ class AppointmentController extends Controller
         ]);
 
         // Check schedule availability
-        $schedule = DoctorSchedule::find($validated['schedule_id']);
-        if (!$schedule || !$schedule->is_available) {
+        $schedule = Schedule::find($validated['schedule_id']);
+        if (!$schedule || !$schedule->is_active) {
             return back()->withErrors(['schedule_id' => 'Selected schedule is not available']);
         }
 
@@ -127,9 +128,18 @@ class AppointmentController extends Controller
     {
         return response()->json([
             'schedules' => $doctor->schedules()
-                ->where('date', '>', now())
-                ->where('is_available', true)
+                ->where('schedule_date', '>', now())
+                ->where('is_active', true)
                 ->get()
+                ->map(function ($schedule) {
+                    return [
+                        'schedule_id' => $schedule->schedule_id,
+                        'day' => $schedule->day_name,
+                        'start_time' => $schedule->start_time->format('H:i'),
+                        'end_time' => $schedule->end_time->format('H:i'),
+                        'available_slots' => $schedule->available_slots
+                    ];
+                })
         ]);
     }
 }

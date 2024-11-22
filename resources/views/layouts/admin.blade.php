@@ -60,7 +60,7 @@
                                     <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300">
                                         {{ Auth::user()->email }}</p>
                                 </div>
-                                <x-dropdown-link :href="route('profile.edit')">Profile</x-dropdown-link>
+                                <x-dropdown-link :href="route('admin.profile.edit')">Profile</x-dropdown-link>
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <x-dropdown-link :href="route('logout')"

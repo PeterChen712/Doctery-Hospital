@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
 class Schedule extends Model
-{
-    protected $table = 'schedules'; 
+{   
     protected $primaryKey = 'schedule_id';
 
     protected $fillable = [
@@ -27,29 +26,28 @@ class Schedule extends Model
         'is_active' => 'boolean'
     ];
 
+    protected $appends = ['day_name', 'available_slots'];
+
     // Relationships
     public function doctor()
     {
-        return $this->belongsTo(User::class, 'doctor_id', 'user_id');
+        return $this->belongsTo(Doctor::class, 'doctor_id');
     }
 
     public function appointments()
     {
-        return $this->hasMany(Appointment::class);
+        return $this->hasMany(Appointment::class, 'schedule_id', 'schedule_id');
     }
 
     // Accessors
     public function getDayNameAttribute()
     {
-        return [
-            0 => 'Sunday',
-            1 => 'Monday',
-            2 => 'Tuesday',
-            3 => 'Wednesday',
-            4 => 'Thursday',
-            5 => 'Friday',
-            6 => 'Saturday'
-        ][$this->day_of_week];
+        return Carbon::parse($this->schedule_date)->format('l');
+    }
+
+    public function getAvailableSlotsAttribute()
+    {
+        return $this->max_patients - $this->appointments()->count();
     }
 
     // Scopes
@@ -58,40 +56,84 @@ class Schedule extends Model
         return $query->where('is_active', true);
     }
 
-    public function scopeForDay($query, $dayOfWeek)
+    public function scopeUpcoming($query)
     {
-        return $query->where('day_of_week', $dayOfWeek);
+        return $query->where('schedule_date', '>=', now()->startOfDay());
+    }
+
+    public function scopeForDoctor($query, $doctorId)
+    {
+        return $query->where('doctor_id', $doctorId);
+    }
+
+    public function scopeAvailable($query)
+    {
+        return $query->where('is_active', true)
+                    ->where('schedule_date', '>=', now())
+                    ->whereRaw('(SELECT COUNT(*) FROM appointments 
+                              WHERE appointments.schedule_id = schedules.schedule_id) < schedules.max_patients');
     }
 
     // Helper Methods
-    public function isAvailable(Carbon $date)
+    public function isAvailable()
     {
-        if (!$this->is_active) {
-            return false;
-        }
-
-        if ($this->day_of_week != $date->dayOfWeek) {
-            return false;
-        }
-
-        $appointmentsCount = $this->appointments()
-            ->whereDate('appointment_date', $date)
-            ->count();
-
-        return $appointmentsCount < $this->max_patients;
+        return $this->is_active 
+            && $this->schedule_date->isFuture() 
+            && $this->appointments()->count() < $this->max_patients;
     }
 
-    public function getTimeSlots($interval = 30)
+    public function hasTimeSlotAvailable($time)
+    {
+        $appointmentTime = Carbon::parse($time);
+        $startTime = Carbon::parse($this->start_time);
+        $endTime = Carbon::parse($this->end_time);
+
+        return $appointmentTime->between($startTime, $endTime) 
+            && $this->appointments()
+                    ->where('appointment_time', $time)
+                    ->count() < $this->max_patients;
+    }
+
+    public function getAvailableTimeSlots()
     {
         $slots = [];
-        $start = Carbon::parse($this->start_time);
-        $end = Carbon::parse($this->end_time);
-
-        while ($start < $end) {
-            $slots[] = $start->format('H:i');
-            $start->addMinutes($interval);
+        $startTime = Carbon::parse($this->start_time);
+        $endTime = Carbon::parse($this->end_time);
+        
+        while ($startTime < $endTime) {
+            if ($this->hasTimeSlotAvailable($startTime->format('H:i'))) {
+                $slots[] = $startTime->format('H:i');
+            }
+            $startTime->addMinutes(30); // 30-minute intervals
         }
 
         return $slots;
+    }
+
+    public function isFullyBooked()
+    {
+        return $this->appointments()->count() >= $this->max_patients;
+    }
+
+    public function getBookedPatientsCount()
+    {
+        return $this->appointments()->count();
+    }
+
+    public function canBeDeleted()
+    {
+        return $this->appointments()->count() === 0;
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Prevent deletion if schedule has appointments
+        static::deleting(function($schedule) {
+            if ($schedule->appointments()->count() > 0) {
+                throw new \Exception('Cannot delete schedule with existing appointments.');
+            }
+        });
     }
 }
