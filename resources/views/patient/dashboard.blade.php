@@ -9,7 +9,7 @@
                 @forelse($medicalRecords as $record)
                     <div class="border-b pb-4">
                         <p class="font-medium">{{ $record->treatment_date->format('M d, Y') }}</p>
-                        <p class="text-gray-600">Doctor: Dr. {{ $record->doctor->user->username }}</p>
+                        <p class="text-gray-600">Doctor: {{ $record->doctor->user->username }}</p>
                         <p class="text-gray-600">Diagnosis: {{ $record->diagnosis }}</p>
                         <p class="text-gray-600">Medical Action: {{ $record->medical_action }}</p>
                     </div>
