@@ -11,6 +11,8 @@
     <link rel='stylesheet'
         href='https://cdn-uicons.flaticon.com/2.1.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
     <link rel="stylesheet" href="assets/css/home.css">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
 
 </head>
 
@@ -31,7 +33,7 @@
 
         <div class="right-icons">
             <div id="menu-bars" class="fas fa-bars"></div>
-            
+
             @auth
                 <a href="{{ route('dashboard') }}" class="btn">Dashboard</a>
             @else
@@ -382,66 +384,101 @@
 
     <!-- footer -->
 
-    <div class="main-footer">
-        <div class="footer-inner">
-            <div class="footer-content">
-                <h1>Dummy Links</h1>
-                <div class="link">
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
+    <footer class="bg-[#1a1a1a] text-white py-24">
+        <div class="container mx-auto px-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                <!-- Logo Column -->
+                <div class="footer-brand space-y-6">
+                    <img src="{{ asset('assets/images/home/logo3.png') }}" alt="Hospital Logo"
+                        class="w-[150px] h-auto transition-transform hover:scale-105">
+                    <p class="text-gray-400 text-[1.4rem] leading-relaxed max-w-[300px]">
+                        Providing quality healthcare services with compassion and excellence.
+                    </p>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="space-y-6">
+                    <h3
+                        class="text-[1.8rem] font-semibold relative pb-4 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-[50px] after:h-[2px] after:bg-[#2ec8a6]">
+                        Quick Links
+                    </h3>
+                    <ul class="space-y-4">
+                        <li>
+                            <a href="{{ route('dashboard') }}"
+                                class="text-gray-400 text-[1.4rem] hover:text-[#2ec8a6] hover:pl-2 transition-all duration-300">
+                                Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#services"
+                                class="text-gray-400 text-[1.4rem] hover:text-[#2ec8a6] hover:pl-2 transition-all duration-300">
+                                Our Services
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#doctors"
+                                class="text-gray-400 text-[1.4rem] hover:text-[#2ec8a6] hover:pl-2 transition-all duration-300">
+                                Our Doctors
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#about"
+                                class="text-gray-400 text-[1.4rem] hover:text-[#2ec8a6] hover:pl-2 transition-all duration-300">
+                                About Us
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="space-y-6">
+                    <h3
+                        class="text-[1.8rem] font-semibold relative pb-4 after:content-[''] after:absolute after:left-0 after:bottom-0 after:w-[50px] after:h-[2px] after:bg-[#2ec8a6]">
+                        Contact Us
+                    </h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-center space-x-4">
+                            <i class="fas fa-map-marker-alt text-[#2ec8a6] text-[1.6rem]"></i>
+                            <span class="text-gray-400 text-[1.4rem]">123 Hospital Street, City</span>
+                        </li>
+                        <li class="flex items-center space-x-4">
+                            <i class="fas fa-phone text-[#2ec8a6] text-[1.6rem]"></i>
+                            <span class="text-gray-400 text-[1.4rem]">+1 234 567 890</span>
+                        </li>
+                        <li class="flex items-center space-x-4">
+                            <i class="fas fa-envelope text-[#2ec8a6] text-[1.6rem]"></i>
+                            <span class="text-gray-400 text-[1.4rem]">info@hospital.com</span>
+                        </li>
+                    </ul>
+
+                    <!-- Social Links -->
+                    <div class="flex space-x-4 mt-8">
+                        <a href="#"
+                            class="w-[35px] h-[35px] flex items-center justify-center bg-white/10 rounded-full hover:bg-[#2ec8a6] hover:-translate-y-1 transition-all duration-300">
+                            <i class="fab fa-facebook-f text-white text-[1.4rem]"></i>
+                        </a>
+                        <a href="#"
+                            class="w-[35px] h-[35px] flex items-center justify-center bg-white/10 rounded-full hover:bg-[#2ec8a6] hover:-translate-y-1 transition-all duration-300">
+                            <i class="fab fa-twitter text-white text-[1.4rem]"></i>
+                        </a>
+                        <a href="#"
+                            class="w-[35px] h-[35px] flex items-center justify-center bg-white/10 rounded-full hover:bg-[#2ec8a6] hover:-translate-y-1 transition-all duration-300">
+                            <i class="fab fa-instagram text-white text-[1.4rem]"></i>
+                        </a>
+                        <a href="#"
+                            class="w-[35px] h-[35px] flex items-center justify-center bg-white/10 rounded-full hover:bg-[#2ec8a6] hover:-translate-y-1 transition-all duration-300">
+                            <i class="fab fa-linkedin-in text-white text-[1.4rem]"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
 
-            <div class="footer-content">
-                <h1>Dummy Links</h1>
-                <div class="link">
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                </div>
-            </div>
-
-            <div class="footer-content">
-                <h1>Dummy Links</h1>
-                <div class="link">
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                </div>
-            </div>
-
-            <div class="footer-content">
-                <h1>Dummy Links</h1>
-                <div class="link">
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                </div>
-            </div>
-
-            <div class="footer-content">
-                <h1>Dummy Links</h1>
-                <div class="link">
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                    <a href="">Home</a>
-                </div>
+            <!-- Copyright -->
+            <div class="border-t border-white/10 mt-12 pt-8 text-center text-gray-400 text-[1.3rem]">
+                <p>&copy; {{ date('Y') }} Hospital Name. All rights reserved.</p>
             </div>
         </div>
-    </div>
-
-    <!-- footer ended -->
+    </footer>
 
 
     <script>

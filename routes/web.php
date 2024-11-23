@@ -123,40 +123,45 @@ Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(fu
     Route::resource('prescriptions', DoctorPrescriptionController::class); // Add this line
 });
 
+// Patient
+// Route::middleware(['auth', 'patient'])->prefix('patient')->as('patient.')->group(function () {
 
-// Patient Routes
-Route::middleware(['auth'])->prefix('patient')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'patient'])->name('patient.dashboard');
 
-    // Appointments
-    Route::get('/appointments', [PatientAppointmentController::class, 'index'])->name('patient.appointments.index');
-    Route::get('/appointments/create', [PatientAppointmentController::class, 'create'])->name('patient.appointments.create');
-    Route::post('/appointments', [PatientAppointmentController::class, 'store'])->name('patient.appointments.store');
-    Route::get('/appointments/{appointment}', [PatientAppointmentController::class, 'show'])->name('patient.appointments.show');
-    Route::put('/appointments/{appointment}/cancel', [PatientAppointmentController::class, 'cancel'])->name('patient.appointments.cancel');
-    Route::put('/appointments/{appointment}/reschedule', [PatientAppointmentController::class, 'reschedule'])->name('patient.appointments.reschedule');
-    Route::get('/doctors/{doctor}/schedules', [PatientAppointmentController::class, 'getDoctorSchedules']);
-    
-    Route::get('doctor-schedules/{doctor}', [DoctorScheduleController::class, 'getAvailableSchedules'])
-        ->name('doctor.schedules.available');
+Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [DashboardController::class, 'patient'])->name('dashboard');
+
+    // Profile Management
+    Route::controller(SetupProfileController::class)->group(function() {
+        Route::get('/profile', 'show')->name('profile.show');
+        Route::get('/profile/edit', 'edit')->name('profile.edit');
+        Route::put('/profile', 'update')->name('profile.update');
+        Route::get('/profile/create', 'create')->name('profile.create');
+        Route::post('/profile', 'store')->name('profile.store');
+    });
+
+    // Appointments Management - Using Resource Controller
+    Route::resource('appointments', PatientAppointmentController::class);
+    Route::controller(PatientAppointmentController::class)->group(function() {
+        Route::put('appointments/{appointment}/cancel', 'cancel')->name('appointments.cancel');
+        Route::put('appointments/{appointment}/reschedule', 'reschedule')->name('appointments.reschedule');
+        Route::get('doctors/{doctor}/schedules', 'getDoctorSchedules')->name('doctors.schedules');
+    });
 
     // Medical Records
-    Route::get('/medical-records', [PatientMedicalRecordController::class, 'myRecords'])->name('patient.medical-records');
-    Route::get('/prescriptions', [PatientMedicalRecordController::class, 'myPrescriptions'])->name('patient.prescriptions');
+    Route::controller(PatientMedicalRecordController::class)->group(function() {
+        Route::get('medical-records', 'myRecords')->name('medical-records');
+        Route::get('prescriptions', 'myPrescriptions')->name('prescriptions');
+    });
 
-    // Feedback
+    // Feedback 
     Route::resource('feedback', FeedbackController::class)->only(['store', 'update']);
 
-    // UserNotification
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('patient.notifications');
-    Route::patch('/notifications/{notification}', [NotificationController::class, 'markAsRead'])->name('patient.notifications.markAsRead');
-
-    // Profile routes
-    Route::get('/profile/create', [CompleteProfileController::class, 'create'])->name('profile.create');
-    Route::post('/profile', [CompleteProfileController::class, 'store'])->name('profile.store');
-    Route::get('/profile', [SetupProfileController::class, 'show'])->name('patient.profile.show');
-    Route::get('/profile/edit', [SetupProfileController::class, 'edit'])->name('patient.profile.edit'); // Changed name
-    Route::put('/profile', [SetupProfileController::class, 'update'])->name('patient.profile.update'); // Changed name
+    // Notifications
+    Route::controller(NotificationController::class)->group(function() {
+        Route::get('notifications', 'index')->name('notifications');
+        Route::patch('notifications/{notification}', 'markAsRead')->name('notifications.markAsRead');
+    });
 });
 
 require __DIR__ . '/auth.php';

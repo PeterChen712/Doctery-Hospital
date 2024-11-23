@@ -4,7 +4,7 @@
 @section('content')
 <div class="container mx-auto px-4">
     <h2 class="text-2xl font-semibold mb-4">Request an Appointment</h2>
-    <form action="{{ route('appointments.store') }}" method="POST">
+    <form action="{{ route('patient.appointments.store') }}" method="POST">
         @csrf
 
         <!-- Symptoms Input -->
