@@ -107,7 +107,7 @@ class AppointmentController extends Controller
             'appointment_date' => 'required|date|after:today',
         ]);
 
-        $schedule = DoctorSchedule::find($validated['schedule_id']);
+        $schedule = Schedule::find($validated['schedule_id']);
         if (!$schedule || !$schedule->is_available) {
             return back()->withErrors(['schedule_id' => 'Selected schedule is not available']);
         }
@@ -128,7 +128,7 @@ class AppointmentController extends Controller
         return response()->json([
             'schedules' => $doctor->schedules()
                 ->where('schedule_date', '>', now())
-                ->where('is_active', true)
+                ->where('is_available', true)
                 ->get()
                 ->map(function ($schedule) {
                     return [

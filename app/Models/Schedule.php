@@ -11,19 +11,19 @@ class Schedule extends Model
 
     protected $fillable = [
         'doctor_id',
-        'day_of_week',
         'schedule_date',
-        'start_time', 
+        'start_time',
         'end_time',
         'max_patients',
-        'is_active'
+        'day_of_week',
+        'is_available',
     ];
 
     protected $casts = [
         'schedule_date' => 'date',
         'start_time' => 'datetime:H:i',
         'end_time' => 'datetime:H:i',
-        'is_active' => 'boolean'
+        'is_available' => 'boolean'
     ];
 
     protected $appends = ['day_name', 'available_slots'];
@@ -53,7 +53,7 @@ class Schedule extends Model
     // Scopes
     public function scopeActive($query)
     {
-        return $query->where('is_active', true);
+        return $query->where('is_available', true);
     }
 
     public function scopeUpcoming($query)
@@ -68,7 +68,7 @@ class Schedule extends Model
 
     public function scopeAvailable($query)
     {
-        return $query->where('is_active', true)
+        return $query->where('is_available', true)
                     ->where('schedule_date', '>=', now())
                     ->whereRaw('(SELECT COUNT(*) FROM appointments 
                               WHERE appointments.schedule_id = schedules.schedule_id) < schedules.max_patients');
@@ -77,7 +77,7 @@ class Schedule extends Model
     // Helper Methods
     public function isAvailable()
     {
-        return $this->is_active 
+        return $this->is_available 
             && $this->schedule_date->isFuture() 
             && $this->appointments()->count() < $this->max_patients;
     }

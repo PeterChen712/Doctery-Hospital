@@ -65,8 +65,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Profile Management for Admin
     Route::get('profile', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
     Route::put('profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
-
-   
 });
 
 
@@ -118,9 +116,15 @@ Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(fu
     // Doctor resources
     Route::resource('appointments', DoctorAppointmentController::class);
     Route::resource('records', DoctorMedicalRecordController::class);
-    Route::resource('schedules', DoctorScheduleController::class);
+    // Route::resource('schedules', DoctorScheduleController::class);
     Route::resource('patients', DoctorPatientController::class);
     Route::resource('prescriptions', DoctorPrescriptionController::class); // Add this line
+
+    Route::resource('schedules', DoctorScheduleController::class)->except(['show']);
+    // Route::get('/doctor/schedules', [DoctorScheduleController::class, 'index'])->name('doctor.schedules.index');
+    // Route::post('/doctor/schedules', [DoctorScheduleController::class, 'store'])->name('doctor.schedules.store');
+    // Route::get('/doctor/schedules/{id}/edit', [DoctorScheduleController::class, 'edit'])->name('doctor.schedules.edit');
+    // Route::put('/doctor/schedules/{id}', [DoctorScheduleController::class, 'update'])->name('doctor.schedules.update');
 });
 
 // Patient
@@ -132,7 +136,7 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
     Route::get('/dashboard', [DashboardController::class, 'patient'])->name('dashboard');
 
     // Profile Management
-    Route::controller(SetupProfileController::class)->group(function() {
+    Route::controller(SetupProfileController::class)->group(function () {
         Route::get('/profile', 'show')->name('profile.show');
         Route::get('/profile/edit', 'edit')->name('profile.edit');
         Route::put('/profile', 'update')->name('profile.update');
@@ -142,14 +146,14 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
 
     // Appointments Management - Using Resource Controller
     Route::resource('appointments', PatientAppointmentController::class);
-    Route::controller(PatientAppointmentController::class)->group(function() {
+    Route::controller(PatientAppointmentController::class)->group(function () {
         Route::put('appointments/{appointment}/cancel', 'cancel')->name('appointments.cancel');
         Route::put('appointments/{appointment}/reschedule', 'reschedule')->name('appointments.reschedule');
         Route::get('doctors/{doctor}/schedules', 'getDoctorSchedules')->name('doctors.schedules');
     });
 
     // Medical Records
-    Route::controller(PatientMedicalRecordController::class)->group(function() {
+    Route::controller(PatientMedicalRecordController::class)->group(function () {
         Route::get('medical-records', 'myRecords')->name('medical-records');
         Route::get('prescriptions', 'myPrescriptions')->name('prescriptions');
     });
@@ -158,7 +162,7 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
     Route::resource('feedback', FeedbackController::class)->only(['store', 'update']);
 
     // Notifications
-    Route::controller(NotificationController::class)->group(function() {
+    Route::controller(NotificationController::class)->group(function () {
         Route::get('notifications', 'index')->name('notifications');
         Route::patch('notifications/{notification}', 'markAsRead')->name('notifications.markAsRead');
     });

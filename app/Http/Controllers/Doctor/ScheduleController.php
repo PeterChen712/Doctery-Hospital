@@ -14,12 +14,42 @@ class ScheduleController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index()
+    public function index(Request $request)
     {
-        $doctor = Auth::user()->doctor;
-        $schedules = $doctor->schedules()->orderBy('schedule_date', 'desc')->get();
+        $year = $request->input('year', date('Y'));
+        $month = $request->input('month', date('n'));
 
-        return view('doctor.schedules.index', compact('schedules'));
+        $date = Carbon::create($year, $month, 1);
+
+        $firstDayOfMonth = $date->dayOfWeek; // 0 (Sunday) to 6 (Saturday)
+        $daysInMonth = $date->daysInMonth;
+
+        // Previous and Next Month
+        $prevMonthDate = $date->copy()->subMonth();
+        $nextMonthDate = $date->copy()->addMonth();
+
+        $prevMonth = $prevMonthDate->month;
+        $prevYear = $prevMonthDate->year;
+        $nextMonth = $nextMonthDate->month;
+        $nextYear = $nextMonthDate->year;
+
+        // Fetch schedules for the authenticated doctor
+        $schedules = Schedule::where('doctor_id', Auth::id())
+            ->whereYear('schedule_date', $year)
+            ->whereMonth('schedule_date', $month)
+            ->get();
+
+        return view('doctor.schedules.index', compact(
+            'year',
+            'month',
+            'firstDayOfMonth',
+            'daysInMonth',
+            'schedules',
+            'prevMonth',
+            'prevYear',
+            'nextMonth',
+            'nextYear'
+        ));
     }
 
     public function create()
@@ -29,19 +59,33 @@ class ScheduleController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'schedule_date' => 'required|date|after_or_equal:today',
+        // Validate input data
+        $validatedData = $request->validate([
+            'schedule_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
             'max_patients' => 'required|integer|min:1',
-            'day_of_week' => 'required|integer|between:1,7',
+            'is_available' => 'nullable|boolean',
         ]);
 
-        $doctor = Auth::user()->doctor;
-        $doctor->schedules()->create($validated);
+        // Set default value for is_available if unchecked
+        $validatedData['is_available'] = $request->has('is_available');
 
-        return redirect()->route('doctor.schedules.index')
-            ->with('success', 'Schedule created successfully.');
+        // Retrieve the doctor associated with the authenticated user
+        $doctor = Auth::user()->doctor;
+
+        if (!$doctor) {
+            return redirect()->back()->withErrors('No associated doctor found for the authenticated user.');
+        }
+
+        // Add doctor_id and day_of_week
+        $validatedData['doctor_id'] = $doctor->doctor_id;
+        $validatedData['day_of_week'] = Carbon::parse($validatedData['schedule_date'])->dayOfWeek;
+
+        // Create schedule
+        Schedule::create($validatedData);
+
+        return redirect()->route('doctor.schedules.index')->with('success', 'Schedule added successfully.');
     }
 
     public function show($id)
@@ -52,35 +96,34 @@ class ScheduleController extends Controller
         return view('doctor.schedules.show', compact('schedule'));
     }
 
+
     public function edit($id)
     {
-        $doctor = Auth::user()->doctor;
-        $schedule = $doctor->schedules()->findOrFail($id);
+        $schedule = Schedule::where('doctor_id', Auth::id())->findOrFail($id);
 
-        return view('doctor.schedules.edit', compact('schedule'));
+        return response()->json($schedule);
     }
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'schedule_date' => 'required|date|after_or_equal:today',
-            'start_time'    => 'required|date_format:H:i',
-            'end_time'      => 'required|date_format:H:i|after:start_time',
-            'max_patients'  => 'required|integer|min:1',
+        $schedule = Schedule::where('doctor_id', Auth::id())->findOrFail($id);
+
+        // Validate input data
+        $validatedData = $request->validate([
+            'schedule_date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'max_patients' => 'required|integer|min:1',
+            'is_available' => 'nullable|boolean',
         ]);
 
-        $doctor = Auth::user()->doctor;
-        $schedule = $doctor->schedules()->findOrFail($id);
+        // Set default value for is_available if unchecked
+        $validatedData['is_available'] = $request->has('is_available');
 
-        $schedule->update([
-            'schedule_date' => $request->schedule_date,
-            'start_time'    => $request->start_time,
-            'end_time'      => $request->end_time,
-            'max_patients'  => $request->max_patients,
-        ]);
+        // Update schedule
+        $schedule->update($validatedData);
 
-        return redirect()->route('doctor.schedules.index')
-            ->with('success', 'Schedule updated successfully.');
+        return redirect()->route('doctor.schedules.index')->with('success', 'Schedule updated successfully.');
     }
 
     public function destroy($id)
@@ -118,7 +161,7 @@ class ScheduleController extends Controller
     {
         $this->authorize('update', $schedule);
 
-        $schedule->is_active = !$schedule->is_active;
+        $schedule->is_available = !$schedule->is_available;
         $schedule->save();
 
         return redirect()
