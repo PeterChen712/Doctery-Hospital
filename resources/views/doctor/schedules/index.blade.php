@@ -90,3 +90,24 @@ a<!-- resources/views/doctor/schedules/index.blade.php -->
         </div>
     </div>
 @endsection
+i>
+    </template>
+
+    <template data-template="event">
+        <button class="event" data-event>
+            <span class="event__color"></span>
+            <span class="event__title" data-event-title></span>
+            <span class="event__time">
+                <time data-event-start-time></time> - <time data-event-end-time></time>
+            </span>
+        </button>
+    </template>
+
+    <template data-template="mini-calendar-day-list-item">
+        <li class="mini-calendar__day-list-item" data-mini-calendar-day-list-item>
+            <button class="mini-calendar__day button button--sm" data-mini-calendar-day></button>
+        </li>
+    </template>
+</body>
+
+</html>

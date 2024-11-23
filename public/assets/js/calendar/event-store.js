@@ -1,0 +1,121 @@
+import { isTheSameDay } from "./date.js";
+
+export function initEventStore() {
+    document.addEventListener("event-create", async (event) => {
+        try {
+            const createdEvent = event.detail.event;
+
+            // Send POST request to Laravel backend
+            const response = await fetch("/api/events", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": document.querySelector(
+                        'meta[name="csrf-token"]'
+                    ).content,
+                },
+                body: JSON.stringify({
+                    title: createdEvent.title,
+                    date: createdEvent.date,
+                    start_time: createdEvent.startTime,
+                    end_time: createdEvent.endTime,
+                    color: createdEvent.color,
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+
+            const savedEvent = await response.json();
+
+            // Dispatch event to notify components about the change
+            document.dispatchEvent(
+                new CustomEvent("events-change", {
+                    bubbles: true,
+                    detail: { event: savedEvent },
+                })
+            );
+        } catch (error) {
+            console.error("Error creating event:", error);
+            // Handle error (show notification etc)
+        }
+    });
+
+    document.addEventListener("event-delete", (event) => {
+        const deletedEvent = event.detail.event;
+        const events = getEventsFromLocalStorage().filter((event) => {
+            return event.id !== deletedEvent.id;
+        });
+        saveEventsIntoLocalStorage(events);
+
+        document.dispatchEvent(
+            new CustomEvent("events-change", {
+                bubbles: true,
+            })
+        );
+    });
+
+    document.addEventListener("event-edit", (event) => {
+        const editedEvent = event.detail.event;
+        const events = getEventsFromLocalStorage().map((event) => {
+            return event.id === editedEvent.id ? editedEvent : event;
+        });
+        saveEventsIntoLocalStorage(events);
+
+        document.dispatchEvent(
+            new CustomEvent("events-change", {
+                bubbles: true,
+            })
+        );
+    });
+
+    return {
+        getEventsByDate(date) {
+            const events = getEventsFromLocalStorage();
+            const filteredEvents = events.filter((event) =>
+                isTheSameDay(event.date, date)
+            );
+
+            return filteredEvents;
+        },
+    };
+}
+
+function saveEventsIntoLocalStorage(events) {
+    const safeToStringifyEvents = events.map((event) => ({
+        ...event,
+        date: event.date.toISOString(),
+    }));
+
+    let stringifiedEvents;
+    try {
+        stringifiedEvents = JSON.stringify(safeToStringifyEvents);
+    } catch (error) {
+        console.error("Stringify events failed", error);
+    }
+
+    localStorage.setItem("events", stringifiedEvents);
+}
+
+function getEventsFromLocalStorage() {
+    const localStorageEvents = localStorage.getItem("events");
+    if (localStorageEvents === null) {
+        return [];
+    }
+
+    let parsedEvents;
+    try {
+        parsedEvents = JSON.parse(localStorageEvents);
+    } catch (error) {
+        console.error("Parse events failed", error);
+        return [];
+    }
+
+    const events = parsedEvents.map((event) => ({
+        ...event,
+        date: new Date(event.date),
+    }));
+
+    return events;
+}
