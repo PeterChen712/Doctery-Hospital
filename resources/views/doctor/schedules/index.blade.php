@@ -3,6 +3,7 @@
 @section('content')
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">My Schedules</h2>
+        Today's Date: {{ $date }}
         <a href="{{ route('doctor.schedules.create') }}"
             class="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-md inline-flex items-center">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -18,75 +19,103 @@
         <div class="flex items-center justify-between mb-4">
             <a href="{{ route('doctor.schedules.index', ['month' => $prevMonth, 'year' => $prevYear]) }}"
                 class="text-gray-600 hover:text-gray-800">
-                &lt;
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
             </a>
             <h3 class="text-lg font-semibold">
                 {{ \Carbon\Carbon::create($year, $month)->format('F Y') }}
             </h3>
             <a href="{{ route('doctor.schedules.index', ['month' => $nextMonth, 'year' => $nextYear]) }}"
                 class="text-gray-600 hover:text-gray-800">
-                &gt;
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
             </a>
         </div>
 
         <!-- Week Days -->
-        <div class="grid grid-cols-7 gap-2 text-center">
-            <div class="font-medium">Sun</div>
-            <div class="font-medium">Mon</div>
-            <div class="font-medium">Tue</div>
-            <div class="font-medium">Wed</div>
-            <div class="font-medium">Thu</div>
-            <div class="font-medium">Fri</div>
-            <div class="font-medium">Sat</div>
+        <div class="grid grid-cols-7 gap-2 text-center mb-2">
+            @foreach (['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as $dayName)
+                <div class="font-medium text-gray-700 py-2 bg-gray-50 rounded">{{ $dayName }}</div>
+            @endforeach
         </div>
 
         <!-- Calendar Grid -->
-        <div class="grid grid-cols-7 gap-2 mt-2">
+        <div class="grid grid-cols-7 gap-2">
             <!-- Blank cells for previous month days -->
             @for ($i = 0; $i < $firstDayOfMonth; $i++)
-                <div class="border p-4 bg-gray-100"></div>
+                <div class="border border-gray-200 p-4 bg-gray-50 rounded-lg"></div>
             @endfor
 
             <!-- Days of the month -->
             @for ($day = 1; $day <= $daysInMonth; $day++)
                 @php
-                    $date = \Carbon\Carbon::create($year, $month, $day)->format('Y-m-d');
-                    $schedulesForDay = $schedules->where('schedule_date', $date);
-                    $isToday = $date === \Carbon\Carbon::today()->format('Y-m-d');
+                    $date = \Carbon\Carbon::createFromDate($year, $month, $day)->toDateString();
+                    $schedulesForDay = $schedulesByDate->get($date, collect());
+                    $isToday = $date === \Carbon\Carbon::today()->toDateString();
+                    $hasSchedules = $schedulesForDay->isNotEmpty();
+                    $firstSchedule = $schedulesForDay->first();
                 @endphp
-                <div class="border p-2 h-32 overflow-auto relative group {{ $isToday ? 'bg-yellow-100' : 'bg-white' }}">
-                    <div class="font-semibold mb-1">{{ $day }}</div>
-                    @foreach ($schedulesForDay as $schedule)
-                        <div class="mt-1 p-1 bg-blue-50 rounded relative">
-                            <div class="text-sm font-medium">
-                                {{ $schedule->start_time }} - {{ $schedule->end_time }}
+                <div
+                    class="border border-gray-200 p-2 h-36 overflow-auto relative group rounded-lg transition-all duration-200 hover:shadow-md
+     {{ $isToday ? 'bg-yellow-50 border-yellow-200' : 'bg-white' }}">
+                    <!-- Date Number -->
+                    <div class="font-semibold mb-2 {{ $isToday ? 'text-yellow-600' : 'text-gray-700' }}">
+                        {{ $day }}
+                    </div>
+
+                    <!-- Green Dot Indicator -->
+                    @if ($hasSchedules)
+                    <a href="{{ route('doctor.schedules.edit', $firstSchedule->schedule_id) }}"                             
+                        title="Edit Schedule">                             
+                         <span class="absolute top-2 right-2 bg-green-500 w-3 h-3 rounded-full"></span>                         
+                     </a>
+                    @endif
+
+                    <!-- Schedules for the day -->
+                    <div class="space-y-1">
+                        @foreach ($schedulesForDay as $schedule)
+                            <div
+                                class="p-1.5 rounded-md relative transition-all duration-200
+                        {{ $schedule->is_available
+                            ? 'bg-green-50 border border-green-100 hover:bg-green-100'
+                            : 'bg-red-50 border border-red-100 hover:bg-red-100' }}">
+
+                                <div
+                                    class="text-sm font-medium {{ $schedule->is_available ? 'text-green-700' : 'text-red-700' }}">
+                                    {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} -
+                                    {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}
+                                </div>
+
+                                <div class="text-xs {{ $schedule->is_available ? 'text-green-600' : 'text-red-600' }}">
+                                    Patients: {{ $schedule->booked_patients ?? 0 }}/{{ $schedule->max_patients }}
+                                </div>
                             </div>
-                            <div class="text-xs">Max Patients: {{ $schedule->max_patients }}</div>
-                            <div class="text-xs text-gray-600">
-                                {{ $schedule->is_available ? 'Available' : 'Not Available' }}
-                            </div>
-                            <!-- Edit button -->
-                            <button class="absolute top-0 right-0 mt-1 mr-1 text-gray-500 hover:text-blue-500"
-                                onclick="openEditModal({{ $schedule->schedule_id }})">
-                                ✎
-                            </button>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
+
                     <!-- Add Schedule Button -->
-                    <button class="opacity-0 group-hover:opacity-100 absolute bottom-1 right-1 text-blue-500 text-sm"
-                        onclick="openAddModal('{{ $date }}')">
-                        + Add
+                    <button
+                        class="opacity-0 group-hover:opacity-100 absolute bottom-1 right-1 
+            bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 
+            rounded-full p-1.5 transition-all duration-200"
+                        onclick="openAddModal('{{ $date }}')" title="Add Schedule">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
                     </button>
                 </div>
             @endfor
 
-            <!-- Fill the remaining cells -->
+            <!-- Fill remaining cells -->
             @php
                 $totalCells = $firstDayOfMonth + $daysInMonth;
                 $remainingCells = ceil($totalCells / 7) * 7 - $totalCells;
             @endphp
             @for ($i = 0; $i < $remainingCells; $i++)
-                <div class="border p-4 bg-gray-100"></div>
+                <div class="border border-gray-200 p-4 bg-gray-50 rounded-lg"></div>
             @endfor
         </div>
     </div>
@@ -133,7 +162,7 @@
             <button class="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
                 onclick="closeEditModal()">&times;</button>
             <h3 class="text-lg font-semibold mb-4">Edit Schedule</h3>
-            
+
             <form id="editForm" method="POST" action="">
                 @csrf
                 @method('PUT')
@@ -142,7 +171,8 @@
                 <!-- Form fields -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">Start Time</label>
-                    <input type="time" name="start_time" id="editStartTime" class="w-full border rounded p-2" required>
+                    <input type="time" name="start_time" id="editStartTime" class="w-full border rounded p-2"
+                        required>
                 </div>
                 <div class="mb-4">
                     <label class="block text-sm font-medium mb-1">End Time</label>
@@ -179,14 +209,14 @@
 
         function openEditModal(scheduleId) {
             // Fetch schedule data via AJAX
-            fetch(`/doctor/schedules/${scheduleId}/edit`)
+            fetch(`/doctor/schedules/${scheduleId}/edit-data`)
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('editDate').value = data.schedule_date;
                     document.getElementById('editStartTime').value = data.start_time;
                     document.getElementById('editEndTime').value = data.end_time;
                     document.getElementById('editMaxPatients').value = data.max_patients;
-                    document.getElementById('editIsAvailable').checked = data.is_available;
+                    document.getElementById('editIsAvailable').checked = data.is_available == 1;
                     document.getElementById('editForm').action = `/doctor/schedules/${scheduleId}`;
                     document.getElementById('editModal').classList.remove('hidden');
                 });

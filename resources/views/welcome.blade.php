@@ -56,6 +56,7 @@
             <div class="home-left-content">
                 <span>welcome to hospital management</span>
                 <h2>We take care our<br> Patients Healths</h2>
+                @include('components.main-text')
                 <p class="lorem">Lorem ipsum dolor sit amet consectetur adipisicing elit.
                     Possimus numquam veniam porro eius, fugiat vero ut ipsum libero</p>
 

@@ -29,7 +29,7 @@ class Doctor extends Model
 
     public function schedules()
     {
-        return $this->hasMany(Schedule::class, 'doctor_id');
+        return $this->hasMany(Schedule::class, 'doctor_id', 'doctor_id');
     }
 
     public function medicalRecords()

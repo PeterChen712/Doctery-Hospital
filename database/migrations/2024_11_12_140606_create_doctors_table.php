@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('doctors', function (Blueprint $table) {
             $table->id('doctor_id');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
             $table->string('specialization');
             $table->string('license_number');
             $table->text('education')->nullable();
@@ -21,6 +21,11 @@ return new class extends Migration
             $table->decimal('consultation_fee', 10, 2);
             $table->boolean('is_available')->default(true);
             $table->timestamps();
+
+            $table->foreign('user_id')
+                ->references('user_id')
+                ->on('users')
+                ->onDelete('cascade');
         });
     }
 

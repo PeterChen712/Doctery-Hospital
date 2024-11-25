@@ -31,7 +31,7 @@ class Schedule extends Model
     // Relationships
     public function doctor()
     {
-        return $this->belongsTo(Doctor::class, 'doctor_id');
+        return $this->belongsTo(Doctor::class, 'doctor_id', 'doctor_id');
     }
 
     public function appointments()

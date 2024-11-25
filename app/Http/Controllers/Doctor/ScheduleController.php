@@ -16,39 +16,54 @@ class ScheduleController extends Controller
 
     public function index(Request $request)
     {
-        $year = $request->input('year', date('Y'));
-        $month = $request->input('month', date('n'));
+        // Get the authenticated doctor
+        $doctor = Auth::user()->doctor;
 
-        $date = Carbon::create($year, $month, 1);
+        if (!$doctor) {
+            return redirect()->back()->withErrors('You are not associated with any doctor profile.');
+        }
 
-        $firstDayOfMonth = $date->dayOfWeek; // 0 (Sunday) to 6 (Saturday)
-        $daysInMonth = $date->daysInMonth;
+        // Get the month and year from request or default to current
+        $month = $request->input('month', Carbon::now()->month);
+        $year = $request->input('year', Carbon::now()->year);
 
-        // Previous and Next Month
-        $prevMonthDate = $date->copy()->subMonth();
-        $nextMonthDate = $date->copy()->addMonth();
+        // Retrieve schedules using getAvailableSchedules method
+        $schedules = $this->getAvailableSchedules($doctor->doctor_id, $month, $year);
+
+        // Organize schedules by date for easier access in the view
+        $schedulesByDate = $schedules->groupBy(function ($schedule) {
+            return Carbon::parse($schedule->schedule_date)->toDateString();
+        });
+
+        // Calculate total days in the month
+        $daysInMonth = Carbon::createFromDate($year, $month, 1)->daysInMonth;
+
+        // Calculate the day of the week of the first day of the month (0 = Sunday, 6 = Saturday)
+        $firstDayOfMonth = Carbon::createFromDate($year, $month, 1)->dayOfWeek;
+
+        // Get previous and next months for navigation
+        $currentDate = Carbon::createFromDate($year, $month, 1);
+        $date = $currentDate->toDateString();
+        $prevMonthDate = $currentDate->copy()->subMonth();
+        $nextMonthDate = $currentDate->copy()->addMonth();
 
         $prevMonth = $prevMonthDate->month;
         $prevYear = $prevMonthDate->year;
         $nextMonth = $nextMonthDate->month;
         $nextYear = $nextMonthDate->year;
 
-        // Fetch schedules for the authenticated doctor
-        $schedules = Schedule::where('doctor_id', Auth::id())
-            ->whereYear('schedule_date', $year)
-            ->whereMonth('schedule_date', $month)
-            ->get();
-
+        // Pass variables to the view
         return view('doctor.schedules.index', compact(
             'year',
             'month',
-            'firstDayOfMonth',
-            'daysInMonth',
-            'schedules',
+            'schedulesByDate',
             'prevMonth',
             'prevYear',
             'nextMonth',
-            'nextYear'
+            'nextYear',
+            'daysInMonth',
+            'firstDayOfMonth',
+            'date'
         ));
     }
 
@@ -99,26 +114,34 @@ class ScheduleController extends Controller
 
     public function edit($id)
     {
-        $schedule = Schedule::where('doctor_id', Auth::id())->findOrFail($id);
+        $schedule = Schedule::findOrFail($id);
 
-        return response()->json($schedule);
+        // Check if the authenticated doctor owns the schedule
+        if ($schedule->doctor_id !== Auth::user()->doctor->doctor_id) {
+            return redirect()->route('doctor.schedules.index')->withErrors('You are not authorized to edit this schedule.');
+        }
+
+        return view('doctor.schedules.edit', compact('schedule'));
     }
+
 
     public function update(Request $request, $id)
     {
-        $schedule = Schedule::where('doctor_id', Auth::id())->findOrFail($id);
+        $schedule = Schedule::findOrFail($id);
 
-        // Validate input data
+        // Check ownership
+        if ($schedule->doctor_id !== Auth::user()->doctor->doctor_id) {
+            return redirect()->route('doctor.schedules.index')->withErrors('You are not authorized to update this schedule.');
+        }
+
+        // Validate input
         $validatedData = $request->validate([
             'schedule_date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            'start_time' => 'required',
+            'end_time' => 'required|after:start_time',
             'max_patients' => 'required|integer|min:1',
-            'is_available' => 'nullable|boolean',
+            'is_available' => 'sometimes|boolean',
         ]);
-
-        // Set default value for is_available if unchecked
-        $validatedData['is_available'] = $request->has('is_available');
 
         // Update schedule
         $schedule->update($validatedData);
@@ -150,7 +173,7 @@ class ScheduleController extends Controller
                 ->where('is_available', true)
                 ->get();
 
-            return response()->json($schedules);
+            return $schedules;
         } catch (\Exception $e) {
             Log::error('Schedule loading error: ' . $e->getMessage());
             return response()->json(['error' => $e->getMessage()], 500);
@@ -167,5 +190,18 @@ class ScheduleController extends Controller
         return redirect()
             ->route('doctor.schedules.index')
             ->with('success', 'Schedule status updated successfully.');
+    }
+
+
+    public function getEditData($id)
+    {
+        $schedule = Schedule::findOrFail($id);
+
+        // Check if the authenticated doctor owns the schedule
+        if ($schedule->doctor_id !== Auth::user()->doctor->doctor_id) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        return response()->json($schedule);
     }
 }
