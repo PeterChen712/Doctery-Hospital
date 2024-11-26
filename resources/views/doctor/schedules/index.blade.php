@@ -3,7 +3,6 @@
 @section('content')
     <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">My Schedules</h2>
-        Today's Date: {{ $date }}
         <a href="{{ route('doctor.schedules.create') }}"
             class="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-md inline-flex items-center">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,23 +53,25 @@
                     $date = \Carbon\Carbon::createFromDate($year, $month, $day)->toDateString();
                     $schedulesForDay = $schedulesByDate->get($date, collect());
                     $isToday = $date === \Carbon\Carbon::today()->toDateString();
+                    $isPastDate = \Carbon\Carbon::parse($date)->isPast();
                     $hasSchedules = $schedulesForDay->isNotEmpty();
                     $firstSchedule = $schedulesForDay->first();
                 @endphp
                 <div
                     class="border border-gray-200 p-2 h-36 overflow-auto relative group rounded-lg transition-all duration-200 hover:shadow-md
-     {{ $isToday ? 'bg-yellow-50 border-yellow-200' : 'bg-white' }}">
+     {{ $isToday ? 'bg-yellow-50 border-yellow-200' : 'bg-white' }} {{ $isPastDate ? 'opacity-50' : '' }}">
                     <!-- Date Number -->
                     <div class="font-semibold mb-2 {{ $isToday ? 'text-yellow-600' : 'text-gray-700' }}">
                         {{ $day }}
                     </div>
 
                     <!-- Green Dot Indicator -->
-                    @if ($hasSchedules)
-                    <a href="{{ route('doctor.schedules.edit', $firstSchedule->schedule_id) }}"                             
-                        title="Edit Schedule">                             
-                         <span class="absolute top-2 right-2 bg-green-500 w-3 h-3 rounded-full"></span>                         
-                     </a>
+
+                    @if ($hasSchedules && !$isPastDate)
+                        <a href="#" onclick="openEditModal({{ $firstSchedule->schedule_id }}); return false;"
+                            title="Edit Schedule">
+                            <span class="absolute top-2 right-2 bg-green-500 w-3 h-3 rounded-full"></span>
+                        </a>
                     @endif
 
                     <!-- Schedules for the day -->
@@ -96,16 +97,18 @@
                     </div>
 
                     <!-- Add Schedule Button -->
-                    <button
-                        class="opacity-0 group-hover:opacity-100 absolute bottom-1 right-1 
-            bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 
-            rounded-full p-1.5 transition-all duration-200"
-                        onclick="openAddModal('{{ $date }}')" title="Add Schedule">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
-                    </button>
+                    @if (!$isPastDate)
+                        <button
+                            class="opacity-0 group-hover:opacity-100 absolute bottom-1 right-1 
+                bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 
+                rounded-full p-1.5 transition-all duration-200"
+                            onclick="openAddModal('{{ $date }}')" title="Add Schedule">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                        </button>
+                    @endif
                 </div>
             @endfor
 
@@ -199,6 +202,11 @@
     <!-- JavaScript Functions -->
     <script>
         function openAddModal(date) {
+            // Check if date is in the past
+            if (new Date(date) < new Date().setHours(0, 0, 0, 0)) {
+                alert('You cannot add schedules for past dates.');
+                return;
+            }
             document.getElementById('addDate').value = date;
             document.getElementById('addModal').classList.remove('hidden');
         }
@@ -212,6 +220,12 @@
             fetch(`/doctor/schedules/${scheduleId}/edit-data`)
                 .then(response => response.json())
                 .then(data => {
+                    // Check if date is in the past
+                    if (new Date(data.schedule_date) < new Date().setHours(0, 0, 0, 0)) {
+                        alert('You cannot edit schedules for past dates.');
+                        return;
+                    }
+
                     document.getElementById('editDate').value = data.schedule_date;
                     document.getElementById('editStartTime').value = data.start_time;
                     document.getElementById('editEndTime').value = data.end_time;
@@ -224,6 +238,36 @@
 
         function closeEditModal() {
             document.getElementById('editModal').classList.add('hidden');
+        }
+
+        function openEditModal(scheduleId) {
+            // Fetch schedule data via AJAX
+            fetch(`/doctor/schedules/${scheduleId}/edit-data`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Check if date is in the past
+                    if (new Date(data.schedule_date) < new Date().setHours(0, 0, 0, 0)) {
+                        alert('You cannot edit schedules for past dates.');
+                        return;
+                    }
+
+                    document.getElementById('editDate').value = data.schedule_date;
+                    document.getElementById('editStartTime').value = data.start_time;
+                    document.getElementById('editEndTime').value = data.end_time;
+                    document.getElementById('editMaxPatients').value = data.max_patients;
+                    document.getElementById('editIsAvailable').checked = data.is_available == 1;
+                    document.getElementById('editForm').action = `/doctor/schedules/${scheduleId}`;
+                    document.getElementById('editModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to load schedule data');
+                });
         }
     </script>
 @endsection

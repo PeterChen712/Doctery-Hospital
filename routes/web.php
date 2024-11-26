@@ -121,8 +121,9 @@ Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(fu
     Route::resource('prescriptions', DoctorPrescriptionController::class); // Add this line
 
     Route::resource('schedules', DoctorScheduleController::class);
+    Route::get('/schedules/{id}/edit-data', [DoctorScheduleController::class, 'getEditData'])
+        ->name('schedules.edit-data');
     // Route::resource('schedules', DoctorScheduleController::class, ['as' => 'doctor']);
-    // Route::get('/doctor/schedules/{id}/edit-data', [DoctorScheduleController::class, 'getEditData']);
     // Route::get('/doctor/schedules', [DoctorScheduleController::class, 'index'])->name('doctor.schedules.index');
     // Route::post('/doctor/schedules', [DoctorScheduleController::class, 'store'])->name('doctor.schedules.store');
     // Route::get('/doctor/schedules/{id}/edit', [DoctorScheduleController::class, 'edit'])->name('doctor.schedules.edit');
