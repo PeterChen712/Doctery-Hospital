@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Log;
+use Exception;
+use Illuminate\Support\Facades\Crypt;
 
 class ScheduleController extends Controller
 {
@@ -125,39 +127,45 @@ class ScheduleController extends Controller
     }
 
 
+
     public function update(Request $request, $id)
     {
-        $schedule = Schedule::findOrFail($id);
+        try {
+            $schedule = Schedule::findOrFail($id);
 
-        // Check ownership
-        if ($schedule->doctor_id !== Auth::user()->doctor->doctor_id) {
-            return redirect()->route('doctor.schedules.index')->withErrors('You are not authorized to update this schedule.');
+            // Validate input data without 'schedule_date'
+            $validatedData = $request->validate([
+                'start_time' => 'required|date_format:H:i',
+                'end_time' => 'required|date_format:H:i|after:start_time',
+                'max_patients' => 'required|integer|min:1',
+                'is_available' => 'nullable|boolean',
+            ]);
+
+            // Set default value for is_available if unchecked
+            $validatedData['is_available'] = $request->has('is_available');
+
+            // Update only the validated fields
+            $schedule->update($validatedData);
+
+            return response()->json([
+                'message' => 'Schedule updated successfully',
+                'schedule' => $schedule->fresh()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Schedule update error:', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Failed to update schedule: ' . $e->getMessage()
+            ], 500);
         }
-
-        // Validate input
-        $validatedData = $request->validate([
-            'schedule_date' => 'required|date',
-            'start_time' => 'required',
-            'end_time' => 'required|after:start_time',
-            'max_patients' => 'required|integer|min:1',
-            'is_available' => 'sometimes|boolean',
-        ]);
-
-        // Update schedule
-        $schedule->update($validatedData);
-
-        return redirect()->route('doctor.schedules.index')->with('success', 'Schedule updated successfully.');
     }
 
     public function destroy($id)
     {
         $doctor = Auth::user()->doctor;
-        $schedule = $doctor->schedules()->findOrFail($id);
-
+        $schedule = Schedule::where('doctor_id', $doctor->doctor_id)->findOrFail($id);
         $schedule->delete();
 
-        return redirect()->route('doctor.schedules.index')
-            ->with('success', 'Schedule deleted successfully.');
+        return response()->json(['success' => true]);
     }
 
     public function getAvailableSchedules($doctorId)
@@ -192,15 +200,61 @@ class ScheduleController extends Controller
             ->with('success', 'Schedule status updated successfully.');
     }
 
-
-    public function getEditData($id)
+    public function getEditData($encryptedId)
     {
-        $schedule = Schedule::findOrFail($id);
+        try {
+            // Log the received encrypted ID for debugging
+            Log::info('Received encrypted ID:', ['encrypted_id' => $encryptedId]);
 
-        // Check if the authenticated doctor owns the schedule
-        if ($schedule->doctor_id !== Auth::user()->doctor->doctor_id) {
-            return response()->json(['error' => 'Unauthorized'], 403);
+            $id = Crypt::decrypt($encryptedId); // Use Crypt instead of decrypt()
+
+            Log::info('Decrypted ID:', ['id' => $id]);
+
+            $schedule = Schedule::findOrFail($id);
+
+            // Check ownership
+            if ($schedule->doctor_id !== Auth::user()->doctor->doctor_id) {
+                return response()->json(['error' => 'Unauthorized'], 403);
+            }
+
+            return response()->json([
+                'start_time' => $schedule->start_time,
+                'end_time' => $schedule->end_time,
+                'max_patients' => $schedule->max_patients,
+                'is_available' => $schedule->is_available,
+                'schedule_date' => $schedule->schedule_date->format('Y-m-d'), // Format date here
+            ]);
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            Log::error('Decryption failed:', [
+                'encrypted_id' => $encryptedId,
+                'error' => $e->getMessage()
+            ]);
+            return response()->json(['error' => 'Invalid encrypted ID'], 400);
+        } catch (\Exception $e) {
+            Log::error('Failed to load schedule data', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'Failed to load schedule data'], 500);
         }
+    }
+
+
+
+    public function getSchedulesByDate($date)
+    {
+        $doctor = Auth::user()->doctor;
+        $schedules = Schedule::where('doctor_id', $doctor->doctor_id)
+            ->where('schedule_date', $date)
+            ->get();
+
+        return response()->json(['schedules' => $schedules]);
+    }
+
+    public function getScheduleEditData($id)
+    {
+        $doctor = Auth::user()->doctor;
+        $schedule = Schedule::where('doctor_id', $doctor->doctor_id)->findOrFail($id);
 
         return response()->json($schedule);
     }

@@ -120,9 +120,35 @@ Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(fu
     Route::resource('patients', DoctorPatientController::class);
     Route::resource('prescriptions', DoctorPrescriptionController::class); // Add this line
 
-    Route::resource('schedules', DoctorScheduleController::class);
-    Route::get('/schedules/{id}/edit-data', [DoctorScheduleController::class, 'getEditData'])
+
+    // Route::resource('schedules', DoctorScheduleController::class);
+
+    // Route::get('schedules/edit-data/{id}', [DoctorScheduleController::class, 'getEditData'])
+    //     ->name('schedules.edit-data');
+    // Route::get('schedules/by-date/{date}', [DoctorScheduleController::class, 'getSchedulesByDate'])
+    //     ->name('schedules.byDate');
+    // Route::get('/doctor/schedules/edit-data/{id}', [DoctorScheduleController::class, 'getScheduleData'])
+    //     ->name('doctor.schedules.getData');
+
+
+    Route::resource('schedules', DoctorScheduleController::class)->except(['show']);
+    Route::get('schedules/{id}/edit-data', [DoctorScheduleController::class, 'getScheduleEditData'])
         ->name('schedules.edit-data');
+    Route::get('schedules/by-date/{date}', [DoctorScheduleController::class, 'getSchedulesByDate'])
+        ->name('schedules.by-date');
+
+
+
+
+    // Route::get('schedules/{id}/edit-data', [DoctorScheduleController::class, 'getScheduleEditData']);
+    // Route::put('schedules/{id}', [DoctorScheduleController::class, 'update'])->name('schedules.update');
+    // Route::get('schedules/{id}/edit', [DoctorScheduleController::class, 'edit'])->name('schedules.edit');
+    // Route::delete('schedules/{id}', [DoctorScheduleController::class, 'destroy']);
+    // Route::get('schedules/by-date/{date}', [DoctorScheduleController::class, 'getSchedulesByDate']);
+    
+    
+    
+    
     // Route::resource('schedules', DoctorScheduleController::class, ['as' => 'doctor']);
     // Route::get('/doctor/schedules', [DoctorScheduleController::class, 'index'])->name('doctor.schedules.index');
     // Route::post('/doctor/schedules', [DoctorScheduleController::class, 'store'])->name('doctor.schedules.store');
