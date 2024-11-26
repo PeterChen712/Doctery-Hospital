@@ -73,22 +73,27 @@
                     @endif
 
                     <!-- Schedules for the day -->
+                    <!-- Schedules for the day -->
                     <div class="space-y-1">
                         @foreach ($schedulesForDay as $schedule)
                             <div
                                 class="p-1.5 rounded-md relative transition-all duration-200
-                        {{ $schedule->is_available
-                            ? 'bg-green-50 border border-green-100 hover:bg-green-100'
-                            : 'bg-red-50 border border-red-100 hover:bg-red-100' }}">
+            {{ $schedule->is_available
+                ? 'bg-green-50 border border-green-100 hover:bg-green-100'
+                : 'bg-gray-100 border border-gray-200 hover:bg-gray-200' }}">
 
                                 <div
-                                    class="text-sm font-medium {{ $schedule->is_available ? 'text-green-700' : 'text-red-700' }}">
+                                    class="text-sm font-medium 
+                {{ $schedule->is_available ? 'text-green-700' : 'text-gray-700' }}">
                                     {{ \Carbon\Carbon::parse($schedule->start_time)->format('H:i') }} -
                                     {{ \Carbon\Carbon::parse($schedule->end_time)->format('H:i') }}
                                 </div>
 
-                                <div class="text-xs {{ $schedule->is_available ? 'text-green-600' : 'text-red-600' }}">
+                                <div class="text-xs {{ $schedule->is_available ? 'text-green-600' : 'text-gray-600' }}">
                                     Patients: {{ $schedule->booked_patients ?? 0 }}/{{ $schedule->max_patients }}
+                                    @if (!$schedule->is_available)
+                                        <span class="ml-1">(Unavailable)</span>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
@@ -258,7 +263,7 @@
                     document.getElementById('editMaxPatients').value = data.max_patients;
                     document.getElementById('editIsAvailable').checked = data.is_available;
                     // Keep the original schedule_date
-                    document.getElementById('editDate').value = data.schedule_date; 
+                    document.getElementById('editDate').value = data.schedule_date;
                     document.getElementById('editModal').classList.remove('hidden');
                 })
                 .catch(error => {
@@ -423,60 +428,60 @@
 
         // Replace your current editForm event listener with this:
         document.getElementById('editForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const scheduleId = document.getElementById('editScheduleId').value;
-    // Get the original date and ensure it's in YYYY-MM-DD format
-    const originalDate = document.getElementById('editDate').value;
-    console.log('Original date before submit:', originalDate); // Debug log
+            event.preventDefault();
+            const scheduleId = document.getElementById('editScheduleId').value;
+            // Get the original date and ensure it's in YYYY-MM-DD format
+            const originalDate = document.getElementById('editDate').value;
+            console.log('Original date before submit:', originalDate); // Debug log
 
-    if (!scheduleId) {
-        console.error('No schedule ID found');
-        alert('Error: No schedule ID found');
-        return;
-    }
+            if (!scheduleId) {
+                console.error('No schedule ID found');
+                alert('Error: No schedule ID found');
+                return;
+            }
 
-    const formData = new FormData(this);
-    formData.append('_method', 'PUT');
-    
-    // Remove any existing schedule_date and set it fresh
-    formData.delete('schedule_date');
-    formData.append('schedule_date', originalDate);
-    
-    // Log the final form data
-    console.log('Form data schedule_date:', formData.get('schedule_date'));
+            const formData = new FormData(this);
+            formData.append('_method', 'PUT');
 
-    fetch(`/doctor/schedules/${scheduleId}`, {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json',
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(data => {
-                throw new Error(data.message || 'Failed to update schedule');
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Update response:', data); // Debug log
-        if (data.schedule && data.schedule.schedule_date !== originalDate) {
-            console.warn('Date mismatch after update:', {
-                original: originalDate,
-                returned: data.schedule.schedule_date
-            });
-        }
-        alert('Schedule updated successfully');
-        closeEditModal();
-        window.location.reload();
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert(error.message || 'Failed to update schedule');
-    });
-});
+            // Remove any existing schedule_date and set it fresh
+            formData.delete('schedule_date');
+            formData.append('schedule_date', originalDate);
+
+            // Log the final form data
+            console.log('Form data schedule_date:', formData.get('schedule_date'));
+
+            fetch(`/doctor/schedules/${scheduleId}`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            throw new Error(data.message || 'Failed to update schedule');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Update response:', data); // Debug log
+                    if (data.schedule && data.schedule.schedule_date !== originalDate) {
+                        console.warn('Date mismatch after update:', {
+                            original: originalDate,
+                            returned: data.schedule.schedule_date
+                        });
+                    }
+                    alert('Schedule updated successfully');
+                    closeEditModal();
+                    window.location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert(error.message || 'Failed to update schedule');
+                });
+        });
     </script>
 @endsection

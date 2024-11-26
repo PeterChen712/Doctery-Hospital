@@ -168,17 +168,17 @@ class ScheduleController extends Controller
         return response()->json(['success' => true]);
     }
 
+
     public function getAvailableSchedules($doctorId)
     {
         try {
-            // Check if user has permission
             if (!Auth::check() || Auth::user()->role !== 'doctor') {
                 return response()->json(['error' => 'Unauthorized'], 403);
             }
 
+            // Remove the is_available filter to show all schedules
             $schedules = Schedule::where('doctor_id', $doctorId)
                 ->where('schedule_date', '>=', now()->toDateString())
-                ->where('is_available', true)
                 ->get();
 
             return $schedules;
