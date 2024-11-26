@@ -50,7 +50,7 @@ class Appointment extends Model
 
     public function schedule()
     {
-        return $this->belongsTo(DoctorSchedule::class, 'schedule_id');
+        return $this->belongsTo(Schedule::class, 'schedule_id');
     }
 
     public function feedback()

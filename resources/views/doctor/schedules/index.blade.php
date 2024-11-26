@@ -73,7 +73,6 @@
                     @endif
 
                     <!-- Schedules for the day -->
-                    <!-- Schedules for the day -->
                     <div class="space-y-1">
                         @foreach ($schedulesForDay as $schedule)
                             <div

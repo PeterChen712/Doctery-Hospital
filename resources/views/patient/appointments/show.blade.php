@@ -20,13 +20,23 @@
                     <div class="mt-6 grid grid-cols-2 gap-6">
                         <div>
                             <h3 class="text-gray-600">Doctor</h3>
-                            <p class="font-semibold">Dr. {{ $appointment->doctor->user->username }}</p>
+                            <p class="font-semibold">
+                                @if($appointment->doctor)
+                                    Dr. {{ $appointment->doctor->user->username }}
+                                @else
+                                    Not yet assigned
+                                @endif
+                            </p>
                         </div>
 
                         <div>
                             <h3 class="text-gray-600">Schedule</h3>
                             <p class="font-semibold">
-                                {{ $appointment->schedule->day }} at {{ $appointment->appointment_date->format('h:i A') }}
+                                @if($appointment->schedule)
+                                    {{ $appointment->schedule->day }} at {{ $appointment->appointment_date->format('h:i A') }}
+                                @else
+                                    {{ $appointment->appointment_date->format('l, F j, Y \a\t h:i A') }}
+                                @endif
                             </p>
                         </div>
 
