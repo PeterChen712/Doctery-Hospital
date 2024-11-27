@@ -209,7 +209,7 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
     Route::controller(NotificationController::class)->group(function () {
         Route::get('notifications', 'index')->name('notifications');
         Route::patch('notifications/{notification}', 'markAsRead')->name('notifications.markAsRead');
-        Route::post('notifications/mark-all-read', 'markAllAsRead')->name('notifications.markAllAsRead');
+        Route::post('notifications/mark-all-read', 'markAllAsRead')->name('notifications.mark-all-read');
     });
 });
 
