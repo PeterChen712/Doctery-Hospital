@@ -3,10 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 
 class Schedule extends Model
 {
+    use HasFactory;
+
     protected $primaryKey = 'schedule_id';
 
     protected $fillable = [
@@ -19,15 +23,21 @@ class Schedule extends Model
         'is_available',
     ];
 
-
     protected $casts = [
         'schedule_date' => 'datetime',
         'start_time' => 'datetime:H:i',
         'end_time' => 'datetime:H:i',
-        'day_of_week' => 'integer'
+        'day_of_week' => 'integer',
+        'is_available' => 'boolean',
+        'max_patients' => 'integer'
     ];
 
-    protected $appends = ['day_name', 'available_slots'];
+    protected $appends = [
+        'day_name', 
+        'available_slots', 
+        'booked_patients',
+        'remaining_spaces'
+    ];
 
     // Relationships
     public function doctor()
@@ -37,7 +47,8 @@ class Schedule extends Model
 
     public function appointments()
     {
-        return $this->hasMany(Appointment::class, 'schedule_id', 'schedule_id');
+        return $this->belongsToMany(Appointment::class, 'schedule_appointments', 'schedule_id', 'appointment_id')
+            ->withTimestamps();
     }
 
     // Accessors
@@ -48,7 +59,19 @@ class Schedule extends Model
 
     public function getAvailableSlotsAttribute()
     {
-        return $this->max_patients - $this->appointments()->count();
+        return $this->max_patients - $this->booked_patients;
+    }
+
+    public function getBookedPatientsAttribute()
+    {
+        return $this->appointments()
+            ->whereIn('status', ['CONFIRMED', 'PENDING_CONFIRMATION'])
+            ->count();
+    }
+
+    public function getRemainingSpacesAttribute()
+    {
+        return max(0, $this->max_patients - $this->booked_patients);
     }
 
     // Scopes
@@ -72,7 +95,14 @@ class Schedule extends Model
         return $query->where('is_available', true)
             ->where('schedule_date', '>=', now())
             ->whereRaw('(SELECT COUNT(*) FROM appointments 
-                              WHERE appointments.schedule_id = schedules.schedule_id) < schedules.max_patients');
+                       INNER JOIN schedule_appointments ON appointments.appointment_id = schedule_appointments.appointment_id 
+                       WHERE schedule_appointments.schedule_id = schedules.schedule_id 
+                       AND appointments.status IN ("CONFIRMED", "PENDING_CONFIRMATION")) < schedules.max_patients');
+    }
+
+    public function scopeForDate($query, $date)
+    {
+        return $query->whereDate('schedule_date', $date);
     }
 
     // Helper Methods
@@ -80,7 +110,7 @@ class Schedule extends Model
     {
         return $this->is_available
             && $this->schedule_date->isFuture()
-            && $this->appointments()->count() < $this->max_patients;
+            && $this->booked_patients < $this->max_patients;
     }
 
     public function hasTimeSlotAvailable($time)
@@ -91,8 +121,9 @@ class Schedule extends Model
 
         return $appointmentTime->between($startTime, $endTime)
             && $this->appointments()
-            ->where('appointment_time', $time)
-            ->count() < $this->max_patients;
+                ->whereIn('status', ['CONFIRMED', 'PENDING_CONFIRMATION'])
+                ->where('appointment_time', $time)
+                ->count() < $this->max_patients;
     }
 
     public function getAvailableTimeSlots()
@@ -105,7 +136,7 @@ class Schedule extends Model
             if ($this->hasTimeSlotAvailable($startTime->format('H:i'))) {
                 $slots[] = $startTime->format('H:i');
             }
-            $startTime->addMinutes(30); // 30-minute intervals
+            $startTime->addMinutes(30);
         }
 
         return $slots;
@@ -113,12 +144,7 @@ class Schedule extends Model
 
     public function isFullyBooked()
     {
-        return $this->appointments()->count() >= $this->max_patients;
-    }
-
-    public function getBookedPatientsCount()
-    {
-        return $this->appointments()->count();
+        return $this->booked_patients >= $this->max_patients;
     }
 
     public function canBeDeleted()
@@ -126,15 +152,47 @@ class Schedule extends Model
         return $this->appointments()->count() === 0;
     }
 
+    public function hasTimeConflict($startTime, $endTime)
+    {
+        return Schedule::where('doctor_id', $this->doctor_id)
+            ->where('schedule_date', $this->schedule_date)
+            ->where('schedule_id', '!=', $this->schedule_id)
+            ->where(function ($query) use ($startTime, $endTime) {
+                $query->whereBetween('start_time', [$startTime, $endTime])
+                    ->orWhereBetween('end_time', [$startTime, $endTime]);
+            })
+            ->exists();
+    }
+
+    // Boot method for model events
     protected static function boot()
     {
         parent::boot();
 
-        // Prevent deletion if schedule has appointments
         static::deleting(function ($schedule) {
-            if ($schedule->appointments()->count() > 0) {
+            if (!$schedule->canBeDeleted()) {
                 throw new \Exception('Cannot delete schedule with existing appointments.');
             }
         });
+
+        static::saving(function ($schedule) {
+            if ($schedule->start_time >= $schedule->end_time) {
+                throw new \Exception('Start time must be before end time.');
+            }
+        });
+    }
+
+    // Validation rules
+    public static function rules($doctorId = null)
+    {
+        return [
+            'doctor_id' => 'required|exists:doctors,doctor_id',
+            'schedule_date' => 'required|date|after:today',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'max_patients' => 'required|integer|min:1',
+            'day_of_week' => 'required|integer|between:0,6',
+            'is_available' => 'boolean'
+        ];
     }
 }

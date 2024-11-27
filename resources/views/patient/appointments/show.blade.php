@@ -67,19 +67,12 @@
                         </a>
 
                         @if ($appointment->status === 'PENDING_CONFIRMATION')
-                            <form action="{{ route('patient.appointments.confirm', $appointment) }}" method="POST" class="inline">
-                                @csrf
-                                @method('POST')
-                                <button type="submit" name="confirm" value="1" 
-                                    class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                                    Confirm Schedule
-                                </button>
-                                <button type="submit" name="confirm" value="0"
-                                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2">
-                                    Decline Schedule
-                                </button>
-                            </form>
-                        @endif
+                        <form action="{{ route('patient.appointments.confirm', $appointment) }}" method="POST">
+                            @csrf
+                            <button name="confirm" value="1">Confirm</button>
+                            <button name="confirm" value="0">Decline</button>
+                        </form>
+                    @endif
 
                         @if ($appointment->status === 'PENDING')
                             <form action="{{ route('patient.appointments.cancel', $appointment) }}" method="POST" class="inline">

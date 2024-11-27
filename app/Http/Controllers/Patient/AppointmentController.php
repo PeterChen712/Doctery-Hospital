@@ -10,6 +10,7 @@ use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class AppointmentController extends Controller
 {
@@ -150,28 +151,38 @@ class AppointmentController extends Controller
 
     public function confirmAppointment(Request $request, Appointment $appointment)
     {
-        // Validate the appointment belongs to current patient
+        // Security check
         if ($appointment->patient_id !== Auth::user()->patient->patient_id) {
             abort(403);
         }
-
-        $validated = $request->validate([
-            'confirm' => 'required|boolean'
-        ]);
-
-        $appointment->update([
-            'patient_confirmed' => $validated['confirm'],
-            'status' => $validated['confirm'] ? 'CONFIRMED' : 'PENDING'
-        ]);
-
-        // Create notification for confirmation
-        if ($validated['confirm']) {
-            // Notify doctor/admin about confirmation
-            $message = 'Patient confirmed the appointment';
-        } else {
-            $message = 'Patient declined the appointment';
+    
+        DB::beginTransaction();
+        try {
+            if ($request->confirm == 1) {
+                // Confirm appointment
+                $appointment->update([
+                    'status' => 'CONFIRMED',
+                    'patient_confirmed' => true
+                ]);
+                
+                // Create schedule_appointments entry
+                $appointment->schedules()->attach($appointment->schedule_id);
+                $message = 'Appointment confirmed successfully';
+            } else {
+                // Decline appointment
+                $appointment->update([
+                    'status' => 'PENDING',
+                    'patient_confirmed' => false,
+                    'schedule_id' => null // Clear schedule assignment
+                ]);
+                $message = 'Appointment declined';
+            }
+    
+            DB::commit();
+            return back()->with('success', $message);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Failed to process confirmation');
         }
-
-        return back()->with('success', $message);
     }
 }

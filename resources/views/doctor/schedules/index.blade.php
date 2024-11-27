@@ -89,9 +89,18 @@
                                 </div>
 
                                 <div class="text-xs {{ $schedule->is_available ? 'text-green-600' : 'text-gray-600' }}">
-                                    Patients: {{ $schedule->booked_patients ?? 0 }}/{{ $schedule->max_patients }}
+                                    @php
+                                        $bookedCount = $schedule
+                                            ->appointments()
+                                            ->whereIn('status', ['CONFIRMED', 'PENDING_CONFIRMATION'])
+                                            ->count();
+                                    @endphp
+                                    Patients: {{ $bookedCount }}/{{ $schedule->max_patients }}
                                     @if (!$schedule->is_available)
                                         <span class="ml-1">(Unavailable)</span>
+                                    @endif
+                                    @if ($bookedCount >= $schedule->max_patients)
+                                        <span class="ml-1">(Full)</span>
                                     @endif
                                 </div>
                             </div>
