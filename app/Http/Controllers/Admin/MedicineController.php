@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Medicine;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class MedicineController extends Controller
 {
@@ -13,9 +12,20 @@ class MedicineController extends Controller
     {
         $query = Medicine::query();
 
-        // If searching for available only
-        if ($request->available) {
+        // Search functionality
+        if ($request->search) {
+            $query->where('name', 'like', "%{$request->search}%")
+                  ->orWhere('manufacturer', 'like', "%{$request->search}%")
+                  ->orWhere('category', 'like', "%{$request->search}%");
+        }
+
+        // Filter by status
+        if ($request->status === 'available') {
             $query->available();
+        } elseif ($request->status === 'out-of-stock') {
+            $query->where('stock', 0);
+        } elseif ($request->status === 'expired') {
+            $query->expired();
         }
 
         $medicines = $query->latest()->paginate(10);
@@ -41,18 +51,29 @@ class MedicineController extends Controller
             'category' => 'required|string|max:255',
         ]);
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('medicines', 'public');
-            $validated['image_url'] = $path;
+        try {
+            if ($request->hasFile('image')) {
+                $validated['image'] = file_get_contents($request->file('image')->getRealPath());
+            }
+
+            $validated['is_available'] = true;
+
+            Medicine::create($validated);
+
+            return redirect()
+                ->route('admin.medicines.index')
+                ->with('success', 'Medicine created successfully');
+
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Error creating medicine: ' . $e->getMessage());
         }
+    }
 
-        $validated['is_available'] = true;
-
-        Medicine::create($validated);
-
-        return redirect()
-            ->route('admin.medicines.index')
-            ->with('success', 'Medicine created successfully');
+    public function show(Medicine $medicine)
+    {
+        return view('admin.medicines.show', compact('medicine'));
     }
 
     public function edit(Medicine $medicine)
@@ -74,35 +95,64 @@ class MedicineController extends Controller
             'category' => 'required|string|max:255',
         ]);
 
-        if ($request->hasFile('image')) {
-            // Delete old image
-            if ($medicine->image_url) {
-                Storage::disk('public')->delete($medicine->image_url);
+        try {
+            if ($request->hasFile('image')) {
+                $validated['image'] = file_get_contents($request->file('image')->getRealPath());
             }
-            // Store new image
-            $path = $request->file('image')->store('medicines', 'public');
-            $validated['image_url'] = $path;
+
+            $validated['is_available'] = $request->stock > 0;
+
+            $medicine->update($validated);
+
+            return redirect()
+                ->route('admin.medicines.index')
+                ->with('success', 'Medicine updated successfully');
+
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Error updating medicine: ' . $e->getMessage());
         }
-
-        $validated['is_available'] = $request->stock > 0;
-
-        $medicine->update($validated);
-
-        return redirect()
-            ->route('admin.medicines.index')
-            ->with('success', 'Medicine updated successfully');
     }
 
     public function destroy(Medicine $medicine)
     {
-        if ($medicine->image_url) {
-            Storage::disk('public')->delete($medicine->image_url);
+        try {
+            // Check if medicine can be deleted
+            if ($medicine->prescriptions()->exists()) {
+                return back()->with('error', 'Cannot delete medicine with existing prescriptions');
+            }
+
+            $medicine->delete();
+
+            return redirect()
+                ->route('admin.medicines.index')
+                ->with('success', 'Medicine deleted successfully');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error deleting medicine: ' . $e->getMessage());
         }
+    }
 
-        $medicine->delete();
+    public function updateStock(Request $request, Medicine $medicine)
+    {
+        $validated = $request->validate([
+            'adjustment' => 'required|integer',
+            'operation' => 'required|in:add,subtract'
+        ]);
 
-        return redirect()
-            ->route('admin.medicines.index')
-            ->with('success', 'Medicine deleted successfully');
+        try {
+            if ($validated['operation'] === 'add') {
+                $medicine->increaseStock($validated['adjustment']);
+            } else {
+                if (!$medicine->decreaseStock($validated['adjustment'])) {
+                    return back()->with('error', 'Insufficient stock');
+                }
+            }
+
+            return back()->with('success', 'Stock updated successfully');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error updating stock: ' . $e->getMessage());
+        }
     }
 }

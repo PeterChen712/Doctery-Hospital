@@ -10,32 +10,34 @@ return new class extends Migration
     {
         Schema::create('prescriptions', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignId('doctor_id')->constrained('users', 'user_id');
-            $table->foreignId('patient_id')->constrained('users', 'user_id');
-            $table->foreignId('record_id')->constrained('medical_records', 'record_id'); // Changed from medical_record_id
+            $table->foreignId('doctor_id')->constrained('doctors', 'doctor_id');
+            $table->foreignId('patient_id')->constrained('patients', 'patient_id');
+            $table->foreignId('record_id')->constrained('medical_records', 'record_id');
             $table->text('notes')->nullable();
             $table->enum('status', ['PENDING', 'PROCESSING', 'COMPLETED', 'CANCELLED'])->default('PENDING');
             $table->timestamp('processed_at')->nullable();
             $table->timestamps();
-
-            // Add indexes
-            $table->index('doctor_id');
-            $table->index('patient_id');
-            $table->index('record_id'); // Updated index
-            $table->index('status');
+    
+            $table->index(['doctor_id', 'patient_id', 'record_id', 'status']);
         });
-
-        // Create prescription_medicines pivot table
+    
         Schema::create('prescription_medicines', function (Blueprint $table) {
             $table->id();
-            $table->foreignUuid('prescription_id')->constrained('prescriptions')->onDelete('cascade');
+            $table->uuid('prescription_id'); // Changed to uuid to match prescriptions table
             $table->foreignId('medicine_id')->constrained('medicines', 'medicine_id');
+            $table->integer('quantity');
             $table->string('dosage');
-            $table->string('frequency');
-            $table->string('duration');
+            $table->text('instructions')->nullable();
             $table->timestamps();
+    
+            // Add foreign key with correct reference to uuid
+            $table->foreign('prescription_id')
+                ->references('id')
+                ->on('prescriptions')
+                ->onDelete('cascade');
         });
     }
+    
 
     public function down(): void
     {

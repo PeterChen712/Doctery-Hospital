@@ -50,7 +50,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::resource('users', UserController::class, ['as' => 'admin']);
 
     // Medicines Management
-    Route::resource('medicines', MedicineController::class, ['as' => 'admin']);
+    // Route::resource('medicines', MedicineController::class, ['as' => 'admin']);
+    Route::resource('medicines', MedicineController::class)->parameters([
+        'medicines' => 'medicine:medicine_id'
+    ]);
 
     // Reports Routes
     Route::get('/reports/users', [ReportController::class, 'users'])->name('admin.reports.users');
