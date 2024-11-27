@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 
 class Schedule extends Model
-{   
+{
     protected $primaryKey = 'schedule_id';
 
     protected $fillable = [
@@ -19,11 +19,12 @@ class Schedule extends Model
         'is_available',
     ];
 
+
     protected $casts = [
-        'schedule_date' => 'date',
+        'schedule_date' => 'datetime',
         'start_time' => 'datetime:H:i',
         'end_time' => 'datetime:H:i',
-        'is_available' => 'boolean'
+        'day_of_week' => 'integer'
     ];
 
     protected $appends = ['day_name', 'available_slots'];
@@ -69,16 +70,16 @@ class Schedule extends Model
     public function scopeAvailable($query)
     {
         return $query->where('is_available', true)
-                    ->where('schedule_date', '>=', now())
-                    ->whereRaw('(SELECT COUNT(*) FROM appointments 
+            ->where('schedule_date', '>=', now())
+            ->whereRaw('(SELECT COUNT(*) FROM appointments 
                               WHERE appointments.schedule_id = schedules.schedule_id) < schedules.max_patients');
     }
 
     // Helper Methods
     public function isAvailable()
     {
-        return $this->is_available 
-            && $this->schedule_date->isFuture() 
+        return $this->is_available
+            && $this->schedule_date->isFuture()
             && $this->appointments()->count() < $this->max_patients;
     }
 
@@ -88,10 +89,10 @@ class Schedule extends Model
         $startTime = Carbon::parse($this->start_time);
         $endTime = Carbon::parse($this->end_time);
 
-        return $appointmentTime->between($startTime, $endTime) 
+        return $appointmentTime->between($startTime, $endTime)
             && $this->appointments()
-                    ->where('appointment_time', $time)
-                    ->count() < $this->max_patients;
+            ->where('appointment_time', $time)
+            ->count() < $this->max_patients;
     }
 
     public function getAvailableTimeSlots()
@@ -99,7 +100,7 @@ class Schedule extends Model
         $slots = [];
         $startTime = Carbon::parse($this->start_time);
         $endTime = Carbon::parse($this->end_time);
-        
+
         while ($startTime < $endTime) {
             if ($this->hasTimeSlotAvailable($startTime->format('H:i'))) {
                 $slots[] = $startTime->format('H:i');
@@ -130,7 +131,7 @@ class Schedule extends Model
         parent::boot();
 
         // Prevent deletion if schedule has appointments
-        static::deleting(function($schedule) {
+        static::deleting(function ($schedule) {
             if ($schedule->appointments()->count() > 0) {
                 throw new \Exception('Cannot delete schedule with existing appointments.');
             }

@@ -15,12 +15,14 @@ class AppointmentController extends Controller
 {
 
 
+
+
     public function index()
     {
-        $appointments = Auth::user()->patient->appointments()
-            ->with('doctor.user', 'schedule')
+        $appointments = Appointment::with(['doctor.user', 'schedule'])
+            ->where('patient_id', Auth::user()->patient->patient_id)
             ->latest()
-            ->paginate(10);
+            ->paginate(10); // Change get() to paginate()
 
         return view('patient.appointments.index', compact('appointments'));
     }
@@ -43,13 +45,13 @@ class AppointmentController extends Controller
                 'reason' => 'required|string|max:500',
                 'symptoms' => 'nullable|string|max:500',
             ]);
-    
+
             // Get first available doctor
             $doctor = Doctor::first();
             if (!$doctor) {
                 throw new \Exception('No doctors available in the system.');
             }
-    
+
             // Create appointment
             $appointment = Appointment::create([
                 'patient_id' => Auth::user()->patient->patient_id,
@@ -59,10 +61,9 @@ class AppointmentController extends Controller
                 'symptoms' => $validated['symptoms'],
                 'status' => 'PENDING',
             ]);
-    
+
             return redirect()->route('patient.appointments.show', $appointment)
                 ->with('success', 'Appointment scheduled successfully');
-                
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Failed to create appointment. ' . $e->getMessage()])
                 ->withInput();
