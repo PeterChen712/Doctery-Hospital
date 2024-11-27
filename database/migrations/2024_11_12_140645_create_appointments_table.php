@@ -22,8 +22,9 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->datetime('appointment_date')->nullable();
             $table->time('appointment_time')->nullable();
-            $table->enum('status', ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'])
+            $table->enum('status', ['PENDING', 'PENDING_CONFIRMATION', 'CONFIRMED', 'CANCELLED', 'COMPLETED'])
                 ->default('PENDING');
+            $table->boolean('patient_confirmed')->nullable();
             $table->text('reason')->nullable();
             $table->text('notes')->nullable();
             $table->text('symptoms')->nullable();

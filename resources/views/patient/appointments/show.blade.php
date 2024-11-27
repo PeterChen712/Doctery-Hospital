@@ -3,16 +3,22 @@
 @section('content')
     <div class="container mx-auto px-4 py-6">
         <div class="max-w-3xl mx-auto">
+            @if (session('success'))
+                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4">
+                    {{ session('success') }}
+                </div>
+            @endif
+
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                 <div class="p-6">
                     <div class="flex justify-between items-start">
                         <h1 class="text-2xl font-bold">Appointment Details</h1>
-                        <span
-                            class="px-3 py-1 rounded-full text-sm
-                        @if ($appointment->status === 'CONFIRMED') bg-green-100 text-green-800
-                        @elseif($appointment->status === 'PENDING') bg-yellow-100 text-yellow-800
-                        @elseif($appointment->status === 'CANCELLED') bg-red-100 text-red-800
-                        @else bg-gray-100 text-gray-800 @endif">
+                        <span class="px-3 py-1 rounded-full text-sm
+                            @if ($appointment->status === 'CONFIRMED') bg-green-100 text-green-800
+                            @elseif($appointment->status === 'PENDING_CONFIRMATION') bg-blue-100 text-blue-800
+                            @elseif($appointment->status === 'PENDING') bg-yellow-100 text-yellow-800
+                            @elseif($appointment->status === 'CANCELLED') bg-red-100 text-red-800
+                            @else bg-gray-100 text-gray-800 @endif">
                             {{ $appointment->status }}
                         </span>
                     </div>
@@ -33,7 +39,8 @@
                             <h3 class="text-gray-600">Schedule</h3>
                             <p class="font-semibold">
                                 @if($appointment->schedule)
-                                    {{ $appointment->schedule->day }} at {{ $appointment->appointment_date->format('h:i A') }}
+                                    {{ \Carbon\Carbon::parse($appointment->schedule->schedule_date)->format('l, F j, Y') }}
+                                    at {{ \Carbon\Carbon::parse($appointment->schedule->start_time)->format('h:i A') }}
                                 @else
                                     {{ $appointment->appointment_date->format('l, F j, Y \a\t h:i A') }}
                                 @endif
@@ -59,9 +66,23 @@
                             Back to List
                         </a>
 
+                        @if ($appointment->status === 'PENDING_CONFIRMATION')
+                            <form action="{{ route('patient.appointments.confirm', $appointment) }}" method="POST" class="inline">
+                                @csrf
+                                @method('POST')
+                                <button type="submit" name="confirm" value="1" 
+                                    class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                                    Confirm Schedule
+                                </button>
+                                <button type="submit" name="confirm" value="0"
+                                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2">
+                                    Decline Schedule
+                                </button>
+                            </form>
+                        @endif
+
                         @if ($appointment->status === 'PENDING')
-                            <form action="{{ route('patient.appointments.cancel', $appointment) }}" method="POST"
-                                class="inline">
+                            <form action="{{ route('patient.appointments.cancel', $appointment) }}" method="POST" class="inline">
                                 @csrf
                                 @method('PUT')
                                 <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">

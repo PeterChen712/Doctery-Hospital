@@ -13,10 +13,11 @@ class Appointment extends Model
     protected $primaryKey = 'appointment_id';
 
     // Status constants
-    const STATUS_PENDING = 'pending';
-    const STATUS_CONFIRMED = 'confirmed';
-    const STATUS_CANCELLED = 'cancelled';
-    const STATUS_COMPLETED = 'completed';
+    const STATUS_PENDING = 'PENDING';
+    const STATUS_PENDING_CONFIRMATION = 'PENDING_CONFIRMATION';
+    const STATUS_CONFIRMED = 'CONFIRMED';
+    const STATUS_CANCELLED = 'CANCELLED';
+    const STATUS_COMPLETED = 'COMPLETED';
 
     protected $fillable = [
         'patient_id',
@@ -27,14 +28,16 @@ class Appointment extends Model
         'status',
         'notes',
         'symptoms',
-        'is_rescheduled'  // Add this field
+        'is_rescheduled',
+        'patient_confirmed',
     ];
 
     protected $casts = [
         'appointment_date' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'is_rescheduled' => 'boolean'  // Add this cast
+        'is_rescheduled' => 'boolean',
+        'patient_confirmed' => 'boolean'
     ];
 
     // Relationships

@@ -76,7 +76,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
 
     Route::put('appointments/{appointment}/update-status', [AdminAppointmentController::class, 'updateStatus'])
         ->name('admin.appointments.update-status');
-        Route::get('/doctors/{doctor}/schedules', [AdminAppointmentController::class, 'getDoctorSchedules'])
+
+    Route::get('/doctors/{doctor}/schedules', [AdminAppointmentController::class, 'getDoctorSchedules'])
         ->name('admin.doctors.schedules');
 });
 
@@ -186,11 +187,12 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
         Route::post('/profile', 'store')->name('profile.store');
     });
 
-    // Appointments Management - Using Resource Controller
+    // Appointments Management
     Route::resource('appointments', PatientAppointmentController::class);
     Route::controller(PatientAppointmentController::class)->group(function () {
         Route::put('appointments/{appointment}/cancel', 'cancel')->name('appointments.cancel');
         Route::put('appointments/{appointment}/reschedule', 'reschedule')->name('appointments.reschedule');
+        Route::post('appointments/{appointment}/confirm', 'confirmAppointment')->name('appointments.confirm');
         Route::get('doctors/{doctor}/schedules', 'getDoctorSchedules')->name('doctors.schedules');
     });
 
@@ -207,7 +209,9 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
     Route::controller(NotificationController::class)->group(function () {
         Route::get('notifications', 'index')->name('notifications');
         Route::patch('notifications/{notification}', 'markAsRead')->name('notifications.markAsRead');
+        Route::post('notifications/mark-all-read', 'markAllAsRead')->name('notifications.markAllAsRead');
     });
 });
+
 
 require __DIR__ . '/auth.php';

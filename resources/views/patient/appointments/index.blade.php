@@ -27,7 +27,7 @@
                         <div>
                             <h3 class="font-semibold text-lg">
                                 @if ($appointment->doctor)
-                                    Dr. {{ $appointment->doctor->user->username }}
+                                    {{ $appointment->doctor->user->username }}
                                 @else
                                     No Doctor Assigned
                                 @endif

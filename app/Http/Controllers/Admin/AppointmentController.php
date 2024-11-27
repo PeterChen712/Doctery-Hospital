@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Appointment;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
+use App\Models\UserNotification;
 
 class AppointmentController extends Controller
 {
@@ -26,23 +27,50 @@ class AppointmentController extends Controller
     }
 
 
-    
-public function assignDoctor(Request $request, Appointment $appointment)
-{
-    $validated = $request->validate([
-        'doctor_id' => 'required|exists:doctors,doctor_id',
-        'schedule_id' => 'required|exists:schedules,schedule_id'
-    ]);
+    public function assignDoctor(Request $request, Appointment $appointment)
+    {
+        $validated = $request->validate([
+            'doctor_id' => 'required|exists:doctors,doctor_id',
+            'schedule_id' => 'required|exists:schedules,schedule_id'
+        ]);
 
-    $appointment->update([
-        'doctor_id' => $validated['doctor_id'],
-        'schedule_id' => $validated['schedule_id'],
-        'status' => 'CONFIRMED'
-    ]);
+        $appointment->update([
+            'doctor_id' => $validated['doctor_id'],
+            'schedule_id' => $validated['schedule_id'],
+            'status' => 'PENDING_CONFIRMATION'
+        ]);
 
-    return redirect()->route('admin.appointments.show', $appointment)
-        ->with('success', 'Doctor and schedule assigned successfully');
-}
+        // Create notification
+        UserNotification::create([
+            'user_id' => $appointment->patient->user_id,
+            'title' => 'Doctor Assigned to Your Appointment',
+            'type' => 'APPOINTMENT',
+            'data' => json_encode([
+                'message' => "Dr. {$appointment->doctor->user->username} has been assigned to your appointment. Please confirm your attendance.",
+                'appointment_id' => $appointment->appointment_id
+            ]),
+            'notifiable_type' => 'App\Models\Appointment',
+            'notifiable_id' => $appointment->appointment_id
+        ]);
+
+        return redirect()->route('admin.appointments.show', $appointment)
+            ->with('success', 'Doctor assigned and notification sent to patient');
+    }
+
+
+    public function confirmAppointment(Request $request, Appointment $appointment)
+    {
+        $validated = $request->validate([
+            'confirm' => 'required|boolean'
+        ]);
+
+        $appointment->update([
+            'patient_confirmed' => $validated['confirm'],
+            'status' => $validated['confirm'] ? 'CONFIRMED' : 'PENDING'
+        ]);
+
+        return back()->with('success', 'Appointment response recorded');
+    }
 
     public function updateStatus(Request $request, Appointment $appointment)
     {

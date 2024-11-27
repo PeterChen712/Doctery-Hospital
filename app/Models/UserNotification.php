@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Str;
 
 class UserNotification extends Model
 {
@@ -13,17 +14,19 @@ class UserNotification extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
+        'id',
         'user_id',
         'title',
         'data',
         'type',
         'notifiable_type',
-        'notifiable_id'
+        'notifiable_id',
+        'read_at'
     ];
 
     protected $casts = [
-        'data' => 'array',
-        'read_at' => 'datetime'
+        'read_at' => 'datetime',
+        'data' => 'array'
     ];
 
     // Relationships
@@ -58,5 +61,13 @@ class UserNotification extends Model
     public function isRead()
     {
         return $this->read_at !== null;
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->id = Str::uuid();
+        });
     }
 }

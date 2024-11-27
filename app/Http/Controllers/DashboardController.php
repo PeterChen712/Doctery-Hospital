@@ -106,69 +106,57 @@ class DashboardController extends Controller
         ));
     }
 
+    
     public function patient()
     {
-        $user = Auth::user();
-        
-        // First check if user exists and has correct role
-        if (!$user) {
-            return redirect()->route('login');
-        }
+        try {
+            $user = Auth::user();
+            
+            if (!$user) {
+                return redirect()->route('login');
+            }
 
-        // If user is not a patient, redirect to appropriate dashboard
-        if ($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
-        }
-        if ($user->role === 'doctor') {
-            return redirect()->route('doctor.dashboard');
-        }
-        if ($user->role !== 'patient') {
-            return redirect('/')->with('error', 'Invalid user role');
-        }
+            if ($user->role !== 'patient') {
+                return redirect()->route($user->role . '.dashboard');
+            }
 
-        // Get patient record
-        $patient = $user->patient;
-        
-        // If no patient record exists
-        if (!$patient) {
-            // Check if user registered themselves or was created by admin
-            if ($user->created_by === null) { // Self registered
+            $patient = Patient::where('user_id', $user->user_id)->with('user')->first();
+            
+            if (!$patient) {
                 return redirect()
                     ->route('patient.profile.create')
-                    ->with('error', 'Please complete your patient profile first.');
-            } else {
-                // Created by admin but patient profile not yet set up
-                return redirect('/')
-                    ->with('error', 'Your patient profile is not yet set up. Please contact the administrator.');
+                    ->with('warning', 'Please complete your profile first');
             }
-        }
 
-        try {
-            $appointments = $patient->appointments()
-                ->with('doctor.user')
+            $appointments = Appointment::with(['doctor.user', 'schedule'])
+                ->where('patient_id', $patient->patient_id)
                 ->where('status', '!=', 'CANCELLED')
-                ->where('appointment_date', '>=', now())
+                ->whereDate('appointment_date', '>=', now())
                 ->orderBy('appointment_date')
                 ->take(5)
                 ->get();
 
-            $medicalRecords = $patient->medicalRecords()
-                ->with(['doctor.user', 'prescriptions'])
+            $medicalRecords = MedicalRecord::with(['doctor.user'])
+                ->where('patient_id', $patient->patient_id)
                 ->latest('treatment_date')
+                ->take(5)
                 ->get();
 
-            $prescriptions = $patient->medicalRecords()
-                ->with(['doctor.user', 'prescriptions'])
+            $prescriptions = MedicalRecord::with(['doctor.user', 'prescriptions'])
+                ->where('patient_id', $patient->patient_id)
                 ->whereHas('prescriptions')
                 ->latest('treatment_date')
+                ->take(5)
                 ->get();
 
-            $notifications = $user->customNotifications()
+            $notifications = $user->notifications()
+                ->whereNull('read_at')
                 ->orderBy('created_at', 'desc')
                 ->take(5)
                 ->get();
 
             return view('patient.dashboard', compact(
+                'patient',
                 'appointments',
                 'medicalRecords',
                 'prescriptions',
@@ -176,10 +164,10 @@ class DashboardController extends Controller
             ));
 
         } catch (\Exception $e) {
-            Log::error('Error in patient dashboard: ' . $e->getMessage());
+            Log::error('Patient dashboard error: ' . $e->getMessage());
             return redirect()
                 ->back()
-                ->with('error', 'An error occurred while loading your dashboard. Please try again later.');
+                ->with('error', 'Error loading dashboard. Please try again.');
         }
     }
 }

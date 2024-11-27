@@ -147,4 +147,31 @@ class AppointmentController extends Controller
                 })
         ]);
     }
+
+    public function confirmAppointment(Request $request, Appointment $appointment)
+    {
+        // Validate the appointment belongs to current patient
+        if ($appointment->patient_id !== Auth::user()->patient->patient_id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'confirm' => 'required|boolean'
+        ]);
+
+        $appointment->update([
+            'patient_confirmed' => $validated['confirm'],
+            'status' => $validated['confirm'] ? 'CONFIRMED' : 'PENDING'
+        ]);
+
+        // Create notification for confirmation
+        if ($validated['confirm']) {
+            // Notify doctor/admin about confirmation
+            $message = 'Patient confirmed the appointment';
+        } else {
+            $message = 'Patient declined the appointment';
+        }
+
+        return back()->with('success', $message);
+    }
 }
