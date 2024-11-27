@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\MedicineController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\AppointmentController as AdminAppointmentController;
 use App\Http\Controllers\Doctor\MedicalRecordController as DoctorMedicalRecordController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\ScheduleController as DoctorScheduleController;
@@ -65,6 +66,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     // Profile Management for Admin
     Route::get('profile', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
     Route::put('profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
+
+
+    // Appointments Management
+    Route::resource('appointments', AdminAppointmentController::class, ['as' => 'admin']);
+
+    Route::put('appointments/{appointment}/assign-doctor', [AdminAppointmentController::class, 'assignDoctor'])
+        ->name('admin.appointments.assign-doctor');
+
+    Route::put('appointments/{appointment}/update-status', [AdminAppointmentController::class, 'updateStatus'])
+        ->name('admin.appointments.update-status');
+        Route::get('/doctors/{doctor}/schedules', [AdminAppointmentController::class, 'getDoctorSchedules'])
+        ->name('admin.doctors.schedules');
 });
 
 
@@ -145,10 +158,10 @@ Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(fu
     // Route::get('schedules/{id}/edit', [DoctorScheduleController::class, 'edit'])->name('schedules.edit');
     // Route::delete('schedules/{id}', [DoctorScheduleController::class, 'destroy']);
     // Route::get('schedules/by-date/{date}', [DoctorScheduleController::class, 'getSchedulesByDate']);
-    
-    
-    
-    
+
+
+
+
     // Route::resource('schedules', DoctorScheduleController::class, ['as' => 'doctor']);
     // Route::get('/doctor/schedules', [DoctorScheduleController::class, 'index'])->name('doctor.schedules.index');
     // Route::post('/doctor/schedules', [DoctorScheduleController::class, 'store'])->name('doctor.schedules.store');
