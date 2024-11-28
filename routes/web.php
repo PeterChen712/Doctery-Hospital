@@ -54,6 +54,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::resource('medicines', MedicineController::class)->parameters([
         'medicines' => 'medicine:medicine_id'
     ]);
+    Route::prefix('admin')->name('admin.')->group(function () {
+        // Medicine routes
+        Route::resource('medicines', MedicineController::class);
+    });
 
     // Reports Routes
     Route::get('/reports/users', [ReportController::class, 'users'])->name('admin.reports.users');

@@ -15,8 +15,8 @@ class MedicineController extends Controller
         // Search functionality
         if ($request->search) {
             $query->where('name', 'like', "%{$request->search}%")
-                  ->orWhere('manufacturer', 'like', "%{$request->search}%")
-                  ->orWhere('category', 'like', "%{$request->search}%");
+                ->orWhere('manufacturer', 'like', "%{$request->search}%")
+                ->orWhere('category', 'like', "%{$request->search}%");
         }
 
         // Filter by status
@@ -45,25 +45,24 @@ class MedicineController extends Controller
             'type' => 'required|in:REGULAR,CONTROLLED',
             'stock' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'cropped_image' => 'nullable|string',
             'expiry_date' => 'required|date|after:today',
             'manufacturer' => 'required|string|max:255',
             'category' => 'required|string|max:255',
         ]);
 
         try {
-            if ($request->hasFile('image')) {
-                $validated['image'] = file_get_contents($request->file('image')->getRealPath());
+            if ($request->filled('cropped_image')) {
+                $image_parts = explode(";base64,", $request->cropped_image);
+                $image_base64 = base64_decode($image_parts[1]);
+                $validated['image'] = $image_base64;
             }
-
-            $validated['is_available'] = true;
 
             Medicine::create($validated);
 
             return redirect()
                 ->route('admin.medicines.index')
                 ->with('success', 'Medicine created successfully');
-
         } catch (\Exception $e) {
             return back()
                 ->withInput()
@@ -85,34 +84,17 @@ class MedicineController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'type' => 'required|in:REGULAR,CONTROLLED',
+            'type' => 'required|in:CONTROLLED,NORMAL',
             'stock' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'expiry_date' => 'required|date',
             'manufacturer' => 'required|string|max:255',
-            'category' => 'required|string|max:255',
+            'expiry_date' => 'required|date',
+            // Add other validation rules as needed
         ]);
 
-        try {
-            if ($request->hasFile('image')) {
-                $validated['image'] = file_get_contents($request->file('image')->getRealPath());
-            }
+        $medicine->update($validated);
 
-            $validated['is_available'] = $request->stock > 0;
-
-            $medicine->update($validated);
-
-            return redirect()
-                ->route('admin.medicines.index')
-                ->with('success', 'Medicine updated successfully');
-
-        } catch (\Exception $e) {
-            return back()
-                ->withInput()
-                ->with('error', 'Error updating medicine: ' . $e->getMessage());
-        }
+        return redirect()->route('admin.medicines.index')
+            ->with('success', 'Medicine updated successfully');
     }
 
     public function destroy(Medicine $medicine)
@@ -128,7 +110,6 @@ class MedicineController extends Controller
             return redirect()
                 ->route('admin.medicines.index')
                 ->with('success', 'Medicine deleted successfully');
-
         } catch (\Exception $e) {
             return back()->with('error', 'Error deleting medicine: ' . $e->getMessage());
         }
