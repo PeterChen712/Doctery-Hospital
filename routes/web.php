@@ -131,8 +131,8 @@ Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(fu
 
     // Doctor resources
     Route::resource('appointments', DoctorAppointmentController::class);
-    Route::resource('records', DoctorMedicalRecordController::class);
-    // Route::resource('schedules', DoctorScheduleController::class);
+    Route::resource('medical-records', DoctorMedicalRecordController::class);
+    // Route::resource('records', DoctorMedicalRecordController::class);
     Route::resource('patients', DoctorPatientController::class);
     Route::resource('prescriptions', DoctorPrescriptionController::class); // Add this line
 

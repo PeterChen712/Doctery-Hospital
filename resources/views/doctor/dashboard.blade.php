@@ -20,7 +20,7 @@
                             <span class="font-medium">{{ $record->patient->user->username }}</span>
                             <p class="text-sm text-gray-500">{{ $record->treatment_date->format('d M Y') }}</p>
                         </div>
-                        <a href="{{ route('doctor.records.show', $record) }}" class="text-blue-600 hover:text-blue-800">View</a>
+                        <a href="{{ route('doctor.medical-records.show', $record) }}" class="text-blue-600 hover:text-blue-800">View</a>
                     </div>
                 </div>
             @empty
@@ -61,7 +61,7 @@
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg font-semibold">Ongoing Treatments</h3>
-            <a href="{{ route('doctor.records.index') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All</a>
+            <a href="{{ route('doctor.medical-records.index') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All</a>
         </div>
         <div class="divide-y dark:divide-gray-700">
             @forelse($ongoingTreatments as $record)
@@ -71,7 +71,7 @@
                             <span class="font-medium">{{ $record->patient->user->username }}</span>
                             <p class="text-sm text-gray-500">Last visit: {{ $record->treatment_date->format('d M Y') }}</p>
                         </div>
-                        <a href="{{ route('doctor.records.edit', $record) }}" class="text-blue-600 hover:text-blue-800">Update</a>
+                        <a href="{{ route('doctor.medical-records.edit', $record) }}" class="text-blue-600 hover:text-blue-800">Update</a>
                     </div>
                 </div>
             @empty

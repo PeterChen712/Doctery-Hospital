@@ -1,62 +1,100 @@
-@extends('layouts.admin')
-
-@section('header')
-    <h2 class="text-xl font-semibold">Medical Records</h2>
-@endsection
+@extends('layouts.doctor')
 
 @section('content')
-    {{-- Search Filters --}}
-    <div class="mb-4 bg-white p-4 rounded-lg shadow">
-        <form method="GET" class="flex gap-4">
-            <input type="text" name="patient" placeholder="Search patient..." value="{{ request('patient') }}" 
-                class="rounded-md">
-            <input type="date" name="date" value="{{ request('date') }}" class="rounded-md">
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Filter</button>
-        </form>
-    </div>
-
-    {{-- Records Table --}}
-    <div class="bg-white rounded-lg shadow">
-        <div class="p-4 border-b flex justify-between">
-            <h3 class="text-lg font-semibold">Patient Records</h3>
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold">Medical Records</h2>
             <a href="{{ route('doctor.medical-records.create') }}" 
-                class="bg-blue-500 text-white px-4 py-2 rounded">Add Record</a>
+               class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                Create New Record
+            </a>
         </div>
-        <table class="min-w-full">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left">Patient</th>
-                    <th class="px-6 py-3 text-left">Treatment Date</th>
-                    <th class="px-6 py-3 text-left">Status</th>
-                    <th class="px-6 py-3 text-left">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                @foreach($records as $record)
+
+        <!-- Search Form -->
+        <div class="mb-6 bg-white p-4 rounded-lg shadow">
+            <form action="{{ route('doctor.medical-records.index') }}" method="GET" class="flex gap-4">
+                <div class="flex-1">
+                    <input type="text" name="patient" value="{{ request('patient') }}" 
+                           class="w-full border rounded px-3 py-2" 
+                           placeholder="Search by patient name...">
+                </div>
+                <div class="flex-1">
+                    <input type="date" name="date" value="{{ request('date') }}" 
+                           class="w-full border rounded px-3 py-2">
+                </div>
+                <button type="submit" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+                    Search
+                </button>
+            </form>
+        </div>
+
+        <!-- Records List -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="min-w-full">
+                <thead class="bg-gray-50">
                     <tr>
-                        <td class="px-6 py-4">{{ $record->patient->user->username }}</td>
-                        <td class="px-6 py-4">{{ $record->treatment_date }}</td>
-                        <td class="px-6 py-4">{{ $record->status }}</td>
-                        <td class="px-6 py-4 flex gap-2">
-                            <a href="{{ route('doctor.medical-records.show', $record) }}" 
-                                class="text-blue-600">View</a>
-                            @if(Auth::user()->doctor->doctor_id === $record->creator_doctor_id)
-                                <a href="{{ route('doctor.medical-records.edit', $record) }}" 
-                                    class="text-yellow-600">Edit</a>
-                                <form method="POST" action="{{ route('doctor.medical-records.destroy', $record) }}" 
-                                    class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600" 
-                                        onclick="return confirm('Are you sure?')">Delete</button>
-                                </form>
-                            @endif
-                        </td>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Patient
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Treatment Date
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                        </th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
-        <div class="p-4">
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @forelse($records as $record)
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ $record->patient->user->username }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ $record->treatment_date->format('Y-m-d H:i') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                    {{ $record->status === 'COMPLETED' ? 'bg-green-100 text-green-800' : 
+                                       ($record->status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' : 
+                                       'bg-red-100 text-red-800') }}">
+                                    {{ $record->status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{{ route('doctor.medical-records.show', $record) }}" 
+                                   class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                                @if(Auth::user()->doctor->doctor_id === $record->creator_doctor_id)
+                                    <a href="{{ route('doctor.medical-records.edit', $record) }}" 
+                                       class="text-yellow-600 hover:text-yellow-900 mr-3">Edit</a>
+                                    <form action="{{ route('doctor.medical-records.destroy', $record) }}" 
+                                          method="POST" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" 
+                                                class="text-red-600 hover:text-red-900"
+                                                onclick="return confirm('Are you sure?')">
+                                            Delete
+                                        </button>
+                                    </form>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">
+                                No medical records found
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-4">
             {{ $records->links() }}
         </div>
     </div>
