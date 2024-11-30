@@ -31,6 +31,8 @@ class ProfileController extends Controller
         return view('patient.profile.edit', compact('user', 'patient'));
     }
 
+
+
     public function update(Request $request)
     {
         $user = $request->user();
@@ -43,54 +45,60 @@ class ProfileController extends Controller
             'address' => 'required|string|max:255',
             'blood_type' => 'nullable|in:A+,A-,B+,B-,O+,O-,AB+,AB-',
             'password' => ['nullable', 'confirmed', 'min:8'],
-            'profile_image' => 'nullable|image|max:2048', // For regular file upload
-            'cropped_avatar' => 'nullable|string', // For cropped image
+            'profile_image' => 'nullable|image|max:2048',
+            'cropped_image' => 'nullable|string'
         ]);
 
         try {
-            // Start with user data without image
+            // Handle cropped image upload
+            if ($request->filled('cropped_image')) {
+                // Delete old image if exists
+                if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
+                    Storage::disk('public')->delete($user->profile_image);
+                }
+
+                // Clean up base64 image data
+                $base64_image = $request->cropped_image;
+
+                // Check if the base64 string contains the data URI scheme
+                if (strpos($base64_image, ';base64,') !== false) {
+                    // Extract only the base64 data
+                    list($type, $base64_image) = explode(';', $base64_image);
+                    list(, $base64_image) = explode(',', $base64_image);
+                }
+
+                // Decode base64 data
+                $image_data = base64_decode($base64_image);
+
+                // Generate unique filename
+                $file_name = 'profile_' . time() . '_' . uniqid() . '.jpg';
+                $file_path = 'profile_images/' . $file_name;
+
+                // Ensure the storage directory exists
+                Storage::disk('public')->makeDirectory('profile_images', 0755, true, true);
+
+                // Store new image
+                if (!Storage::disk('public')->put($file_path, $image_data)) {
+                    throw new \Exception('Failed to save image file.');
+                }
+
+                $validated['profile_image'] = $file_path;
+            }
+
+            // Update user data
             $userData = [
                 'username' => $validated['username'],
                 'phone_number' => $validated['phone_number'],
                 'address' => $validated['address'],
             ];
 
-            // Handle image upload
-            if ($request->filled('cropped_avatar')) {
-                // Handle base64 cropped image
-                $image_parts = explode(";base64,", $request->cropped_avatar);
-                $image_type_aux = explode("image/", $image_parts[0]);
-                $image_type = $image_type_aux[1];
-                $image_base64 = base64_decode($image_parts[1]);
-
-                $file_name = 'profile_' . time() . '_' . uniqid() . '.' . $image_type;
-                $file_path = 'profile_images/' . $file_name;
-
-                // Delete old image if exists
-                if ($user->profile_image) {
-                    Storage::disk('public')->delete($user->profile_image);
-                }
-
-                // Store new image
-                if (Storage::disk('public')->put($file_path, $image_base64)) {
-                    $userData['profile_image'] = $file_path;
-                } else {
-                    throw new \Exception('Failed to save image file.');
-                }
-            } elseif ($request->hasFile('profile_image')) {
-                // Handle regular file upload if no cropped image
-                if ($user->profile_image) {
-                    Storage::disk('public')->delete($user->profile_image);
-                }
-
-                $file_path = $request->file('profile_image')->store('profile_images', 'public');
-                $userData['profile_image'] = $file_path;
+            if (isset($validated['profile_image'])) {
+                $userData['profile_image'] = $validated['profile_image'];
             }
 
-            // Update user data including image path
             $user->update($userData);
 
-            // Update patient data if exists
+            // Update patient data
             if ($patient && isset($validated['date_of_birth'])) {
                 $patientData = [
                     'date_of_birth' => $validated['date_of_birth']
@@ -103,7 +111,7 @@ class ProfileController extends Controller
                 $patient->update($patientData);
             }
 
-            // Handle password update if provided
+            // Handle password update
             if ($request->filled('password')) {
                 $user->password = bcrypt($validated['password']);
                 $user->save();

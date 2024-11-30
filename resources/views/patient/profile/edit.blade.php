@@ -97,25 +97,25 @@
                                 Profile Image
                             </label>
 
+                            <!-- Current Image Preview -->
                             @if ($user->profile_image)
-                                <!-- Existing Profile Image -->
                                 <div class="mb-4">
-                                    <img class="w-20 h-20 mb-3 rounded-full shadow-lg"
-                                        src="{{ route('avatar.show', Auth::user()->user_id) }}" alt="{{ Auth::user()->username }}">
-                                    <button type="button" id="change-avatar-button"
-                                        class="bg-gray-500 text-white px-4 py-2 rounded-md mt-2">
-                                        Change Image
-                                    </button>
+                                    <img class="w-32 h-32 rounded-full shadow-lg object-cover"
+                                        src="{{ route('avatar.show', $user->user_id) }}" alt="{{ $user->username }}">
                                 </div>
-                            @else
-                                <!-- File Input -->
-                                <input type="file" name="profile_image" id="avatar" accept="image/*" class="mt-2">
                             @endif
+
+                            <!-- File Input -->
+                            <input type="file" name="profile_image" id="avatar" accept="image/*" class="hidden">
+                            <button type="button" id="change-avatar-button"
+                                class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+                                {{ $user->profile_image ? 'Change Image' : 'Select Image' }}
+                            </button>
 
                             <!-- Image Preview Container -->
                             <div id="avatar-preview-container" style="display: none;">
                                 <img id="avatar-preview" src="#" alt="Avatar Preview"
-                                    class="w-32 h-32 rounded-full mb-2">
+                                    class="w-32 h-32 rounded-full mb-2 object-cover">
                                 <button type="button" id="edit-avatar-button"
                                     class="bg-gray-500 text-white px-4 py-2 rounded-md">
                                     Edit Image
@@ -131,8 +131,7 @@
                                 </button>
                             </div>
 
-                            <input type="hidden" id="cropped-avatar" name="cropped_avatar">
-
+                            <input type="hidden" id="cropped-avatar" name="cropped_image">
                             @error('profile_image')
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                             @enderror
@@ -160,6 +159,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
             const avatarInput = document.getElementById('avatar');
             const avatarImage = document.getElementById('avatar-image');
             const avatarPreview = document.getElementById('avatar-preview');
@@ -168,10 +168,13 @@
             const cropButton = document.getElementById('crop-button');
             const editAvatarButton = document.getElementById('edit-avatar-button');
             const changeAvatarButton = document.getElementById('change-avatar-button');
+            const croppedAvatarInput = document.getElementById('cropped-avatar');
             const form = document.querySelector('form');
+
             let cropper;
             let croppedImageBlob;
 
+            // Initialize Cropper
             function initCropper(imageUrl) {
                 avatarImage.src = imageUrl;
                 avatarCropContainer.style.display = 'block';
@@ -186,43 +189,67 @@
                     viewMode: 1,
                     minCropBoxWidth: 100,
                     minCropBoxHeight: 100,
-                });
-            }
-
-            if (avatarInput) {
-                avatarInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file && /^image\//.test(file.type)) {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            initCropper(event.target.result);
-                        };
-                        reader.readAsDataURL(file);
-                    } else {
-                        alert('Please select a valid image file.');
+                    autoCropArea: 1,
+                    responsive: true,
+                    cropBoxResizable: true,
+                    background: true,
+                    guides: true,
+                    highlight: true,
+                    cropBoxMovable: true,
+                    dragMode: 'move',
+                    ready: function() {
+                        this.cropper.crop();
                     }
                 });
             }
 
+            // Handle file input change
+            if (avatarInput) {
+                avatarInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        if (/^image\/\w+/.test(file.type)) {
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                initCropper(event.target.result);
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            alert('Please select a valid image file.');
+                            avatarInput.value = '';
+                        }
+                    }
+                });
+            }
+
+            // Handle crop button click
             cropButton.addEventListener('click', function() {
                 if (cropper) {
-                    cropper.getCroppedCanvas({
+                    const canvas = cropper.getCroppedCanvas({
                         width: 300,
-                        height: 300
-                    }).toBlob(function(blob) {
-                        croppedImageBlob = blob;
-                        const url = URL.createObjectURL(blob);
-                        avatarPreview.src = url;
-                        avatarPreviewContainer.style.display = 'block';
-                        avatarCropContainer.style.display = 'none';
-                    }, 'image/jpeg', 0.8);
+                        height: 300,
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high'
+                    });
+
+                    // Convert to base64 with proper MIME type prefix
+                    const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+                    croppedAvatarInput.value =
+                    base64Image; // This will include "data:image/jpeg;base64," prefix
+
+                    // Update preview
+                    avatarPreview.src = base64Image;
+                    avatarPreviewContainer.style.display = 'block';
+                    avatarCropContainer.style.display = 'none';
                 }
             });
 
+            // Handle edit button click
             editAvatarButton.addEventListener('click', function() {
                 initCropper(avatarPreview.src);
             });
 
+            // Handle change image button click
             if (changeAvatarButton) {
                 changeAvatarButton.addEventListener('click', function() {
                     avatarInput.click();
@@ -230,42 +257,95 @@
             }
 
             // Handle form submission
+            // Update the form submission part in patient profile edit.blade.php:
+
+            // Handle form submission
             form.addEventListener('submit', function(e) {
-                e.preventDefault(); // Prevent default form submission
+                e.preventDefault();
 
                 const formData = new FormData(form);
 
-                if (croppedImageBlob) {
-                    // Remove the original profile_image if any
-                    formData.delete('profile_image');
-                    // Append the cropped image blob
-                    formData.append('profile_image', croppedImageBlob, 'profile_image.jpg');
+                // Show loading state
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = 'Updating...';
+
+                // If we have a cropped image, use it
+                if (croppedAvatarInput.value) {
+                    formData.set('cropped_image', croppedAvatarInput.value);
                 }
 
                 fetch(form.action, {
                         method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: formData
+                        body: formData // Remove headers when sending FormData
                     })
                     .then(response => {
                         if (response.redirected) {
                             window.location.href = response.url;
-                        } else {
-                            return response.json();
+                            return;
                         }
+                        return response.json();
                     })
                     .then(data => {
-                        if (data && data.errors) {
+                        if (data.success) {
+                            window.location.href = data.redirect;
+                        } else if (data.errors) {
                             // Handle validation errors
-                            console.error(data.errors);
-                            // Display errors to the user if needed
+                            Object.keys(data.errors).forEach(field => {
+                                const errorElement = document.querySelector(`[name="${field}"]`)
+                                    .parentElement.querySelector('.text-red-600');
+                                if (errorElement) {
+                                    errorElement.textContent = data.errors[field][0];
+                                }
+                            });
+                            // Reset submit button
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = originalText;
                         }
                     })
                     .catch(error => {
                         console.error('Error:', error);
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalText;
+                        alert('An error occurred while updating your profile. Please try again.');
                     });
+            });
+
+            // Update the crop button handler:
+            cropButton.addEventListener('click', function() {
+                if (cropper) {
+                    const canvas = cropper.getCroppedCanvas({
+                        width: 300,
+                        height: 300,
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high'
+                    });
+
+                    // Convert canvas to base64 immediately
+                    const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+                    croppedAvatarInput.value = base64Image;
+
+                    // Update preview
+                    avatarPreview.src = base64Image;
+                    avatarPreviewContainer.style.display = 'block';
+                    avatarCropContainer.style.display = 'none';
+
+                    // Also store as blob for later use
+                    canvas.toBlob((blob) => {
+                        croppedImageBlob = blob;
+                    }, 'image/jpeg', 0.8);
+                }
+            });
+
+            // Clean up on page unload
+            window.addEventListener('beforeunload', function() {
+                if (cropper) {
+                    cropper.destroy();
+                }
+                if (croppedImageBlob) {
+                    URL.revokeObjectURL(avatarPreview.src);
+                }
             });
         });
     </script>
