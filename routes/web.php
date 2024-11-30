@@ -9,7 +9,6 @@ use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentContro
 use App\Http\Controllers\Doctor\ScheduleController as DoctorScheduleController;
 use App\Http\Controllers\Doctor\ProfileController as DoctorProfileController;
 use App\Http\Controllers\Doctor\DoctorPatientController;
-use App\Http\Controllers\Doctor\PrescriptionController as DoctorPrescriptionController;
 use App\Http\Controllers\Patient\AppointmentController as PatientAppointmentController;
 use App\Http\Controllers\Patient\MedicalRecordController as PatientMedicalRecordController;
 use App\Http\Controllers\Patient\CompleteProfileController;
@@ -109,9 +108,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 //     Route::post('schedules/{schedule}/toggle', [DoctorScheduleController::class, 'toggleStatus'])->name('schedules.toggle');
 //     Route::get('schedules/available/{doctor}', [DoctorScheduleController::class, 'getAvailableSlots'])->name('schedules.available');
 
-//     // Prescriptions
-//     Route::resource('prescriptions', DoctorPrescriptionController::class, ['as' => 'doctor']);
-
 //     // Profile Management - Updated name
 //     Route::get('profile', [DoctorProfileController::class, 'edit'])
 //         ->name('doctor.profile.edit'); // Changed name
@@ -128,13 +124,13 @@ Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(fu
     // Profile routes
     Route::get('/profile', [DoctorProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [DoctorProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/show', [DoctorProfileController::class, 'show'])->name('profile.show');
 
     // Doctor resources
     Route::resource('appointments', DoctorAppointmentController::class);
     Route::resource('medical-records', DoctorMedicalRecordController::class);
     // Route::resource('records', DoctorMedicalRecordController::class);
     Route::resource('patients', DoctorPatientController::class);
-    Route::resource('prescriptions', DoctorPrescriptionController::class); // Add this line
 
 
     // Route::resource('schedules', DoctorScheduleController::class);

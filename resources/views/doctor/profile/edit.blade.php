@@ -2,61 +2,296 @@
 @extends('layouts.doctor')
 
 @section('content')
-<div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-            <div class="p-6 bg-white border-b border-gray-200">
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight mb-4">
-                    Profile Settings
-                </h2>
+    <div class="container mx-auto px-4 py-6">
+        <div class="max-w-3xl mx-auto">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+                <div class="p-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Edit Your Profile</h2>
 
-                <form method="POST" action="{{ route('doctor.profile.update') }}" enctype="multipart/form-data">
-                    @csrf
-                    @method('PUT')
+                    <!-- Include Cropper.js CSS -->
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
 
-                    <!-- Username -->
-                    <div class="mb-4">
-                        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
-                        <input type="text" name="username" id="username" value="{{ old('username', $user->username) }}" 
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    </div>
+                    <form method="POST" action="{{ route('doctor.profile.update') }}" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
 
-                    <!-- Email -->
-                    <div class="mb-4">
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                        <input type="email" name="email" id="email" value="{{ old('email', $user->email) }}"
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    </div>
+                        <!-- Username -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Username
+                            </label>
+                            <input type="text" name="username" value="{{ old('username', $user->username) }}"
+                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                required>
+                            @error('username')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                    <!-- Phone -->
-                    <div class="mb-4">
-                        <label for="phone_number" class="block text-sm font-medium text-gray-700">Phone</label>
-                        <input type="text" name="phone_number" id="phone_number" value="{{ old('phone_number', $user->phone_number) }}"
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
-                    </div>
+                        <!-- Email -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Email
+                            </label>
+                            <input type="email" name="email" value="{{ old('email', $user->email) }}"
+                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                required>
+                            @error('email')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                    <!-- Address -->
-                    <div class="mb-4">
-                        <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
-                        <textarea name="address" id="address" rows="3" 
-                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">{{ old('address', $user->address) }}</textarea>
-                    </div>
+                        <!-- Phone Number -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Phone Number
+                            </label>
+                            <input type="text" name="phone_number" value="{{ old('phone_number', $user->phone_number) }}"
+                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                required>
+                            @error('phone_number')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                    <!-- Profile Image -->
-                    <div class="mb-4">
-                        <label for="profile_image" class="block text-sm font-medium text-gray-700">Profile Image</label>
-                        <input type="file" name="profile_image" id="profile_image"
-                               class="mt-1 block w-full">
-                    </div>
+                        <!-- Address -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Address
+                            </label>
+                            <textarea name="address" rows="3"
+                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                required>{{ old('address', $user->address) }}</textarea>
+                            @error('address')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
 
-                    <div class="flex items-center justify-end mt-4">
-                        <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                            Update Profile
-                        </button>
-                    </div>
-                </form>
+                        <!-- Specialization -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Specialization
+                            </label>
+                            <input type="text" name="specialization" value="{{ old('specialization', $doctor->specialization) }}"
+                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                required>
+                            @error('specialization')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- License Number -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                License Number
+                            </label>
+                            <input type="text" name="license_number" value="{{ old('license_number', $doctor->license_number) }}"
+                                class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                required>
+                            @error('license_number')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Profile Image Upload with Cropping -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                Profile Image
+                            </label>
+
+                            <!-- Current Image Preview -->
+                            @if ($user->profile_image)
+                                <div class="mb-4">
+                                    <img class="w-32 h-32 rounded-full shadow-lg object-cover"
+                                        src="{{ Storage::url($user->profile_image) }}" alt="{{ $user->username }}">
+                                </div>
+                            @endif
+
+                            <!-- File Input -->
+                            <input type="file" name="profile_image" id="avatar" accept="image/*" class="hidden">
+                            <button type="button" id="change-avatar-button"
+                                class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600">
+                                {{ $user->profile_image ? 'Change Image' : 'Select Image' }}
+                            </button>
+
+                            <!-- Image Preview Container -->
+                            <div id="avatar-preview-container" style="display: none;">
+                                <img id="avatar-preview" src="#" alt="Avatar Preview"
+                                    class="w-32 h-32 rounded-full mb-2 object-cover">
+                                <button type="button" id="edit-avatar-button"
+                                    class="bg-gray-500 text-white px-4 py-2 rounded-md">
+                                    Edit Image
+                                </button>
+                            </div>
+
+                            <!-- Image Crop Container -->
+                            <div id="avatar-crop-container" style="display: none;">
+                                <img id="avatar-image" src="#" alt="Avatar Image">
+                                <button type="button" id="crop-button"
+                                    class="bg-blue-500 text-white px-4 py-2 rounded-md mt-2">
+                                    Crop
+                                </button>
+                            </div>
+
+                            <input type="hidden" id="cropped-avatar" name="cropped_image">
+                            @error('profile_image')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="flex justify-end space-x-4">
+                            <a href="{{ route('doctor.profile.show') }}"
+                                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-400">
+                                Cancel
+                            </a>
+                            <button type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Update Profile
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Include Cropper.js JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const avatarInput = document.getElementById('avatar');
+            const avatarImage = document.getElementById('avatar-image');
+            const avatarPreview = document.getElementById('avatar-preview');
+            const avatarCropContainer = document.getElementById('avatar-crop-container');
+            const avatarPreviewContainer = document.getElementById('avatar-preview-container');
+            const cropButton = document.getElementById('crop-button');
+            const editAvatarButton = document.getElementById('edit-avatar-button');
+            const changeAvatarButton = document.getElementById('change-avatar-button');
+            const croppedAvatarInput = document.getElementById('cropped-avatar');
+            const form = document.querySelector('form');
+            
+            let cropper;
+
+            function initCropper(imageUrl) {
+                avatarImage.src = imageUrl;
+                avatarCropContainer.style.display = 'block';
+                avatarPreviewContainer.style.display = 'none';
+
+                if (cropper) {
+                    cropper.destroy();
+                }
+
+                cropper = new Cropper(avatarImage, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    minCropBoxWidth: 100,
+                    minCropBoxHeight: 100,
+                    autoCropArea: 1,
+                    responsive: true,
+                    cropBoxResizable: true,
+                    background: true,
+                    guides: true,
+                    highlight: true,
+                    cropBoxMovable: true,
+                    dragMode: 'move',
+                    ready: function() {
+                        this.cropper.crop();
+                    }
+                });
+            }
+
+            if (avatarInput) {
+                avatarInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        if (/^image\/\w+/.test(file.type)) {
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                initCropper(event.target.result);
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            alert('Please select a valid image file.');
+                            avatarInput.value = '';
+                        }
+                    }
+                });
+            }
+
+            cropButton.addEventListener('click', function() {
+                if (cropper) {
+                    const canvas = cropper.getCroppedCanvas({
+                        width: 300,
+                        height: 300,
+                        fillColor: '#fff',
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high',
+                    });
+
+                    const base64Image = canvas.toDataURL('image/jpeg', 0.8);
+                    croppedAvatarInput.value = base64Image;
+
+                    avatarPreview.src = base64Image;
+                    avatarPreviewContainer.style.display = 'block';
+                    avatarCropContainer.style.display = 'none';
+                }
+            });
+
+            editAvatarButton.addEventListener('click', function() {
+                initCropper(avatarPreview.src);
+            });
+
+            if (changeAvatarButton) {
+                changeAvatarButton.addEventListener('click', function() {
+                    avatarInput.click();
+                });
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = new FormData(form);
+
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = 'Updating...';
+
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.redirected) {
+                        window.location.href = response.url;
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = data.redirect;
+                    } else if (data.errors) {
+                        Object.keys(data.errors).forEach(field => {
+                            const errorElement = document.querySelector(`[name="${field}"]`)
+                                .parentElement.querySelector('.text-red-600');
+                            if (errorElement) {
+                                errorElement.textContent = data.errors[field][0];
+                            }
+                        });
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalText;
+                    alert('An error occurred while updating your profile. Please try again.');
+                });
+            });
+        });
+    </script>
 @endsection

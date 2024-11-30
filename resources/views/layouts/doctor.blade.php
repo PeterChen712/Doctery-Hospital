@@ -42,21 +42,33 @@
                 <div class="flex items-center">
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
-                            <button
+                            <button type="button"
                                 class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
-                                <img class="w-8 h-8 rounded-full"
-                                    src="{{ Auth::user()->profile_image ? Storage::url(Auth::user()->profile_image) : 'https://ui-avatars.com/api/?name=' . Auth::user()->username }}"
-                                    alt="user photo">
+                                <span class="sr-only">Open user menu</span>
+                                @if (Auth::user()->profile_image)
+                                    <img class="w-8 h-8 rounded-full"
+                                        src="{{ route('avatar.show', Auth::user()->user_id) }}"
+                                        alt="{{ Auth::user()->username }}">
+                                @else
+                                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
+                                        <span class="text-gray-600 font-medium text-sm">
+                                            {{ substr(Auth::user()->username, 0, 1) }}
+                                        </span>
+                                    </div>
+                                @endif
                             </button>
                         </x-slot>
 
+                        <!-- In top navigation dropdown -->
                         <x-slot name="content">
                             <div class="px-4 py-3">
                                 <p class="text-sm text-gray-900 dark:text-white">{{ Auth::user()->username }}</p>
                                 <p class="text-sm font-medium text-gray-900 truncate dark:text-gray-300">
-                                    {{ Auth::user()->email }}</p>
+                                    {{ Auth::user()->email }}
+                                </p>
                             </div>
-                            <x-dropdown-link :href="route('doctor.profile.edit')">Profile</x-dropdown-link>
+                            <!-- Change this line -->
+                            <x-dropdown-link :href="route('doctor.profile.show')">Profile</x-dropdown-link>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <x-dropdown-link :href="route('logout')"
@@ -78,9 +90,16 @@
 
             <!-- User Profile Section -->
             <div class="flex flex-col items-center pb-6 border-b border-gray-200 dark:border-gray-700">
-                <img class="w-20 h-20 mb-3 rounded-full shadow-lg"
-                    src="{{ Auth::user()->profile_image ? Storage::url(Auth::user()->profile_image) : 'https://ui-avatars.com/api/?name=' . Auth::user()->username }}"
-                    alt="{{ Auth::user()->username }} profile image">
+                @if (Auth::user()->profile_image)
+                    <img class="w-20 h-20 mb-3 rounded-full shadow-lg"
+                        src="{{ route('avatar.show', Auth::user()->user_id) }}" alt="{{ Auth::user()->username }}">
+                @else
+                    <div class="w-20 h-20 mb-3 rounded-full shadow-lg bg-gray-300 flex items-center justify-center">
+                        <span class="text-gray-600 font-medium text-xl">
+                            {{ substr(Auth::user()->username, 0, 1) }}
+                        </span>
+                    </div>
+                @endif
                 <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">{{ Auth::user()->username }}</h5>
                 <span class="text-sm text-gray-500 dark:text-gray-400">{{ Auth::user()->email }}</span>
             </div>
@@ -139,31 +158,21 @@
                 </li>
 
                 <!-- Prescriptions -->
+
+                <!-- Medical Records -->
                 <li>
-                    <a href="{{ route('doctor.prescriptions.index') }}"
+                    <a href="{{ route('doctor.medical-records.index') }}"
                         class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
                         <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <span class="ms-3">Prescriptions</span>
+                        <span class="ms-3">Medical Records</span>
                     </a>
                 </li>
             </ul>
 
-            <!-- Medical Records -->
-            <li>
-                <a href="{{ route('doctor.medical-records.index') }}"
-                    class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                    <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <span class="ms-3">Medical Records</span>
-                </a>
-            </li>
 
             <!-- Beta CTA -->
             <div class="mt-4 p-4 bg-blue-900 dark:bg-blue-800 rounded-lg mx-2">
