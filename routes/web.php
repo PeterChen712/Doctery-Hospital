@@ -1,24 +1,32 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+
+//Admin
 use App\Http\Controllers\Admin\MedicineController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\AppointmentController as AdminAppointmentController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+
+//Doctor
 use App\Http\Controllers\Doctor\MedicalRecordController as DoctorMedicalRecordController;
 use App\Http\Controllers\Doctor\AppointmentController as DoctorAppointmentController;
 use App\Http\Controllers\Doctor\ScheduleController as DoctorScheduleController;
 use App\Http\Controllers\Doctor\ProfileController as DoctorProfileController;
 use App\Http\Controllers\Doctor\DoctorPatientController;
+
+//Patient
 use App\Http\Controllers\Patient\AppointmentController as PatientAppointmentController;
 use App\Http\Controllers\Patient\MedicalRecordController as PatientMedicalRecordController;
 use App\Http\Controllers\Patient\CompleteProfileController;
+use App\Http\Controllers\Patient\PatientViewDoctorController;
 use App\Http\Controllers\Patient\ProfileController as SetupProfileController;
+use App\Http\Controllers\Patient\ProfileController as PatientProfileController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ReportController;
-use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 
 // Public Routes
 Route::get('/', function () {
@@ -172,13 +180,12 @@ Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(fu
 // Route::middleware(['auth', 'patient'])->prefix('patient')->as('patient.')->group(function () {
 
 
-// Patient Routes
 Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'patient'])->name('dashboard');
 
     // Profile Management
-    Route::controller(SetupProfileController::class)->group(function () {
+    Route::controller(PatientProfileController::class)->group(function () {
         Route::get('/profile', 'show')->name('profile.show');
         Route::get('/profile/edit', 'edit')->name('profile.edit');
         Route::put('/profile', 'update')->name('profile.update');
@@ -198,18 +205,25 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
     // Medical Records
     Route::controller(PatientMedicalRecordController::class)->group(function () {
         Route::get('medical-records', 'myRecords')->name('medical-records');
+        Route::get('medical-records/{record}', 'show')->name('medical-records.show');
+    });
+
+    // Prescriptions
+    Route::controller(PatientMedicalRecordController::class)->group(function () {
         Route::get('prescriptions', 'myPrescriptions')->name('prescriptions');
     });
 
-    // Feedback 
-    Route::resource('feedback', FeedbackController::class)->only(['store', 'update']);
+    // View Doctor Profile
+    Route::get('view-doctor/{doctor}', [PatientViewDoctorController::class, 'show'])->name('doctors.show');
 
     // Notifications
     Route::controller(NotificationController::class)->group(function () {
         Route::get('notifications', 'index')->name('notifications');
         Route::patch('notifications/{notification}', 'markAsRead')->name('notifications.markAsRead');
-        Route::post('notifications/mark-all-read', 'markAllAsRead')->name('notifications.mark-all-read');
+        Route::post('notifications/mark-all-read', 'markAllAsRead')->name('notifications.markAllAsRead');
     });
-});
 
+    // Feedback (optional)
+    Route::resource('feedback', FeedbackController::class)->only(['store', 'update']);
+});
 require __DIR__ . '/auth.php';

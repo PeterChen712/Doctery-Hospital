@@ -42,22 +42,30 @@ class AppointmentController extends Controller
     {
         try {
             $validated = $request->validate([
-                'appointment_date' => 'required|date|after:today',
+                'doctor_id' => 'required|exists:doctors,doctor_id',
+                'schedule_id' => 'required|exists:schedules,schedule_id',
                 'reason' => 'required|string|max:500',
                 'symptoms' => 'nullable|string|max:500',
             ]);
 
-            // Get first available doctor
-            $doctor = Doctor::first();
-            if (!$doctor) {
-                throw new \Exception('No doctors available in the system.');
+            // Check if schedule is available
+            $schedule = Schedule::find($validated['schedule_id']);
+            if (!$schedule || !$schedule->is_available) {
+                throw new \Exception('Selected schedule is not available.');
+            }
+
+            // Check if schedule belongs to selected doctor
+            if ($schedule->doctor_id != $validated['doctor_id']) {
+                throw new \Exception('Invalid schedule selection.');
             }
 
             // Create appointment
             $appointment = Appointment::create([
                 'patient_id' => Auth::user()->patient->patient_id,
-                'doctor_id' => null, // Auto-assign doctor
-                'appointment_date' => $validated['appointment_date'],
+                'doctor_id' => $validated['doctor_id'],
+                'schedule_id' => $validated['schedule_id'],
+                'appointment_date' => $schedule->schedule_date,
+                'appointment_time' => $schedule->start_time,
                 'reason' => $validated['reason'],
                 'symptoms' => $validated['symptoms'],
                 'status' => 'PENDING',
@@ -130,24 +138,44 @@ class AppointmentController extends Controller
             ->with('success', 'Appointment rescheduled successfully');
     }
 
+
     public function getDoctorSchedules(Doctor $doctor)
     {
+        // Check if patient is authorized
+        if (!Auth::user()->patient) {
+            abort(403, 'Unauthorized');
+        }
+
+        $now = now();
+
+        $schedules = $doctor->schedules()
+            ->where('is_available', true)
+            ->where('schedule_date', '>=', $now->toDateString())
+            ->orderBy('schedule_date')
+            ->orderBy('start_time')
+            ->get()
+            ->map(function ($schedule) {
+                $bookedPatients = $schedule->appointments()
+                    ->whereIn('status', ['CONFIRMED', 'PENDING_CONFIRMATION'])
+                    ->count();
+
+                return [
+                    'schedule_id' => $schedule->schedule_id,
+                    'schedule_date' => $schedule->schedule_date->format('Y-m-d'),
+                    'day_of_week' => $schedule->schedule_date->dayOfWeek,
+                    'start_time' => $schedule->start_time->format('H:i'),
+                    'end_time' => $schedule->end_time->format('H:i'),
+                    'max_patients' => $schedule->max_patients,
+                    'booked_patients' => $bookedPatients,
+                    'is_available' => $schedule->is_available
+                ];
+            });
+
         return response()->json([
-            'schedules' => $doctor->schedules()
-                ->where('schedule_date', '>', now())
-                ->where('is_available', true)
-                ->get()
-                ->map(function ($schedule) {
-                    return [
-                        'schedule_id' => $schedule->schedule_id,
-                        'day' => $schedule->day_name,
-                        'start_time' => $schedule->start_time->format('H:i'),
-                        'end_time' => $schedule->end_time->format('H:i'),
-                        'available_slots' => $schedule->available_slots
-                    ];
-                })
+            'schedules' => $schedules
         ]);
     }
+
 
     public function confirmAppointment(Request $request, Appointment $appointment)
     {
@@ -155,7 +183,7 @@ class AppointmentController extends Controller
         if ($appointment->patient_id !== Auth::user()->patient->patient_id) {
             abort(403);
         }
-    
+
         DB::beginTransaction();
         try {
             if ($request->confirm == 1) {
@@ -164,7 +192,7 @@ class AppointmentController extends Controller
                     'status' => 'CONFIRMED',
                     'patient_confirmed' => true
                 ]);
-                
+
                 // Create schedule_appointments entry
                 $appointment->schedules()->attach($appointment->schedule_id);
                 $message = 'Appointment confirmed successfully';
@@ -177,7 +205,7 @@ class AppointmentController extends Controller
                 ]);
                 $message = 'Appointment declined';
             }
-    
+
             DB::commit();
             return back()->with('success', $message);
         } catch (\Exception $e) {
