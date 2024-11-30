@@ -42,50 +42,45 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard
-    Route::get('/dashboard', [DashboardController::class, 'admin'])->name('admin.dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
 
     // Users Management
-    Route::resource('users', UserController::class, ['as' => 'admin']);
+    Route::resource('users', UserController::class);
 
     // Medicines Management
-    // Route::resource('medicines', MedicineController::class, ['as' => 'admin']);
     Route::resource('medicines', MedicineController::class)->parameters([
         'medicines' => 'medicine:medicine_id'
     ]);
-    Route::prefix('admin')->name('admin.')->group(function () {
-        // Medicine routes
-        Route::resource('medicines', MedicineController::class);
-    });
+
+
+    // Medicine Image Route
+    Route::get('/medicine/image/{medicine:medicine_id}', [MedicineController::class, 'showImage'])
+        ->name('medicines.image');
 
     // Reports Routes
-    Route::get('/reports/users', [ReportController::class, 'users'])->name('admin.reports.users');
-    Route::get('/reports/medicines', [ReportController::class, 'medicines'])->name('admin.reports.medicines');
-    Route::get('/reports/appointments', [ReportController::class, 'appointments'])->name('admin.reports.appointments');
-    Route::get('/reports/prescriptions', [ReportController::class, 'prescriptions'])->name('admin.reports.prescriptions');
-
+    Route::get('/reports/users', [ReportController::class, 'users'])->name('reports.users');
+    Route::get('/reports/medicines', [ReportController::class, 'medicines'])->name('reports.medicines');
+    Route::get('/reports/appointments', [ReportController::class, 'appointments'])->name('reports.appointments');
+    Route::get('/reports/prescriptions', [ReportController::class, 'prescriptions'])->name('reports.prescriptions');
 
     // Report Exports
-    Route::get('/reports/users/export', [ReportController::class, 'exportUsers'])->name('admin.reports.users.export');
-    Route::get('/reports/medicines/export', [ReportController::class, 'exportMedicines'])->name('admin.reports.medicines.export');
+    Route::get('/reports/users/export', [ReportController::class, 'exportUsers'])->name('reports.users.export');
+    Route::get('/reports/medicines/export', [ReportController::class, 'exportMedicines'])->name('reports.medicines.export');
 
-    // Profile Management for Admin
-    Route::get('profile', [AdminProfileController::class, 'edit'])->name('admin.profile.edit');
-    Route::put('profile', [AdminProfileController::class, 'update'])->name('admin.profile.update');
-
+    // Admin Profile Management
+    Route::get('profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('profile', [AdminProfileController::class, 'update'])->name('profile.update');
 
     // Appointments Management
-    Route::resource('appointments', AdminAppointmentController::class, ['as' => 'admin']);
-
+    Route::resource('appointments', AdminAppointmentController::class);
     Route::put('appointments/{appointment}/assign-doctor', [AdminAppointmentController::class, 'assignDoctor'])
-        ->name('admin.appointments.assign-doctor');
-
+        ->name('appointments.assign-doctor');
     Route::put('appointments/{appointment}/update-status', [AdminAppointmentController::class, 'updateStatus'])
-        ->name('admin.appointments.update-status');
-
+        ->name('appointments.update-status');
     Route::get('/doctors/{doctor}/schedules', [AdminAppointmentController::class, 'getDoctorSchedules'])
-        ->name('admin.doctors.schedules');
+        ->name('doctors.schedules');
 });
 
 

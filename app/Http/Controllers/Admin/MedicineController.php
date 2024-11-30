@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Medicine;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class MedicineController extends Controller
 {
@@ -45,28 +47,64 @@ class MedicineController extends Controller
             'type' => 'required|in:REGULAR,CONTROLLED',
             'stock' => 'required|integer|min:0',
             'price' => 'required|numeric|min:0',
-            'cropped_image' => 'nullable|string',
             'expiry_date' => 'required|date|after:today',
             'manufacturer' => 'required|string|max:255',
             'category' => 'required|string|max:255',
+            'image' => 'nullable|image|max:2048', // For regular file upload
+            'cropped_image' => 'nullable|string', // For cropped image base64
         ]);
 
         try {
+            // Handle image upload
             if ($request->filled('cropped_image')) {
+                // Process base64 cropped image
                 $image_parts = explode(";base64,", $request->cropped_image);
+                $image_type_aux = explode("image/", $image_parts[0]);
+                $image_type = $image_type_aux[1];
                 $image_base64 = base64_decode($image_parts[1]);
-                $validated['image'] = $image_base64;
+
+                $file_name = 'medicine_' . time() . '_' . uniqid() . '.' . $image_type;
+                $file_path = 'medicine_images/' . $file_name;
+
+                // Store new image
+                if (!Storage::disk('public')->put($file_path, $image_base64)) {
+                    throw new \Exception('Failed to save image file.');
+                }
+
+                $validated['image'] = $file_path;
+            } elseif ($request->hasFile('image')) {
+                // Handle regular file upload if no cropped image
+                $file_path = $request->file('image')->store('medicine_images', 'public');
+                $validated['image'] = $file_path;
             }
 
+            // Create medicine with all data including image path
             Medicine::create($validated);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Medicine created successfully',
+                    'redirect' => route('admin.medicines.index')
+                ]);
+            }
 
             return redirect()
                 ->route('admin.medicines.index')
                 ->with('success', 'Medicine created successfully');
         } catch (\Exception $e) {
+            Log::error('Medicine creation failed: ' . $e->getMessage());
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to create medicine: ' . $e->getMessage()
+                ], 422);
+            }
+
             return back()
                 ->withInput()
-                ->with('error', 'Error creating medicine: ' . $e->getMessage());
+                ->withErrors(['error' => 'Failed to create medicine: ' . $e->getMessage()]);
         }
     }
 
@@ -80,22 +118,74 @@ class MedicineController extends Controller
         return view('admin.medicines.edit', compact('medicine'));
     }
 
+
     public function update(Request $request, Medicine $medicine)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'type' => 'required|in:CONTROLLED,NORMAL',
+            'description' => 'required|string',
+            'type' => 'required|in:REGULAR,CONTROLLED',
             'stock' => 'required|integer|min:0',
-            'manufacturer' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
             'expiry_date' => 'required|date',
-            // Add other validation rules as needed
+            'manufacturer' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'image' => 'nullable|image|max:2048',
+            'cropped_image' => 'nullable|string'
         ]);
 
-        $medicine->update($validated);
+        try {
+            // Handle image upload
+            if ($request->filled('cropped_image')) {
+                // Delete old image
+                if ($medicine->image && Storage::disk('public')->exists($medicine->image)) {
+                    Storage::disk('public')->delete($medicine->image);
+                }
 
-        return redirect()->route('admin.medicines.index')
-            ->with('success', 'Medicine updated successfully');
+                // Remove data:image prefix from base64 string
+                $base64_str = substr($request->cropped_image, strpos($request->cropped_image, ",") + 1);
+                $image_base64 = base64_decode($base64_str);
+
+                $file_name = 'medicine_' . time() . '_' . uniqid() . '.jpg';
+                $file_path = 'medicine_images/' . $file_name;
+
+                // Store new image
+                if (!Storage::disk('public')->put($file_path, $image_base64)) {
+                    throw new \Exception('Failed to save image file.');
+                }
+
+                $validated['image'] = $file_path;
+            }
+
+            $medicine->update($validated);
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Medicine updated successfully',
+                    'redirect' => route('admin.medicines.index')
+                ]);
+            }
+
+            return redirect()
+                ->route('admin.medicines.index')
+                ->with('success', 'Medicine updated successfully');
+        } catch (\Exception $e) {
+            Log::error('Medicine update failed: ' . $e->getMessage());
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to update medicine: ' . $e->getMessage()
+                ], 422);
+            }
+
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to update medicine: ' . $e->getMessage()]);
+        }
     }
+
 
     public function destroy(Medicine $medicine)
     {
@@ -135,5 +225,15 @@ class MedicineController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', 'Error updating stock: ' . $e->getMessage());
         }
+    }
+
+
+    public function showImage(Medicine $medicine)
+    {
+        if (!$medicine->image || !Storage::disk('public')->exists($medicine->image)) {
+            abort(404);
+        }
+
+        return response()->file(Storage::disk('public')->path($medicine->image));
     }
 }
