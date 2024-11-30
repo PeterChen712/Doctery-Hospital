@@ -51,9 +51,19 @@ class MedicalRecord extends Model
 
     public function medicines()
     {
-        return $this->belongsToMany(Medicine::class, 'medical_record_medicines', 
-            'medical_record_id', 'medicine_id')
+        return $this->belongsToMany(
+            Medicine::class,
+            'medical_record_medicines',
+            'medical_record_id',
+            'medicine_id'
+        )
             ->withPivot(['quantity', 'dosage', 'instructions'])
             ->withTimestamps();
+    }
+
+
+    public function notifications()
+    {
+        return $this->morphMany(UserNotification::class, 'notifiable');
     }
 }

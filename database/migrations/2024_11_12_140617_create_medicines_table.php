@@ -11,12 +11,13 @@ return new class extends Migration
      */
     public function up()
     {
+
         Schema::create('medicines', function (Blueprint $table) {
-            $table->id('medicine_id'); // Make sure primary key matches foreign key
+            $table->id('medicine_id');
             $table->string('name');
             $table->text('description');
-            $table->enum('type', ['REGULAR', 'CONTROLLED']);
-            $table->integer('stock')->default(0);
+            $table->string('type', 50);  // Increase length if needed
+            $table->integer('stock');
             $table->decimal('price', 10, 2);
             $table->binary('image')->nullable();
             $table->date('expiry_date');

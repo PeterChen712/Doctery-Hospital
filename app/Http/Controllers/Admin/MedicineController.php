@@ -7,6 +7,8 @@ use App\Models\Medicine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use App\Models\MedicalRecord;
 
 class MedicineController extends Controller
 {
@@ -39,73 +41,51 @@ class MedicineController extends Controller
         return view('admin.medicines.create');
     }
 
+
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string',
-            'type' => 'required|in:REGULAR,CONTROLLED',
-            'stock' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0',
-            'expiry_date' => 'required|date|after:today',
-            'manufacturer' => 'required|string|max:255',
-            'category' => 'required|string|max:255',
-            'image' => 'nullable|image|max:2048', // For regular file upload
-            'cropped_image' => 'nullable|string', // For cropped image base64
+            'patient_id' => 'required|exists:patients,patient_id',
+            'symptoms' => 'required|string',
+            'diagnosis' => 'required|string',
+            'medical_action' => 'required|string',
+            'lab_results' => 'nullable|string',
+            'treatment_date' => 'required|date',
+            'notes' => 'nullable|string',
+            'status' => 'required|in:PENDING,IN_PROGRESS,COMPLETED',
+            'follow_up_date' => 'nullable|date|after:treatment_date',
+            'medicine_ids' => 'required|array|min:1',
+            'medicine_ids.*' => 'exists:medicines,medicine_id'
         ]);
 
-        try {
-            // Handle image upload
-            if ($request->filled('cropped_image')) {
-                // Process base64 cropped image
-                $image_parts = explode(";base64,", $request->cropped_image);
-                $image_type_aux = explode("image/", $image_parts[0]);
-                $image_type = $image_type_aux[1];
-                $image_base64 = base64_decode($image_parts[1]);
+        $record = MedicalRecord::create([
+            'patient_id' => $validated['patient_id'],
+            'doctor_id' => Auth::user()->doctor->doctor_id,
+            'creator_doctor_id' => Auth::user()->doctor->doctor_id,
+            'symptoms' => $validated['symptoms'],
+            'diagnosis' => $validated['diagnosis'],
+            'medical_action' => $validated['medical_action'],
+            'lab_results' => $validated['lab_results'],
+            'treatment_date' => $validated['treatment_date'],
+            'notes' => $validated['notes'],
+            'status' => $validated['status'],
+            'follow_up_date' => $validated['follow_up_date']
+        ]);
 
-                $file_name = 'medicine_' . time() . '_' . uniqid() . '.' . $image_type;
-                $file_path = 'medicine_images/' . $file_name;
+        // Attach medicines with default values for pivot table
+        $medicines = collect($validated['medicine_ids'])->mapWithKeys(function ($id) {
+            return [$id => [
+                'quantity' => 1,
+                'dosage' => 'As prescribed', // Add default dosage
+                'instructions' => 'Take as directed by doctor' // Add default instructions
+            ]];
+        });
 
-                // Store new image
-                if (!Storage::disk('public')->put($file_path, $image_base64)) {
-                    throw new \Exception('Failed to save image file.');
-                }
+        $record->medicines()->attach($medicines);
 
-                $validated['image'] = $file_path;
-            } elseif ($request->hasFile('image')) {
-                // Handle regular file upload if no cropped image
-                $file_path = $request->file('image')->store('medicine_images', 'public');
-                $validated['image'] = $file_path;
-            }
-
-            // Create medicine with all data including image path
-            Medicine::create($validated);
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Medicine created successfully',
-                    'redirect' => route('admin.medicines.index')
-                ]);
-            }
-
-            return redirect()
-                ->route('admin.medicines.index')
-                ->with('success', 'Medicine created successfully');
-        } catch (\Exception $e) {
-            Log::error('Medicine creation failed: ' . $e->getMessage());
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Failed to create medicine: ' . $e->getMessage()
-                ], 422);
-            }
-
-            return back()
-                ->withInput()
-                ->withErrors(['error' => 'Failed to create medicine: ' . $e->getMessage()]);
-        }
+        return redirect()
+            ->route('doctor.medical-records.index')
+            ->with('success', 'Medical record created successfully');
     }
 
     public function show(Medicine $medicine)

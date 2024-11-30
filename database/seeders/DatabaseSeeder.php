@@ -15,12 +15,13 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->call([
-            RoleAndPermissionSeeder::class,
-            AdminUserSeeder::class,
-            DoctorSeeder::class,
-            PatientSeeder::class,
-            ScheduleSeeder::class,
-            AppointmentSeeder::class
+            RoleAndPermissionSeeder::class,    // 1. Create roles
+            AdminUserSeeder::class,            // 2. Create admin
+            DoctorSeeder::class,               // 3. Create doctor
+            PatientSeeder::class,              // 4. Create patients
+            DoctorScheduleSeeder::class,       // 5. Create schedules
+            MedicineSeeder::class,             // 6. Create medicines
+            AppointmentSeeder::class           // 7. Create appointments
         ]);
     }
 }

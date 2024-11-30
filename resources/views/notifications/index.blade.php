@@ -3,44 +3,61 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Notifications</h1>
-        
-        @if($notifications->count() > 0)
-            <form action="{{ route('patient.notifications.mark-all-read') }}" method="POST">
-                @csrf
-                <button type="submit" class="text-blue-500 hover:text-blue-700">
-                    Mark all as read
-                </button>
-            </form>
-        @endif
-    </div>
-
+    <h2 class="text-2xl font-bold mb-4">Notifications</h2>
+    
     <div class="space-y-4">
-        @forelse($notifications as $notification)
-            <div class="bg-white rounded-lg shadow p-4 {{ $notification->read_at ? 'opacity-50' : '' }}">
-                <div class="flex justify-between">
-                    <h3 class="font-semibold">{{ $notification->title }}</h3>
-                    @if(!$notification->read_at)
-                        <form action="{{ route('patient.notifications.markAsRead', $notification) }}" method="POST">
+        @forelse ($notifications as $notification)
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-semibold">
+                            {{-- Check if data is already an array --}}
+                            @php
+                                $data = is_array($notification->data) 
+                                    ? $notification->data 
+                                    : json_decode($notification->data, true);
+                            @endphp
+                            
+                            {{ $data['title'] ?? 'Notification' }}
+                        </h3>
+                        <p class="text-gray-600">
+                            {{ $data['message'] ?? '' }}
+                        </p>
+                        <span class="text-sm text-gray-500">
+                            {{ $notification->created_at->diffForHumans() }}
+                        </span>
+                    </div>
+                    
+                    @unless($notification->read_at)
+                        <form method="POST" action="{{ route('notifications.markAsRead', $notification->id) }}">
                             @csrf
                             @method('PATCH')
-                            <button type="submit" class="text-sm text-blue-500 hover:text-blue-700">
+                            <button type="submit" 
+                                class="text-blue-600 hover:text-blue-800">
                                 Mark as read
                             </button>
                         </form>
-                    @endif
+                    @endunless
                 </div>
-                <p class="text-gray-600 mt-2">
-                    {{ json_decode($notification->data)->message ?? '' }}
-                </p>
-                <span class="text-sm text-gray-500">
-                    {{ $notification->created_at->diffForHumans() }}
-                </span>
             </div>
         @empty
-            <p class="text-gray-500 text-center py-4">No notifications found.</p>
+            <div class="text-center text-gray-500">
+                No notifications found
+            </div>
         @endforelse
     </div>
+
+    @if($notifications->isNotEmpty())
+        <div class="mt-4">
+            <form method="POST" action="{{ route('notifications.markAllAsRead') }}" class="inline">
+                @csrf
+                @method('PATCH')
+                <button type="submit" 
+                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    Mark all as read
+                </button>
+            </form>
+        </div>
+    @endif
 </div>
 @endsection

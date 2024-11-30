@@ -172,6 +172,7 @@ Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(fu
 // Route::middleware(['auth', 'patient'])->prefix('patient')->as('patient.')->group(function () {
 
 
+// Patient Routes
 Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'patient'])->name('dashboard');
@@ -210,6 +211,5 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
         Route::post('notifications/mark-all-read', 'markAllAsRead')->name('notifications.mark-all-read');
     });
 });
-
 
 require __DIR__ . '/auth.php';

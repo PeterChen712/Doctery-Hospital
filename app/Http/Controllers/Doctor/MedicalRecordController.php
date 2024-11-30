@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\MedicalRecord;
 use App\Models\Patient;
 use App\Models\Medicine;
+use App\Models\Appointment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\UserNotification;
 
 class MedicalRecordController extends Controller
 {
@@ -15,12 +17,12 @@ class MedicalRecordController extends Controller
     {
         $records = MedicalRecord::with(['patient.user', 'medicines'])
             ->where('doctor_id', Auth::user()->doctor->doctor_id)
-            ->when($request->patient, function($query, $patient) {
-                return $query->whereHas('patient.user', function($q) use ($patient) {
+            ->when($request->patient, function ($query, $patient) {
+                return $query->whereHas('patient.user', function ($q) use ($patient) {
                     $q->where('username', 'like', "%{$patient}%");
                 });
             })
-            ->when($request->date, function($query, $date) {
+            ->when($request->date, function ($query, $date) {
                 return $query->whereDate('treatment_date', $date);
             })
             ->latest()
@@ -29,15 +31,28 @@ class MedicalRecordController extends Controller
         return view('doctor.medical-records.index', compact('records'));
     }
 
+
     public function create()
     {
-        $patients = Patient::with('user')->get();
+        $doctor = Auth::user()->doctor;
+
+        // Get patients who have confirmed appointments with this doctor
+        // that are either today or in the past
+        $patients = Patient::whereHas('appointments', function ($query) use ($doctor) {
+            $query->where('doctor_id', $doctor->doctor_id)
+                ->where('status', Appointment::STATUS_CONFIRMED)
+                ->where(function ($q) {
+                    $q->whereDate('appointment_date', '<=', now());
+                });
+        })->with('user')->get();
+
         $medicines = Medicine::where('is_available', true)
             ->where('stock', '>', 0)
             ->get();
-        
+
         return view('doctor.medical-records.create', compact('patients', 'medicines'));
     }
+
 
     public function store(Request $request)
     {
@@ -51,8 +66,14 @@ class MedicalRecordController extends Controller
             'notes' => 'nullable|string',
             'status' => 'required|in:PENDING,IN_PROGRESS,COMPLETED',
             'follow_up_date' => 'nullable|date|after:treatment_date',
-            'medicine_ids' => 'required|array|min:1',
-            'medicine_ids.*' => 'exists:medicines,medicine_id'
+            'medicines' => 'required|array|min:1',
+            'medicines.*' => 'exists:medicines,medicine_id',
+            'quantities' => 'required|array|min:1',
+            'quantities.*' => 'required|integer|min:1',
+            'dosages' => 'required|array|min:1',
+            'dosages.*' => 'required|string',
+            'instructions' => 'required|array|min:1',
+            'instructions.*' => 'required|string'
         ]);
 
         $record = MedicalRecord::create([
@@ -69,7 +90,31 @@ class MedicalRecordController extends Controller
             'follow_up_date' => $validated['follow_up_date']
         ]);
 
-        $record->medicines()->attach($validated['medicine_ids']);
+        // Attach medicines with quantities, dosages and instructions
+        $medicines = collect($validated['medicines'])->mapWithKeys(function ($id, $key) use ($validated) {
+            return [$id => [
+                'quantity' => $validated['quantities'][$key],
+                'dosage' => $validated['dosages'][$key],
+                'instructions' => $validated['instructions'][$key]
+            ]];
+        });
+
+        $record->medicines()->attach($medicines);
+
+        // Create notification for patient
+        UserNotification::create([
+            'user_id' => $record->patient->user->user_id,
+            'title' => 'New Medical Record Created',
+            'data' => [
+                'message' => 'Dr. ' . Auth::user()->username . ' has created a new medical record.',
+                'record_id' => $record->record_id,
+                'doctor_name' => Auth::user()->username,
+                'treatment_date' => $record->treatment_date->format('Y-m-d H:i:s')
+            ],
+            'type' => 'MEDICAL_RECORD',
+            'notifiable_type' => MedicalRecord::class,
+            'notifiable_id' => $record->record_id
+        ]);
 
         return redirect()
             ->route('doctor.medical-records.index')
@@ -94,9 +139,11 @@ class MedicalRecordController extends Controller
         $medicines = Medicine::where('is_available', true)
             ->where('stock', '>', 0)
             ->get();
-            
-        return view('doctor.medical-records.edit', 
-            compact('medicalRecord', 'patients', 'medicines'));
+
+        return view(
+            'doctor.medical-records.edit',
+            compact('medicalRecord', 'patients', 'medicines')
+        );
     }
 
     public function update(Request $request, MedicalRecord $medicalRecord)

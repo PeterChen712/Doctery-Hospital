@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users', 'user_id');
             $table->string('title');
             $table->text('data');
-            $table->enum('type', ['APPOINTMENT', 'PRESCRIPTION', 'GENERAL']);
+            $table->enum('type', ['APPOINTMENT', 'PRESCRIPTION', 'MEDICAL_RECORD', 'GENERAL']);
             $table->morphs('notifiable');
             $table->timestamp('read_at')->nullable();
             $table->timestamps();
