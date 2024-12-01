@@ -1,26 +1,49 @@
 <?php
+// app/Models/Feedback.php
 
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Feedback extends Model
 {
+    use SoftDeletes;
+
     protected $primaryKey = 'feedback_id';
+    protected $table = 'feedback';
+
     protected $fillable = [
+        'medical_record_id',
         'patient_id',
         'doctor_id',
-        'appointment_id',
-        'rating',
+        'overall_rating',
+        'doctor_rating',
+        'service_rating',
+        'facility_rating',
+        'staff_rating',
         'review',
         'doctor_response',
-        'is_public'
+        'improvement_suggestions',
+        'category',
+        'is_public',
+        'is_anonymous',
+        'status',
+        'admin_notes',
+        'follow_up_action'
     ];
 
     protected $casts = [
-        'rating' => 'integer',
-        'is_public' => 'boolean'
+        'is_public' => 'boolean',
+        'is_anonymous' => 'boolean',
+        'reviewed_at' => 'datetime'
     ];
+
+    // Relationships
+    public function medicalRecord()
+    {
+        return $this->belongsTo(MedicalRecord::class, 'medical_record_id', 'record_id');
+    }
 
     public function patient()
     {
@@ -32,8 +55,8 @@ class Feedback extends Model
         return $this->belongsTo(Doctor::class, 'doctor_id');
     }
 
-    public function appointment()
+    public function reviewer()
     {
-        return $this->belongsTo(Appointment::class, 'appointment_id');
+        return $this->belongsTo(User::class, 'reviewed_by');
     }
 }

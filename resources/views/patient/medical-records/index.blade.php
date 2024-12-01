@@ -142,6 +142,53 @@
                                 <p class="text-gray-600">{{ $record->notes }}</p>
                             </div>
                         @endif
+
+                        @if ($record->feedback)
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h4 class="font-medium text-gray-700 mb-2 flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
+                                    </svg>
+                                    Your Feedback
+                                </h4>
+                                <!-- Star Rating Display -->
+                                <div class="flex items-center mb-2">
+                                    @for ($i = 1; $i <= 5; $i++)
+                                        <svg class="w-5 h-5 {{ $i <= $record->feedback->overall_rating ? 'text-yellow-400' : 'text-gray-300' }}"
+                                            fill="currentColor" viewBox="0 0 20 20">
+                                            <path
+                                                d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    @endfor
+                                    <span class="ml-2 text-sm text-gray-600">
+                                        Submitted {{ $record->feedback->created_at->diffForHumans() }}
+                                    </span>
+                                </div>
+                                <p class="text-gray-600">{{ $record->feedback->review }}</p>
+
+                                @if ($record->feedback->doctor_response)
+                                    <div class="mt-4 pt-4 border-t border-gray-200">
+                                        <h5 class="text-sm font-medium text-gray-700 mb-1">Doctor's Response:</h5>
+                                        <p class="text-gray-600">{{ $record->feedback->doctor_response }}</p>
+                                        <span class="text-sm text-gray-500">
+                                            Responded {{ $record->feedback->updated_at->diffForHumans() }}
+                                        </span>
+                                    </div>
+                                @endif
+                            </div>
+                        @elseif($record->status === 'COMPLETED')
+                            <button onclick="openFeedbackModal({{ $record->record_id }})"
+                                class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Add Feedback
+                            </button>
+                        @endif
                     </div>
 
                     <!-- Footer Section -->
@@ -162,7 +209,8 @@
                 </div>
             @empty
                 <div class="text-center py-12 bg-white rounded-lg shadow">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
                         </path>
@@ -177,4 +225,250 @@
             {{ $records->links() }}
         </div>
     </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedbackModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-96">
+            <h2 class="text-xl font-semibold mb-4">Submit Feedback</h2>
+            <!-- Feedback Form -->
+            <form id="feedbackForm">
+                @csrf
+                <input type="hidden" id="record_id" name="record_id">
+
+                <!-- Star Rating -->
+                <div class="flex items-center mb-4">
+                    <input type="hidden" id="overall_rating" name="overall_rating" value="0">
+                    <div class="flex">
+                        <span class="rating-star text-gray-300 cursor-pointer" onclick="setRating(1)">&#9733;</span>
+                        <span class="rating-star text-gray-300 cursor-pointer" onclick="setRating(2)">&#9733;</span>
+                        <span class="rating-star text-gray-300 cursor-pointer" onclick="setRating(3)">&#9733;</span>
+                        <span class="rating-star text-gray-300 cursor-pointer" onclick="setRating(4)">&#9733;</span>
+                        <span class="rating-star text-gray-300 cursor-pointer" onclick="setRating(5)">&#9733;</span>
+                    </div>
+                </div>
+
+                <!-- Category Field -->
+                <div class="mb-4">
+                    <label for="category" class="block text-sm font-medium text-gray-700">Category</label>
+                    <select id="category" name="category" class="mt-1 block w-full border-gray-300 rounded-md">
+                        <option value="">Select Category</option>
+                        <option value="GENERAL">General</option>
+                        <option value="DOCTOR_SERVICE">Doctor Service</option>
+                        <option value="FACILITY">Facility</option>
+                        <option value="STAFF_SERVICE">Staff Service</option>
+                        <option value="WAIT_TIME">Wait Time</option>
+                        <option value="TREATMENT_QUALITY">Treatment Quality</option>
+                        <option value="COMMUNICATION">Communication</option>
+                    </select>
+                </div>
+
+                <!-- Review Textarea -->
+                <div class="mb-4">
+                    <label for="review" class="block text-sm font-medium text-gray-700">Review</label>
+                    <textarea id="review" name="review" rows="4" class="mt-1 block w-full border-gray-300 rounded-md"></textarea>
+                </div>
+
+                <!-- Error Messages -->
+                <div id="feedbackErrors"
+                    class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative hidden mb-4">
+                    <ul id="errorList"></ul>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex justify-end space-x-2">
+                    <button type="button" onclick="closeFeedbackModal()"
+                        class="px-4 py-2 bg-gray-500 text-white rounded-md">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openFeedbackModal(recordId) {
+            document.getElementById('record_id').value = recordId;
+            document.getElementById('feedbackModal').classList.remove('hidden');
+            resetForm();
+        }
+
+        function closeFeedbackModal() {
+            document.getElementById('feedbackModal').classList.add('hidden');
+            resetForm();
+        }
+
+        function resetForm() {
+            const form = document.getElementById('feedbackForm');
+            form.reset();
+            document.getElementById('overall_rating').value = '0';
+            document.querySelectorAll('.rating-star').forEach(star => {
+                star.classList.remove('text-yellow-400');
+                star.classList.add('text-gray-300');
+            });
+            document.getElementById('feedbackErrors').classList.add('hidden');
+            document.getElementById('errorList').innerHTML = '';
+        }
+
+        function setRating(rating) {
+            document.getElementById('overall_rating').value = rating;
+            const stars = document.querySelectorAll('.rating-star');
+            stars.forEach((star, index) => {
+                star.classList.toggle('text-yellow-400', index < rating);
+                star.classList.toggle('text-gray-300', index >= rating);
+            });
+        }
+
+
+        document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Get form elements
+            const form = this;
+            const submitButton = form.querySelector('button[type="submit"]');
+            const recordId = document.getElementById('record_id').value;
+
+            // Clear previous errors
+            document.getElementById('feedbackErrors').classList.add('hidden');
+            document.getElementById('errorList').innerHTML = '';
+
+            // Client-side validation
+            const rating = document.getElementById('overall_rating').value;
+            const category = document.getElementById('category').value;
+            const review = document.getElementById('review').value;
+            const errors = [];
+
+            if (!rating || rating === '0') {
+                errors.push('Please select a rating');
+            }
+            if (!category) {
+                errors.push('Please select a category');
+            }
+            if (!review || review.trim().length < 10) {
+                errors.push('Please enter a review with at least 10 characters');
+            }
+
+            if (errors.length > 0) {
+                displayErrors(errors);
+                return;
+            }
+
+            try {
+                // Show loading state
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<span class="loading">Submitting...</span>';
+
+                const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                // Create formData object
+                const formData = {
+                    record_id: recordId,
+                    overall_rating: rating,
+                    category: category,
+                    review: review,
+                    _token: csrfToken
+                };
+
+                console.log('Submitting data:', formData); // Debug log
+
+                const response = await fetch(`/patient/medical-records/${recordId}/feedback`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                console.log('Response:', data); // Debug log
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Server error');
+                }
+
+                if (data.success) {
+                    showSuccessMessage('Feedback submitted successfully');
+                    closeFeedbackModal();
+                    setTimeout(() => window.location.reload(), 1500);
+                } else {
+                    throw new Error(data.message || 'Error submitting feedback');
+                }
+
+            } catch (error) {
+                console.error('Error details:', error);
+                displayErrors([error.message]);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Submit';
+            }
+        });
+
+
+        function displayErrors(errors) {
+    const errorsContainer = document.getElementById('feedbackErrors');
+    const errorsList = document.getElementById('errorList');
+
+    errorsList.innerHTML = '';
+    errors.forEach(error => {
+        const li = document.createElement('li');
+        li.className = 'mb-1 list-disc ml-4';
+        li.textContent = error;
+        errorsList.appendChild(li);
+    });
+
+    errorsContainer.classList.remove('hidden');
+    errorsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+        
+function showSuccessMessage(message) {
+    const successMessage = document.createElement('div');
+    successMessage.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-r fixed top-4 right-4 z-50';
+    successMessage.textContent = message;
+    document.body.appendChild(successMessage);
+    setTimeout(() => successMessage.remove(), 3000);
+}
+
+function openFeedbackModal(recordId) {
+    document.getElementById('record_id').value = recordId;
+    document.getElementById('feedbackModal').classList.remove('hidden');
+    resetForm();
+}
+
+function closeFeedbackModal() {
+    document.getElementById('feedbackModal').classList.add('hidden');
+    resetForm();
+}
+
+function resetForm() {
+    const form = document.getElementById('feedbackForm');
+    form.reset();
+    document.getElementById('overall_rating').value = '0';
+    document.querySelectorAll('.rating-star').forEach(star => {
+        star.classList.remove('text-yellow-400');
+        star.classList.add('text-gray-300');
+    });
+    document.getElementById('feedbackErrors').classList.add('hidden');
+    document.getElementById('errorList').innerHTML = '';
+}
+
+function setRating(rating) {
+    document.getElementById('overall_rating').value = rating;
+    const stars = document.querySelectorAll('.rating-star');
+    stars.forEach((star, index) => {
+        star.classList.toggle('text-yellow-400', index < rating);
+        star.classList.toggle('text-gray-300', index >= rating);
+    });
+}
+
+// Modal event listeners
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeFeedbackModal();
+});
+
+document.getElementById('feedbackModal').addEventListener('click', function(e) {
+    if (e.target === this) closeFeedbackModal();
+});
+    </script>
+
 @endsection

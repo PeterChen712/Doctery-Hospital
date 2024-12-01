@@ -23,8 +23,9 @@ use App\Http\Controllers\Patient\PatientViewDoctorController;
 use App\Http\Controllers\Patient\ProfileController as SetupProfileController;
 use App\Http\Controllers\Patient\ProfileController as PatientProfileController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\Patient\FeedbackController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Doctor\FeedbackResponseController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ReportController;
 
@@ -158,7 +159,8 @@ Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(fu
         ->name('schedules.by-date');
 
 
-
+        Route::post('feedback/{feedback}/response', [FeedbackResponseController::class, 'store'])
+        ->name('feedback.response');
 
     // Route::get('schedules/{id}/edit-data', [DoctorScheduleController::class, 'getScheduleEditData']);
     // Route::put('schedules/{id}', [DoctorScheduleController::class, 'update'])->name('schedules.update');
@@ -224,6 +226,8 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
     });
 
     // Feedback (optional)
-    Route::resource('feedback', FeedbackController::class)->only(['store', 'update']);
+    Route::controller(FeedbackController::class)->group(function () {
+        Route::post('medical-records/{medicalRecord}/feedback', 'store')->name('medical-records.feedback.store');
+    });
 });
 require __DIR__ . '/auth.php';
