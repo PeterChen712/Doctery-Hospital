@@ -405,70 +405,74 @@
 
 
         function displayErrors(errors) {
-    const errorsContainer = document.getElementById('feedbackErrors');
-    const errorsList = document.getElementById('errorList');
+            const errorsContainer = document.getElementById('feedbackErrors');
+            const errorsList = document.getElementById('errorList');
 
-    errorsList.innerHTML = '';
-    errors.forEach(error => {
-        const li = document.createElement('li');
-        li.className = 'mb-1 list-disc ml-4';
-        li.textContent = error;
-        errorsList.appendChild(li);
-    });
+            errorsList.innerHTML = '';
+            errors.forEach(error => {
+                const li = document.createElement('li');
+                li.className = 'mb-1 list-disc ml-4';
+                li.textContent = error;
+                errorsList.appendChild(li);
+            });
 
-    errorsContainer.classList.remove('hidden');
-    errorsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
+            errorsContainer.classList.remove('hidden');
+            errorsContainer.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+        }
 
-        
-function showSuccessMessage(message) {
-    const successMessage = document.createElement('div');
-    successMessage.className = 'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-r fixed top-4 right-4 z-50';
-    successMessage.textContent = message;
-    document.body.appendChild(successMessage);
-    setTimeout(() => successMessage.remove(), 3000);
-}
 
-function openFeedbackModal(recordId) {
-    document.getElementById('record_id').value = recordId;
-    document.getElementById('feedbackModal').classList.remove('hidden');
-    resetForm();
-}
+        function showSuccessMessage(message) {
+            const successMessage = document.createElement('div');
+            successMessage.className =
+                'bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded-r fixed top-4 right-4 z-50';
+            successMessage.textContent = message;
+            document.body.appendChild(successMessage);
+            setTimeout(() => successMessage.remove(), 3000);
+        }
 
-function closeFeedbackModal() {
-    document.getElementById('feedbackModal').classList.add('hidden');
-    resetForm();
-}
+        function openFeedbackModal(recordId) {
+            document.getElementById('record_id').value = recordId;
+            document.getElementById('feedbackModal').classList.remove('hidden');
+            resetForm();
+        }
 
-function resetForm() {
-    const form = document.getElementById('feedbackForm');
-    form.reset();
-    document.getElementById('overall_rating').value = '0';
-    document.querySelectorAll('.rating-star').forEach(star => {
-        star.classList.remove('text-yellow-400');
-        star.classList.add('text-gray-300');
-    });
-    document.getElementById('feedbackErrors').classList.add('hidden');
-    document.getElementById('errorList').innerHTML = '';
-}
+        function closeFeedbackModal() {
+            document.getElementById('feedbackModal').classList.add('hidden');
+            resetForm();
+        }
 
-function setRating(rating) {
-    document.getElementById('overall_rating').value = rating;
-    const stars = document.querySelectorAll('.rating-star');
-    stars.forEach((star, index) => {
-        star.classList.toggle('text-yellow-400', index < rating);
-        star.classList.toggle('text-gray-300', index >= rating);
-    });
-}
+        function resetForm() {
+            const form = document.getElementById('feedbackForm');
+            form.reset();
+            document.getElementById('overall_rating').value = '0';
+            document.querySelectorAll('.rating-star').forEach(star => {
+                star.classList.remove('text-yellow-400');
+                star.classList.add('text-gray-300');
+            });
+            document.getElementById('feedbackErrors').classList.add('hidden');
+            document.getElementById('errorList').innerHTML = '';
+        }
 
-// Modal event listeners
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeFeedbackModal();
-});
+        function setRating(rating) {
+            document.getElementById('overall_rating').value = rating;
+            const stars = document.querySelectorAll('.rating-star');
+            stars.forEach((star, index) => {
+                star.classList.toggle('text-yellow-400', index < rating);
+                star.classList.toggle('text-gray-300', index >= rating);
+            });
+        }
 
-document.getElementById('feedbackModal').addEventListener('click', function(e) {
-    if (e.target === this) closeFeedbackModal();
-});
+        // Modal event listeners
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeFeedbackModal();
+        });
+
+        document.getElementById('feedbackModal').addEventListener('click', function(e) {
+            if (e.target === this) closeFeedbackModal();
+        });
     </script>
 
 @endsection

@@ -235,11 +235,15 @@
                     Notifikasi Terbaru
                 </h2>
                 <div class="space-y-4">
-                    @forelse($notifications as $notification)
-                        <div class="border-b pb-4 hover:bg-gray-50 p-2 rounded">
-                            <p class="font-medium text-red-600">{{ $notification->created_at->format('M d, Y') }}</p>
-                            <p class="text-gray-600">{{ $notification->message }}</p>
-                            <p class="text-gray-500 text-sm">{{ $notification->created_at->diffForHumans() }}</p>
+                    @forelse($notifications->sortByDesc('created_at')->take(5) as $notification)
+                        <div
+                            class="border-b pb-4 hover:bg-gray-50 p-2 rounded transition-colors duration-200 
+                {{ $loop->first ? 'bg-red-50' : '' }}">
+                            <p class="font-medium {{ $loop->first ? 'text-red-600' : 'text-gray-600' }}">
+                                {{ $notification->created_at->format('d M Y') }}
+                            </p>
+                            <p class="text-gray-600 mt-1">{{ $notification->message }}</p>
+                            <p class="text-gray-500 text-sm mt-1">{{ $notification->created_at->diffForHumans() }}</p>
                         </div>
                     @empty
                         <p class="text-gray-500">Tidak ada notifikasi baru.</p>

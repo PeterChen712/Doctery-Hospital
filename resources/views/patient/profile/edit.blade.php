@@ -7,7 +7,7 @@
         <div class="max-w-3xl mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
                 <div class="p-6">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Edit Your Profile</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Edit Profile</h2>
 
                     <!-- Include Cropper.js CSS -->
                     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -19,7 +19,7 @@
                         <!-- Username -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Username
+                                Nama 
                             </label>
                             <input type="text" name="username" value="{{ old('username', $user->username) }}"
                                 class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -32,7 +32,7 @@
                         <!-- Date of Birth -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Date of Birth
+                                Tanggal lahir
                             </label>
                             <input type="date" name="date_of_birth"
                                 value="{{ old('date_of_birth', optional($patient->date_of_birth)->format('Y-m-d')) }}"
@@ -46,7 +46,7 @@
                         <!-- Phone Number -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Phone Number
+                                Nomor Telepon
                             </label>
                             <input type="text" name="phone_number" value="{{ old('phone_number', $user->phone_number) }}"
                                 class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -59,7 +59,7 @@
                         <!-- Address -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Address
+                                Alamat
                             </label>
                             <input type="text" name="address" value="{{ old('address', $user->address) }}"
                                 class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -72,11 +72,11 @@
                         <!-- Password -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                New Password
+                                Password Baru
                             </label>
                             <input type="password" name="password"
                                 class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <p class="text-gray-500 text-sm">Leave blank if you don't want to change the password.</p>
+                            <p class="text-gray-500 text-sm">Kosongkan jika tidak ingin menganti password.</p>
                             @error('password')
                                 <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                             @enderror
@@ -85,7 +85,7 @@
                         <!-- Password Confirmation -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Confirm New Password
+                                Konfirmasi Password Baru
                             </label>
                             <input type="password" name="password_confirmation"
                                 class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500">
@@ -94,7 +94,7 @@
                         <!-- Profile Image Upload with Cropping -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Profile Image
+                                Foto Profil
                             </label>
 
                             <!-- Current Image Preview -->
@@ -118,7 +118,7 @@
                                     class="w-32 h-32 rounded-full mb-2 object-cover">
                                 <button type="button" id="edit-avatar-button"
                                     class="bg-gray-500 text-white px-4 py-2 rounded-md">
-                                    Edit Image
+                                    Edit
                                 </button>
                             </div>
 
@@ -141,7 +141,7 @@
                         <div class="flex justify-end space-x-4">
                             <a href="{{ route('patient.profile.show') }}"
                                 class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-400">
-                                Cancel
+                                Batal
                             </a>
                             <button type="submit"
                                 class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">

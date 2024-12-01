@@ -2,12 +2,19 @@
 @extends('layouts.patient')
 
 @section('content')
-    <div class="container mx-auto px-4">
-        <h2 class="text-2xl font-semibold mb-4">Request an Appointment</h2>
+
+
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header with gradient background -->
+        <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-6 mb-8 shadow-lg">
+            <h2 class="text-2xl font-bold text-white">Buat Janji Temu</h2>
+            <p class="text-blue-100 mt-2">Silakan isi formulir di bawah ini</p>
+        </div>
 
         @if ($errors->any())
-            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4">
-                <ul>
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-lg shadow">
+                <ul class="list-disc list-inside">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -15,24 +22,28 @@
             </div>
         @endif
 
-        <form action="{{ route('patient.appointments.store') }}" method="POST">
+        <form action="{{ route('patient.appointments.store') }}" method="POST"
+            class="bg-white rounded-xl shadow-lg p-6 space-y-6">
             @csrf
 
-            <!-- Doctor Selection -->
-            <div class="mb-4">
-                <label for="doctor_id" class="block text-gray-700 font-bold mb-2">Select Doctor:</label>
-                <select name="doctor_id" id="doctor_id" class="w-full px-3 py-2 border rounded-lg"
-                    onchange="loadDoctorSchedules()" required>
-                    <option value="">Choose a doctor...</option>
+            <!-- Doctor Selection with cool hover effect -->
+
+            <div class="group">
+                <label for="doctor_id" class="block text-gray-700 font-semibold mb-2">
+                    Pilih Dokter:
+                </label>
+                <select id="doctor_id" name="doctor_id" class="doctor-select" required>
+                    <option value="">Cari dokter...</option>
                     @foreach ($doctors as $doctor)
-                        <option value="{{ $doctor->doctor_id }}" data-specialization="{{ $doctor->specialization }}">
-                            Dr. {{ $doctor->user->username }} - {{ $doctor->specialization }}
+                        <option value="{{ $doctor->doctor_id }}" data-specialization="{{ $doctor->specialization }}"
+                            data-image="{{ $doctor->user->profile_photo_url }}">
+                            {{ $doctor->user->username }}
                         </option>
                     @endforeach
                 </select>
             </div>
 
-            <!-- Appointment Type -->
+            <!-- Appointment Type with modern radio buttons -->
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2">Appointment Type:</label>
                 <div class="flex gap-4">
@@ -49,59 +60,67 @@
                 </div>
             </div>
 
-            <!-- Schedule Selection (For Available Schedule) -->
-            <div id="scheduled-section">
-                <div class="mb-4">
-                    <label for="schedule_id" class="block text-gray-700 font-bold mb-2">Available Schedule:</label>
-                    <select name="schedule_id" id="schedule_id" class="w-full px-3 py-2 border rounded-lg" required
-                        disabled>
-                        <option value="">Select a doctor first...</option>
-                    </select>
-                </div>
+
+
+            <!-- Available Schedule Section -->
+            <div id="scheduled-section" class="transition-all duration-300">
+                <label for="schedule_id" class="block text-gray-700 font-semibold mb-2">Jadwal Tersedia:</label>
+                <select name="schedule_id" id="schedule_id"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                    required disabled>
+                    <option value="">Pilih dokter terlebih dahulu...</option>
+                </select>
             </div>
 
             <!-- Preferred Schedule Section -->
-            <div id="preferred-section" class="hidden">
-                <div class="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label for="preferred_date" class="block text-gray-700 font-bold mb-2">Preferred Date:</label>
+            <div id="preferred-section" class="hidden space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="group">
+                        <label for="preferred_date" class="block text-gray-700 font-semibold mb-2">Tanggal Pilihan:</label>
                         <input type="date" name="preferred_date" id="preferred_date"
-                            class="w-full px-3 py-2 border rounded-lg" min="{{ date('Y-m-d', strtotime('+1 day')) }}">
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                            min="{{ date('Y-m-d', strtotime('+1 day')) }}">
                     </div>
-                    <div>
-                        <label for="preferred_time" class="block text-gray-700 font-bold mb-2">Preferred Time:</label>
-                        <select name="preferred_time" id="preferred_time" class="w-full px-3 py-2 border rounded-lg">
-                            <option value="">Select time...</option>
-                            <option value="morning">Morning (9:00 AM - 12:00 PM)</option>
-                            <option value="afternoon">Afternoon (1:00 PM - 5:00 PM)</option>
-                            <option value="evening">Evening (6:00 PM - 8:00 PM)</option>
+                    <div class="group">
+                        <label for="preferred_time" class="block text-gray-700 font-semibold mb-2">Waktu Pilihan:</label>
+                        <select name="preferred_time" id="preferred_time"
+                            class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200">
+                            <option value="">Pilih waktu...</option>
+                            <option value="morning">Pagi (09:00 - 12:00)</option>
+                            <option value="afternoon">Siang (13:00 - 17:00)</option>
+                            <option value="evening">Malam (18:00 - 20:00)</option>
                         </select>
                     </div>
                 </div>
             </div>
 
-            <!-- Reason -->
-            <div class="mb-4">
-                <label for="reason" class="block text-gray-700 font-bold mb-2">Reason for Visit:</label>
-                <textarea name="reason" id="reason" rows="3" class="w-full px-3 py-2 border rounded-lg" required></textarea>
+            <!-- Reason Section -->
+            <div class="group">
+                <label for="reason" class="block text-gray-700 font-semibold mb-2">Alasan Kunjungan:</label>
+                <textarea name="reason" id="reason" rows="3"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"
+                    required></textarea>
             </div>
 
-            <!-- Symptoms -->
-            <div class="mb-4">
-                <label for="symptoms" class="block text-gray-700 font-bold mb-2">Describe Your Symptoms:</label>
-                <textarea name="symptoms" id="symptoms" rows="3" class="w-full px-3 py-2 border rounded-lg"></textarea>
+            <!-- Symptoms Section -->
+            <div class="group">
+                <label for="symptoms" class="block text-gray-700 font-semibold mb-2">Gejala yang Dialami:</label>
+                <textarea name="symptoms" id="symptoms" rows="3"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"></textarea>
             </div>
 
-            <!-- Notes -->
-            <div class="mb-4">
-                <label for="notes" class="block text-gray-700 font-bold mb-2">Additional Notes (Optional):</label>
-                <textarea name="notes" id="notes" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+            <!-- Notes Section -->
+            <div class="group">
+                <label for="notes" class="block text-gray-700 font-semibold mb-2">Catatan Tambahan (Opsional):</label>
+                <textarea name="notes" id="notes" rows="2"
+                    class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200"></textarea>
             </div>
 
             <!-- Submit Button -->
-            <div class="flex justify-end">
-                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600">
-                    Submit Request
+            <div class="flex justify-end pt-4">
+                <button type="submit"
+                    class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-8 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                    Kirim Permintaan
                 </button>
             </div>
         </form>
@@ -225,5 +244,7 @@
                 loadDoctorSchedules();
             }
         });
+
+        
     </script>
 @endsection
