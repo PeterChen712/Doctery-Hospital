@@ -229,5 +229,6 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
     Route::controller(FeedbackController::class)->group(function () {
         Route::post('medical-records/{medicalRecord}/feedback', 'store')->name('medical-records.feedback.store');
     });
+    
 });
 require __DIR__ . '/auth.php';
