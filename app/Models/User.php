@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable implements CanResetPassword
 {
-    
+
     use HasApiTokens, HasRoles, HasFactory, Notifiable;
 
     protected $primaryKey = 'user_id';
@@ -77,5 +77,14 @@ class User extends Authenticatable implements CanResetPassword
 
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->username);
     }
-}
 
+
+    public function isProfileComplete()
+    {
+        return !empty($this->name) &&
+            !empty($this->email) &&
+            !empty($this->phone) &&
+            !empty($this->address) &&
+            !empty($this->profile_image);
+    }
+}

@@ -18,14 +18,31 @@ class AppointmentController extends Controller
 
 
 
-    public function index()
+    public function index(Request $request)
     {
-        $appointments = Appointment::with(['doctor.user', 'schedule'])
-            ->where('patient_id', Auth::user()->patient->patient_id)
-            ->latest()
-            ->paginate(10); // Change get() to paginate()
 
+        $query = Appointment::with(['doctor.user', 'schedule']);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+    
+        if ($request->filled('date')) {
+            $query->whereHas('schedule', function ($q) use ($request) {
+                $q->whereDate('schedule_date', $request->date);
+            });
+        }
+    
+        $appointments = $query->latest()->paginate(10);
+        
         return view('patient.appointments.index', compact('appointments'));
+
+        // $appointments = Appointment::with(['doctor.user', 'schedule'])
+        //     ->where('patient_id', Auth::user()->patient->patient_id)
+        //     ->latest()
+        //     ->paginate(10); // Change get() to paginate()
+
+        // return view('patient.appointments.index', compact('appointments'));
     }
 
     public function create()

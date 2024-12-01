@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="{ darkMode: localStorage.getItem('color-theme') === 'dark' }" x-bind:class="{ 'dark': darkMode }">
 
 <head>
     <meta charset="utf-8">
@@ -8,6 +8,8 @@
     <title>{{ config('app.name', 'Laravel') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.js"></script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         .scrollbar-hide::-webkit-scrollbar {
@@ -21,12 +23,25 @@
             scrollbar-width: none;
             /* Firefox */
         }
+
+        /* Dark mode styles */
+        .dark body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        /* Transition styles */
+        .theme-transition {
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
     </style>
 </head>
 
 <body class="font-sans antialiased">
+
     <!-- Top Navigation -->
-    <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+    <!-- Top Navigation -->
+    <nav class="fixed top-0 z-50 w-full border-b border-gray-200" style="background-color: #2ec8a6;">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center justify-start">
@@ -44,6 +59,23 @@
                     <a href="/"
                         class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white cursor-pointer select-none ml-2 hover:text-gray-600 dark:hover:text-gray-300"
                         id="sidebar-toggle">Patient Portal</a>
+                </div>
+
+
+                <!-- Add this in the top navigation bar, next to the user profile dropdown -->
+                <div class="flex items-center ms-3 me-4">
+                    <button id="theme-toggle" type="button"
+                        class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
+                        <svg id="theme-toggle-dark-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+                        </svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor"
+                            viewBox="0 0 20 20">
+                            <path
+                                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z">
+                            </path>
+                        </svg>
+                    </button>
                 </div>
 
                 <div class="flex items-center">
@@ -100,36 +132,33 @@
 
     <!-- Sidebar -->
     <aside id="logo-sidebar"
-        class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700">
-        <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800 scrollbar-hide">
+        class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform border-r border-gray-700 sm:translate-x-0"
+        style="background-color: #100d35;">
+        <div class="h-full px-3 pb-4 overflow-y-auto scrollbar-hide" style="background-color: #100d35;">
 
             <!-- User Profile Section -->
-            <div class="flex flex-col items-center pb-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col items-center pb-6 border-b border-gray-700">
                 @if (Auth::user()->profile_image)
                     <img class="w-20 h-20 mb-3 rounded-full shadow-lg"
                         src="{{ route('avatar.show', Auth::user()->user_id) }}" alt="{{ Auth::user()->username }}">
                 @else
-                    <div class="w-20 h-20 mb-3 rounded-full shadow-lg bg-gray-300 flex items-center justify-center">
-                        <span class="text-gray-600 font-medium text-xl">
+                    <div class="w-20 h-20 mb-3 rounded-full shadow-lg bg-gray-600 flex items-center justify-center">
+                        <span class="text-white font-medium text-xl">
                             {{ substr(Auth::user()->username, 0, 1) }}
                         </span>
                     </div>
                 @endif
-                <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">{{ Auth::user()->username }}</h5>
-                <span class="text-sm text-gray-500 dark:text-gray-400">{{ Auth::user()->email }}</span>
+                <h5 class="mb-1 text-xl font-medium text-white">{{ Auth::user()->username }}</h5>
+                <span class="text-sm text-gray-300">{{ Auth::user()->email }}</span>
             </div>
 
-
-
-
-
             <!-- Navigation Menu -->
-            <ul class="space-y-2 font-medium">
+            <ul class="space-y-2 font-medium mt-4">
                 <li>
                     <a href="{{ route('patient.dashboard') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex items-center p-2 text-gray-200 rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-300 transition duration-75 group-hover:text-white" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
@@ -138,9 +167,9 @@
                 </li>
                 <li>
                     <a href="{{ route('patient.appointments.index') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex items-center p-2 text-gray-200 rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-300 transition duration-75 group-hover:text-white" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
@@ -149,8 +178,8 @@
                 </li>
                 <li>
                     <a href="{{ route('patient.medical-records') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                        class="flex items-center p-2 text-gray-200 rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-300 transition duration-75 group-hover:text-white"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -160,8 +189,8 @@
                 </li>
                 <li>
                     <a href="{{ route('patient.prescriptions') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
+                        class="flex items-center p-2 text-gray-200 rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-300 transition duration-75 group-hover:text-white"
                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -171,14 +200,11 @@
                 </li>
                 <li>
                     <a href="{{ route('patient.notifications') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group relative">
-                        <!-- Bell Icon Container -->
+                        class="flex items-center p-2 text-gray-200 rounded-lg hover:bg-gray-700 group relative">
                         <div class="relative">
                             <svg class="w-5 h-5 transition duration-75 
-                                {{ Auth::user()->unreadNotifications()->count() > 0
-                                    ? 'text-red-500 dark:text-red-400'
-                                    : 'text-gray-500 dark:text-gray-400' }} 
-                                group-hover:text-gray-900 dark:group-hover:text-white"
+                            {{ Auth::user()->unreadNotifications()->count() > 0 ? 'text-red-400' : 'text-gray-300' }} 
+                            group-hover:text-white"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round"
                                     stroke-width="{{ Auth::user()->unreadNotifications()->count() > 0 ? '2.5' : '2' }}"
@@ -186,7 +212,6 @@
                             </svg>
 
                             @if (Auth::user()->unreadNotifications()->count() > 0)
-                                <!-- Red Dot Indicator -->
                                 <span class="absolute -top-1 -right-1 flex h-3 w-3">
                                     <span
                                         class="absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75 animate-ping"></span>
@@ -198,7 +223,6 @@
                         <span class="ms-3">Notifications</span>
 
                         @if (Auth::user()->unreadNotifications()->count() > 0)
-                            <!-- Count Badge -->
                             <span
                                 class="inline-flex items-center justify-center w-5 h-5 ms-3 text-xs font-medium text-white bg-red-500 rounded-full">
                                 {{ Auth::user()->unreadNotifications()->count() }}
@@ -208,24 +232,27 @@
                 </li>
             </ul>
 
-            <!-- Beta CTA -->
-            <div class="mt-4 p-4 bg-blue-900 dark:bg-blue-800 rounded-lg mx-2">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="bg-pink-100 text-pink-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Beta</span>
-                    <button type="button" class="text-blue-400 hover:text-blue-300"
-                        aria-label="Close beta notification">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+            <!-- Profile Completion CTA -->
+            @if (!Auth::user()->isProfileComplete())
+                <div class="mt-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded-lg mx-2">
+                    <div class="mb-2">
+                        <span class="bg-yellow-200 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                            Action Required
+                        </span>
+                    </div>
+                    <p class="mb-2 text-sm text-yellow-700">
+                        Your profile is incomplete. Complete your profile to get personalized medical care and
+                        appointment scheduling.
+                    </p>
+                    <a href="{{ route('patient.profile.edit') }}"
+                        class="text-sm bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-1 px-3 rounded inline-flex items-center">
+                        Complete Profile
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                         </svg>
-                    </button>
+                    </a>
                 </div>
-                <p class="mb-2 text-sm text-blue-400">Preview the new Patient Portal navigation! You can turn the new
-                    navigation off for a limited time in your profile.</p>
-                <a class="text-sm text-blue-500 hover:text-blue-400 hover:underline" href="#">Turn new
-                    navigation off</a>
-            </div>
+            @endif
         </div>
     </aside>
 
@@ -238,7 +265,12 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Get DOM elements
+            // Theme toggle elements
+            const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+            const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+            const themeToggleBtn = document.getElementById('theme-toggle');
+
+            // Sidebar elements
             const sidebarToggle = document.getElementById('sidebar-toggle');
             const sidebar = document.getElementById('logo-sidebar');
             const mainContent = document.getElementById('main-content');
@@ -246,35 +278,64 @@
             const closeButton = betaNotification?.querySelector('button');
             let isSidebarOpen = true;
 
-            // Function to open sidebar
+            // Theme initialization
+
+            // Set initial icon state
+            if (localStorage.getItem('color-theme') === 'dark' ||
+                (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                themeToggleLightIcon.classList.remove('hidden');
+                themeToggleDarkIcon.classList.add('hidden');
+            } else {
+                themeToggleLightIcon.classList.add('hidden');
+                themeToggleDarkIcon.classList.remove('hidden');
+            }
+
+            // Theme toggle handler
+            themeToggleBtn.addEventListener('click', function() {
+                themeToggleDarkIcon.classList.toggle('hidden');
+                themeToggleLightIcon.classList.toggle('hidden');
+
+                if (localStorage.getItem('color-theme')) {
+                    if (localStorage.getItem('color-theme') === 'light') {
+                        document.documentElement.classList.add('dark');
+                        localStorage.setItem('color-theme', 'dark');
+                    } else {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.setItem('color-theme', 'light');
+                    }
+                } else {
+                    if (document.documentElement.classList.contains('dark')) {
+                        document.documentElement.classList.remove('dark');
+                        localStorage.setItem('color-theme', 'light');
+                    } else {
+                        document.documentElement.classList.add('dark');
+                        localStorage.setItem('color-theme', 'dark');
+                    }
+                }
+            });
+
+            // Sidebar functions
             function openSidebar() {
                 sidebar.style.transform = 'translateX(0)';
                 mainContent.style.marginLeft = '16rem';
                 isSidebarOpen = true;
             }
 
-            // Function to close sidebar
             function closeSidebar() {
                 sidebar.style.transform = 'translateX(-100%)';
                 mainContent.style.marginLeft = '0';
                 isSidebarOpen = false;
             }
 
-            // Handle hover events for both the sidebar toggle and the sidebar itself
-            sidebarToggle.addEventListener('mouseenter', function() {
-                openSidebar();
-            });
+            // Sidebar hover events
+            sidebarToggle.addEventListener('mouseenter', openSidebar);
 
-            // Combine sidebar and toggle for hover detection
             const sidebarElements = [sidebar, sidebarToggle];
 
             sidebarElements.forEach(element => {
-                element.addEventListener('mouseenter', function() {
-                    openSidebar();
-                });
+                element.addEventListener('mouseenter', openSidebar);
 
                 element.addEventListener('mouseleave', function(e) {
-                    // Check if the mouse isn't entering another monitored element
                     const isEnteringOtherElement = sidebarElements.some(el =>
                         el !== element && el.contains(e.relatedTarget)
                     );
@@ -285,17 +346,16 @@
                 });
             });
 
-            // Handle click for navigation
+            // Sidebar toggle navigation
             sidebarToggle.addEventListener('click', function(e) {
-                // Handle navigation to home
                 window.location.href = '/';
             });
 
-            // Handle mobile menu button toggle
+            // Mobile menu toggle
             const sidebarToggles = document.querySelectorAll('[data-drawer-toggle]');
             sidebarToggles.forEach(toggle => {
                 toggle.addEventListener('click', function(e) {
-                    e.preventDefault(); // Prevent default behavior
+                    e.preventDefault();
                     const targetId = this.getAttribute('data-drawer-target');
                     const targetElement = document.getElementById(targetId);
 
@@ -307,13 +367,6 @@
                         }
                     }
                 });
-            });
-
-            // Handle window resize
-            window.addEventListener('resize', function() {
-                if (window.innerWidth < 640) { // mobile view
-                    closeSidebar();
-                }
             });
 
             // Beta notification handling
@@ -328,16 +381,24 @@
                 }
             }
 
+            // Window resize handler
+            window.addEventListener('resize', function() {
+                if (window.innerWidth < 640) {
+                    closeSidebar();
+                }
+            });
+
             // Initialize sidebar state
             if (window.innerWidth < 640) {
                 closeSidebar();
             }
 
-            // Add smooth transitions
+            // Add transitions
             sidebar.classList.add('transition-transform', 'duration-300', 'ease-in-out');
             mainContent.classList.add('transition-[margin]', 'duration-300', 'ease-in-out');
         });
     </script>
 </body>
+
 
 </html>
