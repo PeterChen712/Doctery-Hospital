@@ -16,6 +16,65 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="{{ asset('assets/css/register.css') }}">
+
+    <!-- Add these CSS styles in register.css or inline -->
+
+    <style>
+        /* Update these styles in register.css */
+
+.register__form {
+    width: 50%;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-height: 100%; /* Add this */
+    overflow-y: auto; /* Add this */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(155, 155, 155, 0.5) transparent;
+}
+
+/* Add scrollbar styling for the form */
+.register__form::-webkit-scrollbar {
+    width: 6px;
+}
+
+.register__form::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.register__form::-webkit-scrollbar-thumb {
+    background-color: rgba(155, 155, 155, 0.5);
+    border-radius: 20px;
+}
+
+/* Update content height */
+.register__content {
+    display: flex;
+    background-color: var(--form-bg);
+    border: 2px solid var(--form-border);
+    border-radius: 1rem;
+    overflow: hidden;
+    width: 100%;
+    max-width: 1024px;
+    min-height: 600px; /* Change from height to min-height */
+    backdrop-filter: blur(20px);
+}
+
+/* Update mobile styles */
+@media screen and (max-width: 768px) {
+    .register__content {
+        height: auto;
+        min-height: auto;
+    }
+
+    .register__form {
+        max-height: none;
+        overflow-y: visible;
+    }
+}
+    </style>
+
 </head>
 <body>
     <div class="container">
