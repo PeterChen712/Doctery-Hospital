@@ -13,7 +13,25 @@
     <link rel="stylesheet" href="assets/css/home.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
 
+        .navbar a {
+            transition: color 0.3s;
+        }
+
+        .navbar a:hover {
+            color: #4B5563;
+        }
+
+        section {
+            padding: 80px 0;
+            scroll-margin-top: 80px;
+            /* Accounts for fixed navbar */
+        }
+    </style>
 </head>
 
 <body>
@@ -23,12 +41,11 @@
         <div class="logo"><img src="assets/images/home/logo3.png" alt=""></div>
 
         <nav class="navbar">
-            <a href="#Home">Beranda</a>
-            <a href="#Home">Tentang</a>
-            <a href="#Home">Layanan</a>
-            <a href="#Home">Galeri</a>
-            <a href="#Home">Blog</a>
-            <a href="#Home">Kontak</a>
+            <a href="#home">Beranda</a>
+            <a href="#about">Tentang</a>
+            <a href="#doctor">Dokter</a>
+            <a href="#services">Layanan</a>
+            <a href="#review">Testimoni</a>
         </nav>
 
         <div class="right-icons">
@@ -49,322 +66,358 @@
     <!-- header section ended -->
 
     <!-- Home section started -->
+    <section id="home" class="min-h-screen">
+        <!-- Home content -->
+        <div class="main-home">
 
-    <div class="main-home">
+            <div class="home">
+                <div class="home-left-content">
+                    {{-- <span>welcome to hospital management</span> --}}
+                    <h2>Kami Merawat<br>Kesehatan Pasien</h2>
+                    @include('components.main-text')
+                    {{-- <p class="lorem">Kami berkomitmen untuk memberikan pelayanan kesehatan terbaik untuk Anda dan keluarga.</p> --}}
 
-        <div class="home">
-            <div class="home-left-content">
-                {{-- <span>welcome to hospital management</span> --}}
-                <h2>Kami Merawat<br>Kesehatan Pasien</h2>
-                @include('components.main-text')
-                {{-- <p class="lorem">Kami berkomitmen untuk memberikan pelayanan kesehatan terbaik untuk Anda dan keluarga.</p> --}}
+                    <div class="home-btn">
+                        <a href="#about">Baca Selengkapnya</a>
+                        <a class="homebtnsec" href="{{ route('dashboard') }}">Masuk</a>
+                    </div>
 
-                <div class="home-btn">
-                    <a href="">Baca Selengkapnya</a>
-                    <a class="homebtnsec" href="">Buat Janji</a>
                 </div>
 
-            </div>
-
-            <div class="home-right-content">
-                <img src="assets/images/home/hero2.png" alt="">
-            </div>
-        </div>
-    </div>
-
-
-    <div class="technology">
-        <div class="main-technology">
-
-            <div class="inner-technology">
-                <span></span>
-                <i class="fi fi-tr-hands-heart"></i>
-                <h2>Kualitas &amp; Keselamatan</h2>
-                <p>Rumah sakit kami menggunakan teknologi mutakhir dan mempekerjakan tim ahli.</p>
-            </div>
-
-            <div class="inner-technology">
-                <span></span>
-                <i class="fi fi-rr-doctor"></i>
-                <h2>Kualitas &amp; Keselamatan</h2>
-                <p>Rumah sakit kami menggunakan teknologi mutakhir dan mempekerjakan tim ahli.</p>
-            </div>
-
-            <div class="inner-technology">
-                <span></span>
-                <i class="fi fi-tr-user-md"></i>
-                <h2>Kualitas &amp; Keselamatan</h2>
-                <p>Rumah sakit kami menggunakan teknologi mutakhir dan mempekerjakan tim ahli.</p>
+                <div class="home-right-content">
+                    <img src="assets/images/home/hero2.png" alt="">
+                </div>
             </div>
         </div>
-    </div>
+
+
+        <div class="technology">
+            <div class="main-technology">
+
+                <div class="inner-technology">
+                    <span></span>
+                    <i class="fi fi-tr-hands-heart"></i>
+                    <h2>Kualitas &amp; Keselamatan</h2>
+                    <p>Rumah sakit kami menggunakan teknologi mutakhir dan mempekerjakan tim ahli.</p>
+                </div>
+
+                <div class="inner-technology">
+                    <span></span>
+                    <i class="fi fi-rr-doctor"></i>
+                    <h2>Kualitas &amp; Keselamatan</h2>
+                    <p>Rumah sakit kami menggunakan teknologi mutakhir dan mempekerjakan tim ahli.</p>
+                </div>
+
+                <div class="inner-technology">
+                    <span></span>
+                    <i class="fi fi-tr-user-md"></i>
+                    <h2>Kualitas &amp; Keselamatan</h2>
+                    <p>Rumah sakit kami menggunakan teknologi mutakhir dan mempekerjakan tim ahli.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
     <!-- home section ends -->
 
     <!-- About us section started -->
 
-    <div class="main-about">
+    <section id="about" class="min-h-screen">
+        <!-- About content -->
+        <div class="main-about">
 
-        <div class="about-heading">Tentang Kami</div>
+            <div class="about-heading">Tentang Kami</div>
 
-        <div class="inner-main-about">
-            <div class="about-inner-content-left">
-                <img src="assets/images/home/about1.png" alt="">
-            </div>
+            <div class="inner-main-about">
+                <div class="about-inner-content-left">
+                    <img src="assets/images/home/about1.png" alt="">
+                </div>
 
-            <div class="about-inner-content">
-                <div class="about-right-content">
-                    <h2>Kami Menetapkan Standar dalam Penelitian<br>dan Perawatan Klinis</h2>
-                    <p>Kami menyediakan layanan medis terlengkap, sehingga setiap orang memiliki kesempatan untuk menerima bantuan medis berkualitas.</p>
-                    <p class="aboutsec-content">
-                        Klinik kami telah berkembang menjadi fasilitas kelas dunia untuk perawatan gigi, kosmetik gigi, dan kedokteran restoratif lanjutan. Kami termasuk penyedia implan paling berkualifikasi dengan lebih dari 30 tahun pelatihan dan pengalaman berkualitas.
-                    </p>
-                    <button class="aboutbtn">Baca Selengkapnya</button>
+                <div class="about-inner-content">
+                    <div class="about-right-content">
+                        <h2>Kami Menetapkan Standar dalam Penelitian<br>dan Perawatan Klinis</h2>
+                        <p>Kami menyediakan layanan medis terlengkap, sehingga setiap orang memiliki kesempatan untuk
+                            menerima bantuan medis berkualitas.</p>
+                        <p class="aboutsec-content">
+                            Klinik kami telah berkembang menjadi fasilitas kelas dunia untuk perawatan gigi, kosmetik
+                            gigi,
+                            dan kedokteran restoratif lanjutan. Kami termasuk penyedia implan paling berkualifikasi
+                            dengan
+                            lebih dari 30 tahun pelatihan dan pengalaman berkualitas.
+                        </p>
+                        <button class="aboutbtn">Baca Selengkapnya</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <!-- About us section ends -->
 
     <!-- our doctors -->
 
-    <div class="main-doctors">
-        <div class="doctors-heading">
-            <h2>Dokter Kami</h2>
+    <section id="doctor" class="min-h-screen">
+        <!-- Services content -->
+        <div class="main-doctors">
+            <div class="doctors-heading">
+                <h2>Dokter Kami</h2>
+            </div>
+
+            <div class="main-inner-doctor">
+                <div class="doc-poster">
+                    <div class="doc-icons">
+                        <i class="fa-solid fa-share"></i>
+                        <i class="fa-solid fa-eye"></i>
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <img src="assets/images/home/team1.jpg" alt="">
+
+                    <div class="doc-details">
+                        <h2>Mr Joe</h2>
+
+                        <i class="fa-brands fa-linkedin"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                    </div>
+
+                </div>
+
+                <div class="doc-poster">
+                    <div class="doc-icons">
+                        <i class="fa-solid fa-share"></i>
+                        <i class="fa-solid fa-eye"></i>
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <img src="assets/images/home/team2.jpg" alt="">
+                    <div class="doc-details">
+                        <h2>Mr Joe</h2>
+
+                        <i class="fa-brands fa-linkedin"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                    </div>
+                </div>
+
+                <div class="doc-poster">
+                    <div class="doc-icons">
+                        <i class="fa-solid fa-share"></i>
+                        <i class="fa-solid fa-eye"></i>
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <img src="assets/images/home/team3.jpg" alt="">
+                    <div class="doc-details">
+                        <h2>Mr Joe</h2>
+
+                        <i class="fa-brands fa-linkedin"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                    </div>
+                </div>
+
+                <div class="doc-poster">
+                    <div class="doc-icons">
+                        <i class="fa-solid fa-share"></i>
+                        <i class="fa-solid fa-eye"></i>
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <img src="assets/images/home/team4.jpg" alt="">
+                    <div class="doc-details">
+                        <h2>Mr Joe</h2>
+
+                        <i class="fa-brands fa-linkedin"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                    </div>
+                </div>
+
+                <div class="doc-poster">
+                    <div class="doc-icons">
+                        <i class="fa-solid fa-share"></i>
+                        <i class="fa-solid fa-eye"></i>
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <img src="assets/images/home/team5.jpg" alt="">
+                    <div class="doc-details">
+                        <h2>Mr Joe</h2>
+
+                        <i class="fa-brands fa-linkedin"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                    </div>
+                </div>
+
+                <div class="doc-poster">
+                    <div class="doc-icons">
+                        <i class="fa-solid fa-share"></i>
+                        <i class="fa-solid fa-eye"></i>
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                    <img src="assets/images/home/team6.jpg" alt="">
+
+                    <div class="doc-details">
+                        <h2>Mr Joe</h2>
+
+                        <i class="fa-brands fa-linkedin"></i>
+                        <i class="fa-brands fa-instagram"></i>
+                    </div>
+
+                </div>
+            </div>
+
         </div>
-
-        <div class="main-inner-doctor">
-            <div class="doc-poster">
-                <div class="doc-icons">
-                    <i class="fa-solid fa-share"></i>
-                    <i class="fa-solid fa-eye"></i>
-                    <i class="fa-solid fa-heart"></i>
-                </div>
-                <img src="assets/images/home/team1.jpg" alt="">
-
-                <div class="doc-details">
-                    <h2>Mr Joe</h2>
-
-                    <i class="fa-brands fa-linkedin"></i>
-                    <i class="fa-brands fa-instagram"></i>
-                </div>
-
-            </div>
-
-            <div class="doc-poster">
-                <div class="doc-icons">
-                    <i class="fa-solid fa-share"></i>
-                    <i class="fa-solid fa-eye"></i>
-                    <i class="fa-solid fa-heart"></i>
-                </div>
-                <img src="assets/images/home/team2.jpg" alt="">
-                <div class="doc-details">
-                    <h2>Mr Joe</h2>
-
-                    <i class="fa-brands fa-linkedin"></i>
-                    <i class="fa-brands fa-instagram"></i>
-                </div>
-            </div>
-
-            <div class="doc-poster">
-                <div class="doc-icons">
-                    <i class="fa-solid fa-share"></i>
-                    <i class="fa-solid fa-eye"></i>
-                    <i class="fa-solid fa-heart"></i>
-                </div>
-                <img src="assets/images/home/team3.jpg" alt="">
-                <div class="doc-details">
-                    <h2>Mr Joe</h2>
-
-                    <i class="fa-brands fa-linkedin"></i>
-                    <i class="fa-brands fa-instagram"></i>
-                </div>
-            </div>
-
-            <div class="doc-poster">
-                <div class="doc-icons">
-                    <i class="fa-solid fa-share"></i>
-                    <i class="fa-solid fa-eye"></i>
-                    <i class="fa-solid fa-heart"></i>
-                </div>
-                <img src="assets/images/home/team4.jpg" alt="">
-                <div class="doc-details">
-                    <h2>Mr Joe</h2>
-
-                    <i class="fa-brands fa-linkedin"></i>
-                    <i class="fa-brands fa-instagram"></i>
-                </div>
-            </div>
-
-            <div class="doc-poster">
-                <div class="doc-icons">
-                    <i class="fa-solid fa-share"></i>
-                    <i class="fa-solid fa-eye"></i>
-                    <i class="fa-solid fa-heart"></i>
-                </div>
-                <img src="assets/images/home/team5.jpg" alt="">
-                <div class="doc-details">
-                    <h2>Mr Joe</h2>
-
-                    <i class="fa-brands fa-linkedin"></i>
-                    <i class="fa-brands fa-instagram"></i>
-                </div>
-            </div>
-
-            <div class="doc-poster">
-                <div class="doc-icons">
-                    <i class="fa-solid fa-share"></i>
-                    <i class="fa-solid fa-eye"></i>
-                    <i class="fa-solid fa-heart"></i>
-                </div>
-                <img src="assets/images/home/team6.jpg" alt="">
-
-                <div class="doc-details">
-                    <h2>Mr Joe</h2>
-
-                    <i class="fa-brands fa-linkedin"></i>
-                    <i class="fa-brands fa-instagram"></i>
-                </div>
-
-            </div>
-        </div>
-
-    </div>
+    </section>
 
     <!-- our doctors ended -->
 
     <!-- our services -->
 
-    <div class="our-service">
-        <div class="service-heading">
-            <h2>Layanan Kami</h2>
+    <section id="services" class="min-h-screen">
+        <!-- Services content -->
+
+        <div class="our-service">
+            <div class="service-heading">
+                <h2>Layanan Kami</h2>
+            </div>
+
+            <div class="main-services">
+                <div class="inner-services">
+                    <div class="service-icon">
+                        <i class="fa-solid fa-truck-medical"></i>
+                    </div>
+                    <h3>Pemeriksaan Kesehatan</h3>
+                    <p>Kami menawarkan prosedur medis luas untuk pasien rawat jalan dan rawat inap, dan kami sangat
+                        bangga
+                        dengan pencapaian staf kami.</p>
+                </div>
+
+                <div class="inner-services">
+                    <div class="service-icon">
+                        <i class="fa-regular fa-hospital"></i>
+                    </div>
+                    <h3>Pemeriksaan Kesehatan</h3>
+                    <p>Kami menawarkan prosedur medis luas untuk pasien rawat jalan dan rawat inap, dan kami sangat
+                        bangga
+                        dengan pencapaian staf kami.</p>
+                </div>
+
+                <div class="inner-services">
+                    <div class="service-icon">
+                        <i class="fa-regular fa-heart"></i>
+                    </div>
+                    <h3>Pemeriksaan Kesehatan</h3>
+                    <p>Kami menawarkan prosedur medis luas untuk pasien rawat jalan dan rawat inap, dan kami sangat
+                        bangga
+                        dengan pencapaian staf kami.</p>
+                </div>
+
+                <div class="inner-services">
+                    <div class="service-icon">
+                        <i class="fa-solid fa-notes-medical"></i>
+                    </div>
+                    <h3>Pemeriksaan Kesehatan</h3>
+                    <p>Kami menawarkan prosedur medis luas untuk pasien rawat jalan dan rawat inap, dan kami sangat
+                        bangga
+                        dengan pencapaian staf kami.</p>
+                </div>
+
+                <div class="inner-services">
+                    <div class="service-icon">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <h3>Pemeriksaan Kesehatan</h3>
+                    <p>Kami menawarkan prosedur medis luas untuk pasien rawat jalan dan rawat inap, dan kami sangat
+                        bangga
+                        dengan pencapaian staf kami.</p>
+                </div>
+
+                <div class="inner-services">
+                    <div class="service-icon">
+                        <i class="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <h3>Pemeriksaan Kesehatan</h3>
+                    <p>Kami menawarkan prosedur medis luas untuk pasien rawat jalan dan rawat inap, dan kami sangat
+                        bangga
+                        dengan pencapaian staf kami.</p>
+                </div>
+            </div>
         </div>
-
-        <div class="main-services">
-            <div class="inner-services">
-                <div class="service-icon">
-                    <i class="fa-solid fa-truck-medical"></i>
-                </div>
-                <h3>Pemeriksaan Kesehatan</h3>
-                <p>Kami menawarkan prosedur medis luas untuk pasien rawat jalan dan rawat inap, dan kami sangat bangga dengan pencapaian staf kami.</p>
-            </div>
-
-            <div class="inner-services">
-                <div class="service-icon">
-                    <i class="fa-regular fa-hospital"></i>
-                </div>
-                <h3>Pemeriksaan Kesehatan</h3>
-                <p>Kami menawarkan prosedur medis luas untuk pasien rawat jalan dan rawat inap, dan kami sangat bangga dengan pencapaian staf kami.</p>
-            </div>
-
-            <div class="inner-services">
-                <div class="service-icon">
-                    <i class="fa-regular fa-heart"></i>
-                </div>
-                <h3>Pemeriksaan Kesehatan</h3>
-                <p>Kami menawarkan prosedur medis luas untuk pasien rawat jalan dan rawat inap, dan kami sangat bangga dengan pencapaian staf kami.</p>
-            </div>
-
-            <div class="inner-services">
-                <div class="service-icon">
-                    <i class="fa-solid fa-notes-medical"></i>
-                </div>
-                <h3>Pemeriksaan Kesehatan</h3>
-                <p>Kami menawarkan prosedur medis luas untuk pasien rawat jalan dan rawat inap, dan kami sangat bangga dengan pencapaian staf kami.</p>
-            </div>
-
-            <div class="inner-services">
-                <div class="service-icon">
-                    <i class="fa-solid fa-list-check"></i>
-                </div>
-                <h3>Pemeriksaan Kesehatan</h3>
-                <p>Kami menawarkan prosedur medis luas untuk pasien rawat jalan dan rawat inap, dan kami sangat bangga dengan pencapaian staf kami.</p>
-            </div>
-
-            <div class="inner-services">
-                <div class="service-icon">
-                    <i class="fa-solid fa-user-doctor"></i>
-                </div>
-                <h3>Pemeriksaan Kesehatan</h3>
-                <p>Kami menawarkan prosedur medis luas untuk pasien rawat jalan dan rawat inap, dan kami sangat bangga dengan pencapaian staf kami.</p>
-            </div>
-        </div>
-    </div>
+    </section>
 
     <!-- our services ended -->
 
     <!-- customer review -->
 
-    <div class="main-review">
-        <section>
-            <div class="review-heading">
-                <h1>Ulasan Pelanggan Kami</h1>
-            </div>
+    <section id="review" class="min-h-screen">
+        <div class="main-review">
+            <section>
+                <div class="review-heading">
+                    <h1>Ulasan Pelanggan Kami</h1>
+                </div>
 
-            <div class="main-inner-review">
+                <div class="main-inner-review">
 
-                <div class="review-inner-content">
+                    <div class="review-inner-content">
 
-                    <div class="review-box">
-                        <img src="assets/images/home/pic1.png" alt="">
+                        <div class="review-box">
+                            <img src="assets/images/home/pic1.png" alt="">
 
-                        <h2>Lara John</h2>
-                        <div class="review-stars">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-regular fa-star"></i>
+                            <h2>Lara John</h2>
+                            <div class="review-stars">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-regular fa-star"></i>
+                            </div>
+
+                            <div class="review-text">
+                                <p>Saya sangat puas dengan layanan yang diberikan, tim medis sangat profesional dan
+                                    berpengalaman.</p>
+                            </div>
+
                         </div>
 
-                        <div class="review-text">
-                            <p>Saya sangat puas dengan layanan yang diberikan, tim medis sangat profesional dan berpengalaman.</p>
+                        <div class="review-box">
+                            <img src="assets/images/home/pic2.png" alt="">
+
+                            <h2>Lara John</h2>
+                            <div class="review-stars">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-regular fa-star"></i>
+                            </div>
+
+                            <div class="review-text">
+                                <p>Saya sangat puas dengan layanan yang diberikan, tim medis sangat profesional dan
+                                    berpengalaman.</p>
+                            </div>
+
                         </div>
 
-                    </div>
+                        <div class="review-box">
+                            <img src="assets/images/home/pic3.png" alt="">
 
-                    <div class="review-box">
-                        <img src="assets/images/home/pic2.png" alt="">
+                            <h2>Lara John</h2>
+                            <div class="review-stars">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-regular fa-star"></i>
+                            </div>
 
-                        <h2>Lara John</h2>
-                        <div class="review-stars">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-regular fa-star"></i>
-                        </div>
+                            <div class="review-text">
+                                <p>Saya sangat puas dengan layanan yang diberikan, tim medis sangat profesional dan
+                                    berpengalaman.</p>
+                            </div>
 
-                        <div class="review-text">
-                            <p>Saya sangat puas dengan layanan yang diberikan, tim medis sangat profesional dan berpengalaman.</p>
-                        </div>
-
-                    </div>
-
-                    <div class="review-box">
-                        <img src="assets/images/home/pic3.png" alt="">
-
-                        <h2>Lara John</h2>
-                        <div class="review-stars">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-regular fa-star"></i>
-                        </div>
-
-                        <div class="review-text">
-                            <p>Saya sangat puas dengan layanan yang diberikan, tim medis sangat profesional dan berpengalaman.</p>
                         </div>
 
                     </div>
 
                 </div>
+            </section>
+        </div>
+    </section>
 
-            </div>
-        </section>
-    </div>
 
     <!-- customer review -->
 

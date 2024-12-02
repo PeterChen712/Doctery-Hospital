@@ -66,43 +66,37 @@ class DashboardController extends Controller
                 ->with('error', 'Doctor profile not found. Please contact administrator.');
         }
 
-        $recentPatients = MedicalRecord::with('patient.user')
-            ->where('doctor_id', $doctor->id)
-            ->latest('treatment_date')
+        // Recent patients
+        $recentPatients = MedicalRecord::with(['patient.user'])
+            ->where('doctor_id', $doctor->doctor_id)
+            ->orderByDesc('treatment_date')
             ->take(5)
             ->get();
 
-        $todayAppointments = Appointment::with('patient.user')
-            ->where('doctor_id', $doctor->id)
+        // Ongoing treatments
+        $ongoingTreatments = MedicalRecord::with(['patient.user'])
+            ->where('doctor_id', $doctor->doctor_id)
+            ->whereIn('status', ['ONGOING', 'IN_PROGRESS'])
+            ->orderByDesc('updated_at')
+            ->get();
+
+        // Today's patients count
+        $todayPatients = Appointment::where('doctor_id', $doctor->doctor_id)
             ->whereDate('appointment_date', today())
-            ->get();
-
-        $ongoingTreatments = MedicalRecord::with('patient.user')
-            ->where('doctor_id', $doctor->id)
-            ->where('status', 'ONGOING')
-            ->latest()
-            ->take(5)
-            ->get();
-
-        $todayPatients = MedicalRecord::where('doctor_id', $doctor->id)
-            ->whereDate('treatment_date', today())
+            ->where('status', 'CONFIRMED')
             ->count();
 
-        $pendingAppointments = Appointment::where('doctor_id', $doctor->id)
-            ->where('status', 'PENDING')
+        // Pending appointments count
+        $pendingAppointments = Appointment::where('doctor_id', $doctor->doctor_id)
+            ->where('status', 'PENDING_CONFIRMATION')
             ->count();
 
-        $followUps = MedicalRecord::where('doctor_id', $doctor->id)
-            ->whereDate('follow_up_date', today())
-            ->count();
 
         return view('doctor.dashboard', compact(
             'recentPatients',
-            'todayAppointments',
             'ongoingTreatments',
             'todayPatients',
             'pendingAppointments',
-            'followUps'
         ));
     }
 

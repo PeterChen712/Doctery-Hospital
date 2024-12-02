@@ -6,7 +6,7 @@
         <div class="max-w-3xl mx-auto">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg">
                 <div class="p-6">
-                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Edit Your Profile</h2>
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Edit Profil</h2>
 
                     <!-- Include Cropper.js CSS -->
                     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
@@ -18,7 +18,7 @@
                         <!-- Username -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Username
+                                Nama Pengguna
                             </label>
                             <input type="text" name="username" value="{{ old('username', $user->username) }}"
                                 class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -44,7 +44,7 @@
                         <!-- Phone Number -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Phone Number
+                                Nomor Telepon
                             </label>
                             <input type="text" name="phone_number" value="{{ old('phone_number', $user->phone_number) }}"
                                 class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -57,7 +57,7 @@
                         <!-- Address -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Address
+                                Alamat
                             </label>
                             <textarea name="address" rows="3"
                                 class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
@@ -70,9 +70,10 @@
                         <!-- Specialization -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                Specialization
+                                Spesialisasi
                             </label>
-                            <input type="text" name="specialization" value="{{ old('specialization', $doctor->specialization) }}"
+                            <input type="text" name="specialization"
+                                value="{{ old('specialization', $doctor->specialization) }}"
                                 class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 required>
                             @error('specialization')
@@ -83,9 +84,10 @@
                         <!-- License Number -->
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                License Number
+                                Nomor Lisensi
                             </label>
-                            <input type="text" name="license_number" value="{{ old('license_number', $doctor->license_number) }}"
+                            <input type="text" name="license_number"
+                                value="{{ old('license_number', $doctor->license_number) }}"
                                 class="w-full rounded-md border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
                                 required>
                             @error('license_number')
@@ -103,9 +105,9 @@
                             @if ($user->profile_image)
                                 <div class="mb-4">
                                     <img class="w-32 h-32 rounded-full shadow-lg object-cover"
-                                        src="{{ Storage::url($user->profile_image) }}" alt="{{ $user->username }}">
+                                        src="{{ route('avatar.show', $user->user_id) }}" alt="{{ $user->username }}">
                                 </div>
-                            @endif
+                            @endifLima, Peru. Skype. Hello. 
 
                             <!-- File Input -->
                             <input type="file" name="profile_image" id="avatar" accept="image/*" class="hidden">
@@ -143,11 +145,11 @@
                         <div class="flex justify-end space-x-4">
                             <a href="{{ route('doctor.profile.show') }}"
                                 class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-400">
-                                Cancel
+                                Batal
                             </a>
                             <button type="submit"
                                 class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                Update Profile
+                                Perbarui Profil
                             </button>
                         </div>
                     </form>
@@ -171,7 +173,7 @@
             const changeAvatarButton = document.getElementById('change-avatar-button');
             const croppedAvatarInput = document.getElementById('cropped-avatar');
             const form = document.querySelector('form');
-            
+
             let cropper;
 
             function initCropper(imageUrl) {
@@ -260,37 +262,37 @@
                 submitButton.innerHTML = 'Updating...';
 
                 fetch(form.action, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (response.redirected) {
-                        window.location.href = response.url;
-                        return;
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = data.redirect;
-                    } else if (data.errors) {
-                        Object.keys(data.errors).forEach(field => {
-                            const errorElement = document.querySelector(`[name="${field}"]`)
-                                .parentElement.querySelector('.text-red-600');
-                            if (errorElement) {
-                                errorElement.textContent = data.errors[field][0];
-                            }
-                        });
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => {
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                            return;
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = data.redirect;
+                        } else if (data.errors) {
+                            Object.keys(data.errors).forEach(field => {
+                                const errorElement = document.querySelector(`[name="${field}"]`)
+                                    .parentElement.querySelector('.text-red-600');
+                                if (errorElement) {
+                                    errorElement.textContent = data.errors[field][0];
+                                }
+                            });
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = originalText;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
                         submitButton.disabled = false;
                         submitButton.innerHTML = originalText;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = originalText;
-                    alert('An error occurred while updating your profile. Please try again.');
-                });
+                        alert('An error occurred while updating your profile. Please try again.');
+                    });
             });
         });
     </script>

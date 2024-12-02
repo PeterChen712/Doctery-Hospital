@@ -32,22 +32,22 @@
             <div class="px-6 py-12 mt-12">
                 <!-- Basic Information -->
                 <div class="mb-8">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Basic Information</h2>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Informasi Dasar</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Email</label>
                             <p class="mt-1 text-gray-900 dark:text-white">{{ $user->email }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Phone Number</label>
+                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Nomor Telepon</label>
                             <p class="mt-1 text-gray-900 dark:text-white">{{ $user->phone_number }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">License Number</label>
+                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Nomor Lisensi</label>
                             <p class="mt-1 text-gray-900 dark:text-white">{{ $doctor->license_number }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Specialization</label>
+                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Spesialisasi</label>
                             <p class="mt-1 text-gray-900 dark:text-white">{{ $doctor->specialization }}</p>
                         </div>
                     </div>
@@ -55,10 +55,10 @@
 
                 <!-- Contact Information -->
                 <div class="mb-8">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Contact Information</h2>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Informasi Kontak</h2>
                     <div class="grid grid-cols-1 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Address</label>
+                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Alamat</label>
                             <p class="mt-1 text-gray-900 dark:text-white">{{ $user->address }}</p>
                         </div>
                     </div>
@@ -66,12 +66,12 @@
 
                 <!-- Schedule Information -->
                 <div class="mb-8">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Schedule Information</h2>
+                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Informasi Jadwal</h2>
                     <div class="grid grid-cols-1 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Working Hours</label>
+                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Jam Kerja</label>
                             <p class="mt-1 text-gray-900 dark:text-white">
-                                Check your <a href="{{ route('doctor.schedules.index') }}" class="text-blue-600 hover:text-blue-800">schedule page</a> for detailed information
+                                Lihat <a href="{{ route('doctor.schedules.index') }}" class="text-blue-600 hover:text-blue-800">halaman jadwal</a> untuk informasi lengkap
                             </p>
                         </div>
                     </div>
@@ -81,7 +81,7 @@
                 <div class="mt-8 flex justify-end">
                     <a href="{{ route('doctor.profile.edit') }}"
                         class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Edit Profile
+                        Edit Profil
                     </a>
                 </div>
             </div>

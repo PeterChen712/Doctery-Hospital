@@ -25,17 +25,24 @@
 
 <body class="font-sans antialiased">
     <!-- Top Navigation -->
-    <nav class="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+    <!-- Update the top navigation section -->
+<nav class="fixed top-0 z-50 w-full border-b border-gray-200 dark:border-gray-700">
+    <!-- Add gradient background -->
+    <div class="bg-gradient-to-r from-[#100d35] to-[#1a1558]">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center justify-start">
-                    <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar"
-                        aria-controls="logo-sidebar" type="button"
-                        class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+                    <button data-drawer-target="logo-sidebar" 
+                            data-drawer-toggle="logo-sidebar"
+                            aria-controls="logo-sidebar" 
+                            type="button"
+                            class="inline-flex items-center p-2 text-sm text-gray-300 rounded-lg sm:hidden 
+                                   hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600">
                         <span class="sr-only">Open sidebar</span>
                     </button>
                     <a href="/"
-                        class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white cursor-pointer select-none ml-2 hover:text-gray-600 dark:hover:text-gray-300"
+                        class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-white 
+                               cursor-pointer select-none ml-2 hover:text-gray-300 transition-colors"
                         id="sidebar-toggle">Doctor Portal</a>
                 </div>
 
@@ -43,15 +50,15 @@
                     <x-dropdown align="right" width="48">
                         <x-slot name="trigger">
                             <button type="button"
-                                class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
+                                class="flex text-sm rounded-full focus:ring-4 focus:ring-gray-600 border-2 border-gray-600">
                                 <span class="sr-only">Open user menu</span>
                                 @if (Auth::user()->profile_image)
                                     <img class="w-8 h-8 rounded-full"
                                         src="{{ route('avatar.show', Auth::user()->user_id) }}"
                                         alt="{{ Auth::user()->username }}">
                                 @else
-                                    <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center">
-                                        <span class="text-gray-600 font-medium text-sm">
+                                    <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center">
+                                        <span class="text-gray-200 font-medium text-sm">
                                             {{ substr(Auth::user()->username, 0, 1) }}
                                         </span>
                                     </div>
@@ -59,7 +66,6 @@
                             </button>
                         </x-slot>
 
-                        <!-- In top navigation dropdown -->
                         <x-slot name="content">
                             <div class="px-4 py-3">
                                 <p class="text-sm text-gray-900 dark:text-white">{{ Auth::user()->username }}</p>
@@ -67,7 +73,6 @@
                                     {{ Auth::user()->email }}
                                 </p>
                             </div>
-                            <!-- Change this line -->
                             <x-dropdown-link :href="route('doctor.profile.show')">Profile</x-dropdown-link>
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
@@ -81,36 +86,37 @@
                 </div>
             </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <!-- Sidebar -->
     <aside id="logo-sidebar"
-        class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-white border-r border-gray-200 sm:translate-x-0 dark:bg-gray-800 dark:border-gray-700">
-        <div class="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800 scrollbar-hide">
-
+        class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-[#100d35] border-r border-gray-700 sm:translate-x-0">
+        <div class="h-full px-3 pb-4 overflow-y-auto bg-[#100d35] scrollbar-hide">
             <!-- User Profile Section -->
-            <div class="flex flex-col items-center pb-6 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col items-center pb-6 border-b border-gray-700">
                 @if (Auth::user()->profile_image)
-                    <img class="w-20 h-20 mb-3 rounded-full shadow-lg"
+                    <img class="w-20 h-20 mb-3 rounded-full shadow-lg object-cover"
                         src="{{ route('avatar.show', Auth::user()->user_id) }}" alt="{{ Auth::user()->username }}">
                 @else
-                    <div class="w-20 h-20 mb-3 rounded-full shadow-lg bg-gray-300 flex items-center justify-center">
-                        <span class="text-gray-600 font-medium text-xl">
+                    <div class="w-20 h-20 mb-3 rounded-full shadow-lg bg-gray-700 flex items-center justify-center">
+                        <span class="text-white font-medium text-xl">
                             {{ substr(Auth::user()->username, 0, 1) }}
                         </span>
                     </div>
                 @endif
-                <h5 class="mb-1 text-xl font-medium text-gray-900 dark:text-white">{{ Auth::user()->username }}</h5>
-                <span class="text-sm text-gray-500 dark:text-gray-400">{{ Auth::user()->email }}</span>
+                <h5 class="mb-1 text-xl font-medium text-white">{{ Auth::user()->username }}</h5>
+                <span class="text-sm text-gray-300">{{ Auth::user()->email }}</span>
             </div>
 
-            <ul class="space-y-2 font-medium">
+            <!-- Navigation Menu -->
+            <ul class="space-y-2 font-medium mt-6">
                 <!-- Dashboard -->
                 <li>
                     <a href="{{ route('doctor.dashboard') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex items-center p-2 text-gray-200 rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                         </svg>
@@ -121,79 +127,55 @@
                 <!-- Patients -->
                 <li>
                     <a href="{{ route('doctor.patients.index') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex items-center p-2 text-gray-200 rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
-                        <span class="ms-3">Patients</span>
+                        <span class="ms-3">Pasien</span>
                     </a>
                 </li>
 
                 <!-- Appointments -->
                 <li>
                     <a href="{{ route('doctor.appointments.index') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex items-center p-2 text-gray-200 rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span class="ms-3">Appointments</span>
+                        <span class="ms-3">Janji Temu</span>
                     </a>
                 </li>
 
                 <!-- Schedule -->
                 <li>
                     <a href="{{ route('doctor.schedules.index') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex items-center p-2 text-gray-200 rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span class="ms-3">My Schedule</span>
+                        <span class="ms-3">Jadwal</span>
                     </a>
                 </li>
-
-                <!-- Prescriptions -->
 
                 <!-- Medical Records -->
                 <li>
                     <a href="{{ route('doctor.medical-records.index') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group">
-                        <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="flex items-center p-2 text-gray-200 rounded-lg hover:bg-gray-700 group">
+                        <svg class="w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
-                        <span class="ms-3">Medical Records</span>
+                        <span class="ms-3">Rekam Medis</span>
                     </a>
                 </li>
             </ul>
-
-
-            <!-- Beta CTA -->
-            <div class="mt-4 p-4 bg-blue-900 dark:bg-blue-800 rounded-lg mx-2">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="bg-pink-100 text-pink-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Beta</span>
-                    <button type="button" class="text-blue-400 hover:text-blue-300"
-                        aria-label="Close beta notification">
-                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 14 14">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                                stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-                        </svg>
-                    </button>
-                </div>
-                <p class="mb-3 text-sm text-blue-800 dark:text-blue-400">
-                    Preview the new Doctor portal navigation! You can turn the new navigation off for a limited time in
-                    your profile.
-                </p>
-                <a class="text-sm text-blue-800 underline font-medium hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300"
-                    href="#">Turn new navigation off</a>
-            </div>
         </div>
     </aside>
 

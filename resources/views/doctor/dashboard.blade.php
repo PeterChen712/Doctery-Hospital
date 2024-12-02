@@ -1,101 +1,93 @@
 @extends('layouts.doctor')
 
-@section('header')
-    <h2 class="text-xl font-semibold">Doctor Dashboard</h2>
-@endsection
-
 @section('content')
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    <!-- Recent Patients -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">Recent Patients</h3>
-            <a href="{{ route('doctor.patients.index') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All</a>
+<h2 class="text-xl font-semibold">Dashboard Dokter</h2>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Pasien Terbaru -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-purple-500 p-4">
+            <h3 class="text-lg font-semibold text-white">5 Pasien Terbaru</h3>
         </div>
         <div class="divide-y dark:divide-gray-700">
-            @forelse($recentPatients as $record)
-                <div class="py-3">
+            @forelse($recentPatients->take(5) as $record)
+                <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <div class="flex justify-between items-center">
                         <div>
-                            <span class="font-medium">{{ $record->patient->user->username }}</span>
-                            <p class="text-sm text-gray-500">{{ $record->treatment_date->format('d M Y') }}</p>
+                            <span class="font-medium text-gray-900 dark:text-white">
+                                {{ $record->patient->user->username }}
+                            </span>
+                            <p class="text-sm text-gray-500">
+                                Terakhir diperiksa: {{ $record->treatment_date->format('d M Y') }}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                Diagnosis: {{ Str::limit($record->diagnosis, 50) }}
+                            </p>
                         </div>
-                        <a href="{{ route('doctor.medical-records.show', $record) }}" class="text-blue-600 hover:text-blue-800">View</a>
+                        <a href="{{ route('doctor.medical-records.show', $record) }}" 
+                           class="px-3 py-1 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors">
+                            Detail
+                        </a>
                     </div>
                 </div>
             @empty
-                <p class="text-gray-500 dark:text-gray-400">No recent patients</p>
+                <div class="p-4">
+                    <p class="text-gray-500 dark:text-gray-400">Belum ada pasien yang diperiksa</p>
+                </div>
             @endforelse
         </div>
     </div>
 
-    <!-- Today's Appointments -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">Today's Appointments</h3>
-            <a href="{{ route('doctor.appointments.index') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All</a>
-        </div>
-        <div class="divide-y dark:divide-gray-700">
-            @forelse($todayAppointments as $appointment)
-                <div class="py-3">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <span class="font-medium">{{ $appointment->patient->user->username }}</span>
-                            <p class="text-sm text-gray-500">{{ \Carbon\Carbon::parse($appointment->appointment_time)->format('H:i') }}</p>
-                        </div>
-                        <span class="px-2 py-1 text-xs rounded-full 
-                            @if($appointment->status === 'CONFIRMED') bg-green-100 text-green-800
-                            @elseif($appointment->status === 'PENDING') bg-yellow-100 text-yellow-800
-                            @else bg-gray-100 text-gray-800 @endif">
-                            {{ $appointment->status }}
-                        </span>
-                    </div>
-                </div>
-            @empty
-                <p class="text-gray-500 dark:text-gray-400">No appointments today</p>
-            @endforelse
-        </div>
-    </div>
-
-    <!-- Ongoing Medical Records -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">Ongoing Treatments</h3>
-            <a href="{{ route('doctor.medical-records.index') }}" class="text-blue-600 hover:text-blue-800 text-sm">View All</a>
+    <!-- Rekam Medis dalam Proses -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
+        <div class="bg-blue-500 p-4">
+            <h3 class="text-lg font-semibold text-white">Rekam Medis dalam Proses</h3>
         </div>
         <div class="divide-y dark:divide-gray-700">
             @forelse($ongoingTreatments as $record)
-                <div class="py-3">
+                <div class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <div class="flex justify-between items-center">
                         <div>
-                            <span class="font-medium">{{ $record->patient->user->username }}</span>
-                            <p class="text-sm text-gray-500">Last visit: {{ $record->treatment_date->format('d M Y') }}</p>
+                            <span class="font-medium text-gray-900 dark:text-white">
+                                {{ $record->patient->user->username }}
+                            </span>
+                            <p class="text-sm text-gray-500">
+                                Mulai treatment: {{ $record->treatment_date->format('d M Y') }}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                Status: {{ $record->status }}
+                            </p>
                         </div>
-                        <a href="{{ route('doctor.medical-records.edit', $record) }}" class="text-blue-600 hover:text-blue-800">Update</a>
+                        <div class="flex gap-2">
+                            <a href="{{ route('doctor.medical-records.show', $record) }}" 
+                               class="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                Lihat
+                            </a>
+                            <a href="{{ route('doctor.medical-records.edit', $record) }}" 
+                               class="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors">
+                                Update
+                            </a>
+                        </div>
                     </div>
                 </div>
             @empty
-                <p class="text-gray-500 dark:text-gray-400">No ongoing treatments</p>
+                <div class="p-4">
+                    <p class="text-gray-500 dark:text-gray-400">Tidak ada rekam medis yang sedang diproses</p>
+                </div>
             @endforelse
         </div>
     </div>
 </div>
 
-<!-- Statistics Overview -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-    <div class="bg-blue-50 dark:bg-blue-900 p-6 rounded-lg">
-        <h4 class="text-blue-800 dark:text-blue-100 font-semibold">Total Patients Today</h4>
-        <p class="text-2xl font-bold text-blue-900 dark:text-blue-50">{{ $todayPatients }}</p>
+<!-- Quick Stats -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <div class="bg-green-500 p-6 rounded-xl text-white shadow-lg">
+        <h4 class="font-semibold">Total Pasien Hari Ini</h4>
+        <p class="text-2xl font-bold mt-2">{{ $todayPatients }}</p>
     </div>
     
-    <div class="bg-green-50 dark:bg-green-900 p-6 rounded-lg">
-        <h4 class="text-green-800 dark:text-green-100 font-semibold">Pending Appointments</h4>
-        <p class="text-2xl font-bold text-green-900 dark:text-green-50">{{ $pendingAppointments }}</p>
-    </div>
-    
-    <div class="bg-purple-50 dark:bg-purple-900 p-6 rounded-lg">
-        <h4 class="text-purple-800 dark:text-purple-100 font-semibold">Follow-ups Required</h4>
-        <p class="text-2xl font-bold text-purple-900 dark:text-purple-50">{{ $followUps }}</p>
+    <div class="bg-red-500 p-6 rounded-xl text-white shadow-lg">
+        <h4 class="font-semibold">Menunggu Konfirmasi</h4>
+        <p class="text-2xl font-bold mt-2">{{ $pendingAppointments }}</p>
     </div>
 </div>
 @endsection

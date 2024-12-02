@@ -3,10 +3,16 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 
 class MedicalRecord extends Model
 {
     protected $primaryKey = 'record_id';
+
+    const STATUS_ONGOING = 'ONGOING';
+    const STATUS_IN_PROGRESS = 'IN_PROGRESS';
+    const STATUS_COMPLETED = 'COMPLETED';
+    const STATUS_CANCELLED = 'CANCELLED';
 
     protected $fillable = [
         'patient_id',
@@ -19,13 +25,15 @@ class MedicalRecord extends Model
         'treatment_date',
         'notes',
         'status',
-        'follow_up_date'
+        'follow_up_date',
+        'needs_follow_up'
     ];
 
     protected $casts = [
         'treatment_date' => 'datetime',
         'follow_up_date' => 'datetime',
-        'status' => 'string'
+        'status' => 'string',
+        'needs_follow_up' => 'boolean'
     ];
 
     // Relationships
@@ -61,9 +69,41 @@ class MedicalRecord extends Model
             ->withTimestamps();
     }
 
-
     public function notifications()
     {
         return $this->morphMany(UserNotification::class, 'notifiable');
+    }
+
+    // Scopes
+    public function scopeOngoing(Builder $query): Builder
+    {
+        return $query->whereIn('status', [self::STATUS_ONGOING, self::STATUS_IN_PROGRESS]);
+    }
+
+    public function scopeNeedsFollowUp(Builder $query): Builder
+    {
+        return $query->where('needs_follow_up', true)
+                    ->where('status', '!=', self::STATUS_COMPLETED);
+    }
+
+    public function scopeForDoctor(Builder $query, $doctorId): Builder
+    {
+        return $query->where('doctor_id', $doctorId);
+    }
+
+    public function scopeRecent(Builder $query): Builder
+    {
+        return $query->orderByDesc('treatment_date');
+    }
+
+    // Helper methods
+    public function isOngoing(): bool
+    {
+        return in_array($this->status, [self::STATUS_ONGOING, self::STATUS_IN_PROGRESS]);
+    }
+
+    public function requiresFollowUp(): bool
+    {
+        return $this->needs_follow_up && $this->status !== self::STATUS_COMPLETED;
     }
 }
