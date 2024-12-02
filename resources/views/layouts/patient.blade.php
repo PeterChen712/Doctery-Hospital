@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" x-data="{ darkMode: localStorage.getItem('color-theme') === 'dark' }" x-bind:class="{ 'dark': darkMode }">
+
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8">
@@ -23,31 +24,19 @@
             scrollbar-width: none;
             /* Firefox */
         }
-
-        /* Dark mode styles */
-        .dark body {
-            background-color: #1a1a1a;
-            color: #ffffff;
-        }
-
-        /* Transition styles */
-        .theme-transition {
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
     </style>
 </head>
 
 <body class="font-sans antialiased">
 
     <!-- Top Navigation -->
-    <!-- Top Navigation -->
-    <nav class="fixed top-0 z-50 w-full border-b border-gray-200" style="background-color: #2ec8a6;">
+    <nav class="fixed top-0 z-50 w-full border-b border-gray-200" style="background-color: #d7dfe5;">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center justify-start">
                     <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar"
                         aria-controls="logo-sidebar" type="button"
-                        class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
+                        class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200">
                         <span class="sr-only">Open sidebar</span>
                         <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20"
                             xmlns="http://www.w3.org/2000/svg">
@@ -56,27 +45,15 @@
                             </path>
                         </svg>
                     </button>
-                    <a href="/"
-                        class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap dark:text-white cursor-pointer select-none ml-2 hover:text-gray-600 dark:hover:text-gray-300"
-                        id="sidebar-toggle">Patient Portal</a>
+                    <a href="/" class="ml-2" id="sidebar-toggle">
+                        <img src="{{ asset('assets\images\home\logo3.png') }}" 
+                             alt="Company Logo" 
+                             class="w-[150px] h-[45px] object-contain hover:opacity-80 transition-opacity">
+                    </a>
                 </div>
 
 
-                <!-- Add this in the top navigation bar, next to the user profile dropdown -->
-                <div class="flex items-center ms-3 me-4">
-                    <button id="theme-toggle" type="button"
-                        class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
-                        <svg id="theme-toggle-dark-icon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
-                        </svg>
-                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor"
-                            viewBox="0 0 20 20">
-                            <path
-                                d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z">
-                            </path>
-                        </svg>
-                    </button>
-                </div>
+
 
                 <div class="flex items-center">
                     <div class="flex items-center ms-3">
@@ -179,8 +156,8 @@
                 <li>
                     <a href="{{ route('patient.medical-records') }}"
                         class="flex items-center p-2 text-gray-200 rounded-lg hover:bg-gray-700 group">
-                        <svg class="w-5 h-5 text-gray-300 transition duration-75 group-hover:text-white"
-                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-gray-300 transition duration-75 group-hover:text-white" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -265,54 +242,13 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Theme toggle elements
-            const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
-            const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
-            const themeToggleBtn = document.getElementById('theme-toggle');
-
-            // Sidebar elements
+            // Get DOM elements
             const sidebarToggle = document.getElementById('sidebar-toggle');
             const sidebar = document.getElementById('logo-sidebar');
             const mainContent = document.getElementById('main-content');
             const betaNotification = document.querySelector('.bg-blue-900');
             const closeButton = betaNotification?.querySelector('button');
             let isSidebarOpen = true;
-
-            // Theme initialization
-
-            // Set initial icon state
-            if (localStorage.getItem('color-theme') === 'dark' ||
-                (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                themeToggleLightIcon.classList.remove('hidden');
-                themeToggleDarkIcon.classList.add('hidden');
-            } else {
-                themeToggleLightIcon.classList.add('hidden');
-                themeToggleDarkIcon.classList.remove('hidden');
-            }
-
-            // Theme toggle handler
-            themeToggleBtn.addEventListener('click', function() {
-                themeToggleDarkIcon.classList.toggle('hidden');
-                themeToggleLightIcon.classList.toggle('hidden');
-
-                if (localStorage.getItem('color-theme')) {
-                    if (localStorage.getItem('color-theme') === 'light') {
-                        document.documentElement.classList.add('dark');
-                        localStorage.setItem('color-theme', 'dark');
-                    } else {
-                        document.documentElement.classList.remove('dark');
-                        localStorage.setItem('color-theme', 'light');
-                    }
-                } else {
-                    if (document.documentElement.classList.contains('dark')) {
-                        document.documentElement.classList.remove('dark');
-                        localStorage.setItem('color-theme', 'light');
-                    } else {
-                        document.documentElement.classList.add('dark');
-                        localStorage.setItem('color-theme', 'dark');
-                    }
-                }
-            });
 
             // Sidebar functions
             function openSidebar() {
@@ -328,8 +264,6 @@
             }
 
             // Sidebar hover events
-            sidebarToggle.addEventListener('mouseenter', openSidebar);
-
             const sidebarElements = [sidebar, sidebarToggle];
 
             sidebarElements.forEach(element => {
