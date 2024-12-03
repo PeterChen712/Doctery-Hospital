@@ -10,16 +10,18 @@ use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
+
     public function index(Request $request)
     {
-        $users = User::when($request->role, function($query, $role) {
-            return $query->role($role);
-        })
-        ->when($request->date, function($query, $date) {
-            return $query->whereDate('created_at', $date);
-        })
-        ->latest()
-        ->paginate(10);
+        $users = User::with('roles')  // Add this line
+            ->when($request->role, function ($query, $role) {
+                return $query->role($role);
+            })
+            ->when($request->date, function ($query, $date) {
+                return $query->whereDate('created_at', $date);
+            })
+            ->latest()
+            ->paginate(10);
 
         $roles = Role::all();
         return view('admin.users.index', compact('users', 'roles'));
@@ -46,7 +48,7 @@ class UserController extends Controller
             'username' => $validated['username'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role'=> $validated['role'],
+            'role' => $validated['role'],
             'phone_number' => $validated['phone_number'],
             'address' => $validated['address'],
             'is_active' => true
@@ -74,7 +76,7 @@ class UserController extends Controller
     {
         $validated = $request->validate([
             'username' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,'.$user->user_id.',user_id',
+            'email' => 'required|email|unique:users,email,' . $user->user_id . ',user_id',
             'password' => 'nullable|string|min:8|confirmed',
             'role' => 'required|exists:roles,name',
             'phone_number' => 'required|string|max:15',

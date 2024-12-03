@@ -47,7 +47,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('user.profile.destroy'); // Changed name
     Route::get('/avatar/{id}', [ProfileController::class, 'showAvatar'])->name('avatar.show');
+
+    
 });
+
+
+
 
 // Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {

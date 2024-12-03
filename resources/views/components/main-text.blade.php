@@ -124,11 +124,11 @@
         <div class="loader">
             <p style="position: relative; top: 10px; margin-right: 10px;">Kami ada untuk membantu</p>
             <div class="words">
-                <span class="word word-1">buttons</span>
-                <span class="word word-2">forms</span>
-                <span class="word word-3">switches</span>
-                <span class="word word-4">cards</span>
-                <span class="word word-5">buttons</span>
+                <span class="word word-1">Anda</span>
+                <span class="word word-2">Keluarga Anda</span>
+                <span class="word word-3">Masyarakat</span>
+                <span class="word word-4">Anak-Anak</span>
+                <span class="word word-5">Anda</span>
             </div>
         </div>
     </div>

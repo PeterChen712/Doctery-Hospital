@@ -60,7 +60,7 @@
                         <x-dropdown align="right" width="48">
                             <x-slot name="trigger">
                                 <button type="button"
-                                    class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600">
+                                    class="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-600">
                                     <span class="sr-only">Open user menu</span>
                                     @if (Auth::user()->profile_image)
                                         <img class="w-8 h-8 rounded-full"
@@ -114,7 +114,7 @@
         <div class="h-full px-3 pb-4 overflow-y-auto scrollbar-hide" style="background-color: #100d35;">
 
             <!-- User Profile Section -->
-            <div class="flex flex-col items-center pb-6 border-b border-gray-700">
+            <div class="flex flex-col items-center pb-6 border-b border-gray-700 pt-10">
                 @if (Auth::user()->profile_image)
                     <img class="w-20 h-20 mb-3 rounded-full shadow-lg"
                         src="{{ route('avatar.show', Auth::user()->user_id) }}" alt="{{ Auth::user()->username }}">

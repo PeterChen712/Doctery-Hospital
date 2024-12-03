@@ -26,24 +26,21 @@
 <body class="font-sans antialiased">
     <!-- Top Navigation -->
     <!-- Update the top navigation section -->
-<nav class="fixed top-0 z-50 w-full border-b border-gray-200 dark:border-gray-700">
-    <!-- Add gradient background -->
-    <div class="bg-gradient-to-r from-[#100d35] to-[#1a1558]">
+    <nav class="fixed top-0 z-50 w-full border-b border-gray-200" style="background-color: #d7dfe5;">
+        <!-- Add gradient background -->
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center justify-start">
-                    <button data-drawer-target="logo-sidebar" 
-                            data-drawer-toggle="logo-sidebar"
-                            aria-controls="logo-sidebar" 
-                            type="button"
-                            class="inline-flex items-center p-2 text-sm text-gray-300 rounded-lg sm:hidden 
+                    <button data-drawer-target="logo-sidebar" data-drawer-toggle="logo-sidebar"
+                        aria-controls="logo-sidebar" type="button"
+                        class="inline-flex items-center p-2 text-sm text-gray-300 rounded-lg sm:hidden 
                                    hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600">
                         <span class="sr-only">Open sidebar</span>
                     </button>
-                    <a href="/"
-                        class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-white 
-                               cursor-pointer select-none ml-2 hover:text-gray-300 transition-colors"
-                        id="sidebar-toggle">Doctor Portal</a>
+                    <a href="/" class="ml-2" id="sidebar-toggle">
+                        <img src="{{ asset('assets\images\home\logo3.png') }}" alt="Company Logo"
+                            class="w-[150px] h-[45px] object-contain hover:opacity-80 transition-opacity">
+                    </a>
                 </div>
 
                 <div class="flex items-center">
@@ -86,15 +83,14 @@
                 </div>
             </div>
         </div>
-    </div>
-</nav>
+    </nav>
 
     <!-- Sidebar -->
     <aside id="logo-sidebar"
         class="fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform -translate-x-full bg-[#100d35] border-r border-gray-700 sm:translate-x-0">
         <div class="h-full px-3 pb-4 overflow-y-auto bg-[#100d35] scrollbar-hide">
             <!-- User Profile Section -->
-            <div class="flex flex-col items-center pb-6 border-b border-gray-700">
+            <div class="flex flex-col items-center pb-6 border-b border-gray-700 pt-10">
                 @if (Auth::user()->profile_image)
                     <img class="w-20 h-20 mb-3 rounded-full shadow-lg object-cover"
                         src="{{ route('avatar.show', Auth::user()->user_id) }}" alt="{{ Auth::user()->username }}">

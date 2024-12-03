@@ -2,6 +2,8 @@
 
 @section('content')
 <h2 class="text-xl font-semibold">Dashboard Dokter</h2>
+<div class="h-1 bg-red-500 my-4 rounded-full"></div>
+
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <!-- Pasien Terbaru -->
     <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">

@@ -72,10 +72,10 @@
 
             <div class="home">
                 <div class="home-left-content">
-                    {{-- <span>welcome to hospital management</span> --}}
+                    <span>welcome to hospital management</span>
                     <h2>Kami Merawat<br>Kesehatan Pasien</h2>
                     @include('components.main-text')
-                    {{-- <p class="lorem">Kami berkomitmen untuk memberikan pelayanan kesehatan terbaik untuk Anda dan keluarga.</p> --}}
+                    <p class="lorem">Kami berkomitmen untuk memberikan pelayanan kesehatan terbaik untuk Anda dan keluarga.</p>
 
                     <div class="home-btn">
                         <a href="#about">Baca Selengkapnya</a>
@@ -515,7 +515,7 @@
 
             <!-- Copyright -->
             <div class="border-t border-white/10 mt-12 pt-8 text-center text-gray-400 text-[1.3rem]">
-                <p>&copy; {{ date('Y') }} Nama Rumah Sakit. Semua hak dilindungi.</p>
+                <p>&copy; {{ date('Y') }} Doctery Hospital.</p>
             </div>
         </div>
     </footer>

@@ -4,9 +4,9 @@
 @section('content')
 <div class="container mx-auto px-4 py-6">
     <div class="max-w-3xl mx-auto">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+        <div class="bg-[#011d3f] rounded-lg shadow-lg overflow-hidden">
             <!-- Profile Header -->
-            <div class="relative h-48 bg-gradient-to-r from-blue-500 to-blue-600">
+            <div class="relative h-48 bg-gradient-to-r from-blue-700 to-blue-800">
                 <div class="absolute bottom-0 left-0 right-0 px-6 py-4 transform translate-y-1/2">
                     <div class="flex items-center">
                         @if ($user->profile_image)
@@ -32,46 +32,46 @@
             <div class="px-6 py-12 mt-12">
                 <!-- Basic Information -->
                 <div class="mb-8">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Informasi Dasar</h2>
+                    <h2 class="text-xl font-semibold text-white mb-4">Informasi Dasar</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Email</label>
-                            <p class="mt-1 text-gray-900 dark:text-white">{{ $user->email }}</p>
+                            <label class="block text-sm font-medium text-gray-300">Email</label>
+                            <p class="mt-1 text-gray-100">{{ $user->email }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Nomor Telepon</label>
-                            <p class="mt-1 text-gray-900 dark:text-white">{{ $user->phone_number }}</p>
+                            <label class="block text-sm font-medium text-gray-300">Nomor Telepon</label>
+                            <p class="mt-1 text-gray-100">{{ $user->phone_number }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Nomor Lisensi</label>
-                            <p class="mt-1 text-gray-900 dark:text-white">{{ $doctor->license_number }}</p>
+                            <label class="block text-sm font-medium text-gray-300">Nomor Lisensi</label>
+                            <p class="mt-1 text-gray-100">{{ $doctor->license_number }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Spesialisasi</label>
-                            <p class="mt-1 text-gray-900 dark:text-white">{{ $doctor->specialization }}</p>
+                            <label class="block text-sm font-medium text-gray-300">Spesialisasi</label>
+                            <p class="mt-1 text-gray-100">{{ $doctor->specialization }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Contact Information -->
                 <div class="mb-8">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Informasi Kontak</h2>
+                    <h2 class="text-xl font-semibold text-white mb-4">Informasi Kontak</h2>
                     <div class="grid grid-cols-1 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Alamat</label>
-                            <p class="mt-1 text-gray-900 dark:text-white">{{ $user->address }}</p>
+                            <label class="block text-sm font-medium text-gray-300">Alamat</label>
+                            <p class="mt-1 text-gray-100">{{ $user->address }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Schedule Information -->
                 <div class="mb-8">
-                    <h2 class="text-xl font-semibold text-gray-900 dark:text-white mb-4">Informasi Jadwal</h2>
+                    <h2 class="text-xl font-semibold text-white mb-4">Informasi Jadwal</h2>
                     <div class="grid grid-cols-1 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-500 dark:text-gray-400">Jam Kerja</label>
-                            <p class="mt-1 text-gray-900 dark:text-white">
-                                Lihat <a href="{{ route('doctor.schedules.index') }}" class="text-blue-600 hover:text-blue-800">halaman jadwal</a> untuk informasi lengkap
+                            <label class="block text-sm font-medium text-gray-300">Jam Kerja</label>
+                            <p class="mt-1 text-gray-100">
+                                Lihat <a href="{{ route('doctor.schedules.index') }}" class="text-blue-300 hover:text-blue-100">halaman jadwal</a> untuk informasi lengkap
                             </p>
                         </div>
                     </div>

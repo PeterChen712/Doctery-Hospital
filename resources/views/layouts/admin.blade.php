@@ -20,10 +20,11 @@
             /* Firefox */
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
 <body class="font-sans antialiased">
-    <nav class="fixed top-0 z-50 w-full bg-[#100d35] border-b border-gray-700">
+    <nav class="fixed top-0 z-50 w-full border-b border-gray-200" style="background-color: #d7dfe5;">
         <div class="px-3 py-3 lg:px-5 lg:pl-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center justify-start">
@@ -37,8 +38,10 @@
                         </svg>
                     </button>
                     <span
-                        class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-white cursor-pointer select-none ml-2 hover:text-gray-300">Admin
-                        Portal</span>
+                        class="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-white cursor-pointer select-none ml-2 hover:text-gray-300">
+                        <img src="{{ asset('assets\images\home\logo3.png') }}" alt="Company Logo"
+                            class="w-[150px] h-[45px] object-contain hover:opacity-80 transition-opacity">
+                    </span>
                 </div>
 
                 <div class="flex items-center">
