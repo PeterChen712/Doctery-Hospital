@@ -4,7 +4,6 @@
 
 @section('content')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
-    <h2 class="text-xl font-semibold">Add New Medicine</h2>
     <div class="container mx-auto px-4 py-6">
         <div class="max-w-4xl mx-auto">
             <div class="bg-white rounded-lg shadow p-6">
