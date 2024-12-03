@@ -107,7 +107,7 @@
                                     <img class="w-32 h-32 rounded-full shadow-lg object-cover"
                                         src="{{ route('avatar.show', $user->user_id) }}" alt="{{ $user->username }}">
                                 </div>
-                            @endifLima, Peru. Skype. Hello. 
+                            @endif
 
                             <!-- File Input -->
                             <input type="file" name="profile_image" id="avatar" accept="image/*" class="hidden">
