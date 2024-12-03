@@ -19,6 +19,14 @@
             scrollbar-width: none;
             /* Firefox */
         }
+
+        body {
+            background-image: url('/assets/images/home/blurbg3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>

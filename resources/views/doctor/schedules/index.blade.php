@@ -1,16 +1,29 @@
 @extends('layouts.doctor')
 
 @section('content')
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-semibold">My Schedules</h2>
-        <a href="{{ route('doctor.schedules.create') }}"
-            class="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-md inline-flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-            Add Schedule
-        </a>
+    <!-- Header Section -->
+    <div class="flex justify-between items-center mb-6">
+        <!-- Title with gradient -->
+        <div class="flex-1">
+            <div class="bg-gradient-to-r from-blue-400 to-blue-600 p-4 rounded-lg shadow-lg">
+                <h1 class="text-3xl font-bold text-white">Jadwal</h1>
+            </div>
+        </div>
+
+        <!-- Add Schedule Button -->
+        <div class="ml-4">
+            <a href="{{ route('doctor.schedules.create') }}"
+                class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium px-6 py-3 rounded-lg inline-flex items-center transition-all shadow-lg hover:shadow-xl">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Tambah Jadwal
+            </a>
+        </div>
     </div>
+
+    <!-- Blue Divider -->
+    <div class="h-1 bg-blue-500 mb-6 rounded-full"></div>
 
     <!-- Calendar Component -->
     <div class="bg-white shadow rounded-lg p-4">
