@@ -75,10 +75,7 @@
                                 <p class="text-sm text-blue-600">{{ $doctor->specialization }}</p>
                             </div>
                         </div>
-                        <a href="{{ route('admin.users.show', $doctor->user_id) }}" 
-                           class="text-blue-600 hover:text-blue-800">
-                            Lihat Profil
-                        </a>
+                        
                     </div>
                 @empty
                     <div class="text-center py-4 text-blue-600 bg-white border border-blue-200 rounded-lg">
