@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\MedicalRecordMedicine;
 
 class MedicalRecord extends Model
 {
@@ -83,7 +84,7 @@ class MedicalRecord extends Model
     public function scopeNeedsFollowUp(Builder $query): Builder
     {
         return $query->where('needs_follow_up', true)
-                    ->where('status', '!=', self::STATUS_COMPLETED);
+            ->where('status', '!=', self::STATUS_COMPLETED);
     }
 
     public function scopeForDoctor(Builder $query, $doctorId): Builder
@@ -105,5 +106,11 @@ class MedicalRecord extends Model
     public function requiresFollowUp(): bool
     {
         return $this->needs_follow_up && $this->status !== self::STATUS_COMPLETED;
+    }
+
+
+    public function medicalRecordMedicines()
+    {
+        return $this->hasMany(MedicalRecordMedicine::class, 'medical_record_id', 'record_id');
     }
 }

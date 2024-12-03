@@ -26,6 +26,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Patient\FeedbackController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Doctor\FeedbackResponseController;
+use App\Http\Controllers\Patient\PrescriptionController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ReportController;
 
@@ -221,9 +222,12 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
     });
 
     // Prescriptions
-    Route::controller(PatientMedicalRecordController::class)->group(function () {
-        Route::get('prescriptions', 'myPrescriptions')->name('prescriptions');
-    });
+    // Route::controller(PatientMedicalRecordController::class)->group(function () {
+    //     Route::get('prescriptions', 'myPrescriptions')->name('prescriptions');
+    // });
+
+    Route::get('/prescriptions', [PrescriptionController::class, 'index'])->name('prescriptions.index');
+    Route::get('prescriptions/{record}', [PrescriptionController::class, 'show'])->name('prescriptions.show');
 
     // View Doctor Profile
     Route::get('view-doctor/{doctor}', [PatientViewDoctorController::class, 'show'])->name('doctors.show');

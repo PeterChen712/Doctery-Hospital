@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Notification;
 use Illuminate\Support\Facades\Log;
 
-class DashboardController extends Controller 
+class DashboardController extends Controller
 {
     public function index()
     {
@@ -100,12 +100,12 @@ class DashboardController extends Controller
         ));
     }
 
-    
+
     public function patient()
     {
         try {
             $user = Auth::user();
-            
+
             if (!$user) {
                 return redirect()->route('login');
             }
@@ -115,7 +115,7 @@ class DashboardController extends Controller
             }
 
             $patient = Patient::where('user_id', $user->user_id)->with('user')->first();
-            
+
             if (!$patient) {
                 return redirect()
                     ->route('patient.profile.create')
@@ -136,11 +136,10 @@ class DashboardController extends Controller
                 ->take(5)
                 ->get();
 
-            $prescriptions = MedicalRecord::with(['doctor.user', 'prescriptions'])
+            $prescriptions = MedicalRecord::with(['doctor.user', 'medicalRecordMedicines.medicine'])
                 ->where('patient_id', $patient->patient_id)
-                ->whereHas('prescriptions')
-                ->latest('treatment_date')
-                ->take(5)
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
                 ->get();
 
             $notifications = $user->notifications()
@@ -156,7 +155,6 @@ class DashboardController extends Controller
                 'prescriptions',
                 'notifications'
             ));
-
         } catch (\Exception $e) {
             Log::error('Patient dashboard error: ' . $e->getMessage());
             return redirect()
