@@ -10,6 +10,9 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.5/flowbite.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
@@ -46,9 +49,8 @@
                         </svg>
                     </button>
                     <a href="/" class="ml-2" id="sidebar-toggle">
-                        <img src="{{ asset('assets\images\home\logo3.png') }}" 
-                             alt="Company Logo" 
-                             class="w-[150px] h-[45px] object-contain hover:opacity-80 transition-opacity">
+                        <img src="{{ asset('assets\images\home\logo3.png') }}" alt="Company Logo"
+                            class="w-[150px] h-[45px] object-contain hover:opacity-80 transition-opacity">
                     </a>
                 </div>
 
@@ -240,97 +242,233 @@
         </div>
     </div>
 
+  
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get DOM elements
-            const sidebarToggle = document.getElementById('sidebar-toggle');
-            const sidebar = document.getElementById('logo-sidebar');
-            const mainContent = document.getElementById('main-content');
-            const betaNotification = document.querySelector('.bg-blue-900');
-            const closeButton = betaNotification?.querySelector('button');
-            let isSidebarOpen = true;
 
-            // Sidebar functions
-            function openSidebar() {
-                sidebar.style.transform = 'translateX(0)';
-                mainContent.style.marginLeft = '16rem';
-                isSidebarOpen = true;
-            }
+        // Sidebar Elements
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebar = document.getElementById('logo-sidebar');
+    const mainContent = document.getElementById('main-content');
+    const betaNotification = document.querySelector('.bg-blue-900');
+    const closeButton = betaNotification?.querySelector('button');
+    let isSidebarOpen = true;
 
-            function closeSidebar() {
-                sidebar.style.transform = 'translateX(-100%)';
-                mainContent.style.marginLeft = '0';
-                isSidebarOpen = false;
-            }
+    // Sidebar Functions
+    function openSidebar() {
+        sidebar.style.transform = 'translateX(0)';
+        mainContent.style.marginLeft = '16rem';
+        isSidebarOpen = true;
+    }
 
-            // Sidebar hover events
-            const sidebarElements = [sidebar, sidebarToggle];
+    function closeSidebar() {
+        sidebar.style.transform = 'translateX(-100%)';
+        mainContent.style.marginLeft = '0';
+        isSidebarOpen = false;
+    }
 
-            sidebarElements.forEach(element => {
-                element.addEventListener('mouseenter', openSidebar);
-
-                element.addEventListener('mouseleave', function(e) {
-                    const isEnteringOtherElement = sidebarElements.some(el =>
-                        el !== element && el.contains(e.relatedTarget)
-                    );
-
-                    if (!isEnteringOtherElement) {
-                        closeSidebar();
-                    }
-                });
-            });
-
-            // Sidebar toggle navigation
-            sidebarToggle.addEventListener('click', function(e) {
-                window.location.href = '/';
-            });
-
-            // Mobile menu toggle
-            const sidebarToggles = document.querySelectorAll('[data-drawer-toggle]');
-            sidebarToggles.forEach(toggle => {
-                toggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('data-drawer-target');
-                    const targetElement = document.getElementById(targetId);
-
-                    if (targetElement && targetId === 'logo-sidebar') {
-                        if (isSidebarOpen) {
-                            closeSidebar();
-                        } else {
-                            openSidebar();
-                        }
-                    }
-                });
-            });
-
-            // Beta notification handling
-            if (closeButton) {
-                closeButton.addEventListener('click', function() {
-                    betaNotification.style.display = 'none';
-                    localStorage.setItem('betaNotificationClosed', 'true');
-                });
-
-                if (localStorage.getItem('betaNotificationClosed') === 'true') {
-                    betaNotification.style.display = 'none';
-                }
-            }
-
-            // Window resize handler
-            window.addEventListener('resize', function() {
-                if (window.innerWidth < 640) {
-                    closeSidebar();
-                }
-            });
-
-            // Initialize sidebar state
-            if (window.innerWidth < 640) {
+    // Sidebar hover events
+    const sidebarElements = [sidebar, sidebarToggle];
+    sidebarElements.forEach(element => {
+        element.addEventListener('mouseenter', openSidebar);
+        element.addEventListener('mouseleave', function(e) {
+            const isEnteringOtherElement = sidebarElements.some(el =>
+                el !== element && el.contains(e.relatedTarget)
+            );
+            if (!isEnteringOtherElement) {
                 closeSidebar();
             }
-
-            // Add transitions
-            sidebar.classList.add('transition-transform', 'duration-300', 'ease-in-out');
-            mainContent.classList.add('transition-[margin]', 'duration-300', 'ease-in-out');
         });
+    });
+
+    // Mobile menu toggle
+    const sidebarToggles = document.querySelectorAll('[data-drawer-toggle]');
+    sidebarToggles.forEach(toggle => {
+        toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('data-drawer-target');
+            const targetElement = document.getElementById(targetId);
+
+            if (targetElement && targetId === 'logo-sidebar') {
+                if (isSidebarOpen) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            }
+        });
+    });
+        // Initialize Select2 for doctor selection
+$(document).ready(function() {
+    $('.doctor-select').select2({
+        placeholder: 'Cari dokter...',
+        allowClear: true,
+        width: '100%'
+    });
+
+    // Add change event listener to doctor select
+    $('#doctor_id').on('change', function() {
+        loadDoctorSchedules();
+    });
+});
+
+// Toggle appointment type sections
+function toggleAppointmentType() {
+    const appointmentType = document.querySelector('input[name="appointment_type"]:checked').value;
+    const scheduledSection = document.getElementById('scheduled-section');
+    const preferredSection = document.getElementById('preferred-section');
+    const scheduleSelect = document.getElementById('schedule_id');
+    const preferredDate = document.getElementById('preferred_date');
+    const preferredTime = document.getElementById('preferred_time');
+
+    if (appointmentType === 'scheduled') {
+        scheduledSection.classList.remove('hidden');
+        preferredSection.classList.add('hidden');
+        scheduleSelect.required = true;
+        preferredDate.required = false;
+        preferredTime.required = false;
+    } else {
+        scheduledSection.classList.add('hidden');
+        preferredSection.classList.remove('hidden');
+        scheduleSelect.required = false;
+        preferredDate.required = true;
+        preferredTime.required = true;
+    }
+}
+
+// Load doctor schedules
+function loadDoctorSchedules() {
+    const doctorId = document.getElementById('doctor_id').value;
+    const scheduleSelect = document.getElementById('schedule_id');
+    const token = document.querySelector('meta[name="csrf-token"]').content;
+
+    console.log('Loading schedules for doctor:', doctorId); // Debug log
+
+    if (!doctorId) {
+        scheduleSelect.innerHTML = '<option value="">Pilih Dokter Terlebih Dahulu</option>';
+        scheduleSelect.disabled = true;
+        return;
+    }
+
+    scheduleSelect.disabled = true;
+    scheduleSelect.innerHTML = '<option value="">Memuat jadwal...</option>';
+
+    fetch(`/patient/doctors/${doctorId}/schedules?_=${new Date().getTime()}`, {
+        headers: {
+            'X-CSRF-TOKEN': token,
+            'Accept': 'application/json',
+            'Cache-Control': 'no-cache'
+        }
+    })
+    .then(response => {
+        console.log('Response status:', response.status); // Debug log
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Received data:', data); // Debug log
+        scheduleSelect.innerHTML = '<option value="">Pilih Jadwal</option>';
+
+        if (!data.schedules || data.schedules.length === 0) {
+            scheduleSelect.innerHTML = '<option value="">Tidak ada jadwal tersedia</option>';
+            scheduleSelect.disabled = true;
+            return;
+        }
+
+        data.schedules.forEach(schedule => {
+            const option = document.createElement('option');
+            option.value = schedule.schedule_id;
+
+            try {
+                const scheduleDate = new Date(schedule.schedule_date + 'T00:00:00');
+                if (isNaN(scheduleDate)) throw new Error('Invalid date');
+
+                const dayNames = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                const formattedDate = scheduleDate.toLocaleDateString('id-ID');
+                const dayName = dayNames[scheduleDate.getDay()];
+
+                const formatTime = (timeStr) => {
+                    if (!timeStr) return '';
+                    const [hours, minutes] = timeStr.split(':');
+                    return new Date(2000, 0, 1, hours, minutes)
+                        .toLocaleTimeString('id-ID', {
+                            hour: 'numeric',
+                            minute: '2-digit'
+                        });
+                };
+
+                const availableSlots = schedule.max_patients - schedule.booked_patients;
+                const slotText = availableSlots > 0 ? 
+                    `(${availableSlots} slot tersedia)` : 
+                    '(Penuh)';
+
+                option.textContent = `${dayName}, ${formattedDate} ${formatTime(schedule.start_time)} - ${formatTime(schedule.end_time)} ${slotText}`;
+                option.disabled = availableSlots <= 0;
+
+            } catch (error) {
+                console.error('Date parsing error:', error, schedule);
+                option.textContent = `Jadwal tidak valid`;
+                option.disabled = true;
+            }
+
+            scheduleSelect.appendChild(option);
+        });
+
+        scheduleSelect.disabled = false;
+    })
+    .catch(error => {
+        console.error('Error loading schedules:', error);
+        scheduleSelect.innerHTML = '<option value="">Gagal memuat jadwal</option>';
+        scheduleSelect.disabled = true;
+    });
+}
+
+// Set minimum date for preferred date
+function setMinimumDate() {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    document.getElementById('preferred_date').min = tomorrow.toISOString().split('T')[0];
+}
+
+// Form validation
+function validateForm(event) {
+    const appointmentType = document.querySelector('input[name="appointment_type"]:checked').value;
+    
+    if (appointmentType === 'scheduled' && !document.getElementById('schedule_id').value) {
+        event.preventDefault();
+        alert('Silakan pilih jadwal yang tersedia');
+        return false;
+    }
+    
+    if (appointmentType === 'preferred' && 
+        (!document.getElementById('preferred_date').value || 
+         !document.getElementById('preferred_time').value)) {
+        event.preventDefault();
+        alert('Silakan isi tanggal dan waktu yang diinginkan');
+        return false;
+    }
+    
+    return true;
+}
+
+// Initialize everything when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize appointment type
+    toggleAppointmentType();
+    
+    // Set minimum date for preferred date
+    setMinimumDate();
+    
+    // Add event listeners
+    document.getElementById('doctor_id').addEventListener('change', loadDoctorSchedules);
+    document.querySelector('form').addEventListener('submit', validateForm);
+    
+    // Load schedules if doctor is preselected
+    if (document.getElementById('doctor_id').value) {
+        loadDoctorSchedules();
+    }
+});
     </script>
 </body>
 

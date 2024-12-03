@@ -16,57 +16,63 @@ class ScheduleController extends Controller
 {
     use AuthorizesRequests;
 
+    private function getAvailableSchedules($doctorId, $month, $year)
+    {
+        return Schedule::where('doctor_id', $doctorId)
+            ->whereYear('schedule_date', $year)
+            ->whereMonth('schedule_date', $month)
+            ->where('is_available', true)
+            ->orderBy('schedule_date')
+            ->orderBy('start_time')
+            ->get();
+    }
+
     public function index(Request $request)
     {
-        // Get the authenticated doctor
-        $doctor = Auth::user()->doctor;
+        try {
+            $doctor = Auth::user()->doctor;
 
-        if (!$doctor) {
-            return redirect()->back()->withErrors('You are not associated with any doctor profile.');
+            if (!$doctor) {
+                return redirect()->back()->withErrors('You are not associated with any doctor profile.');
+            }
+
+            $month = $request->input('month', Carbon::now()->month);
+            $year = $request->input('year', Carbon::now()->year);
+
+            // Get schedules
+            $schedules = $this->getAvailableSchedules($doctor->doctor_id, $month, $year);
+
+            // Group schedules by date
+            $schedulesByDate = $schedules->groupBy(function ($schedule) {
+                return Carbon::parse($schedule->schedule_date)->format('Y-m-d');
+            });
+
+            // Calculate calendar data
+            $daysInMonth = Carbon::createFromDate($year, $month, 1)->daysInMonth;
+            $firstDayOfMonth = Carbon::createFromDate($year, $month, 1)->dayOfWeek;
+
+            // Navigation dates
+            $currentDate = Carbon::createFromDate($year, $month, 1);
+            $date = $currentDate->format('Y-m-d');
+            $prevMonthDate = $currentDate->copy()->subMonth();
+            $nextMonthDate = $currentDate->copy()->addMonth();
+
+            return view('doctor.schedules.index', [
+                'year' => $year,
+                'month' => $month,
+                'schedulesByDate' => $schedulesByDate,
+                'prevMonth' => $prevMonthDate->month,
+                'prevYear' => $prevMonthDate->year,
+                'nextMonth' => $nextMonthDate->month,
+                'nextYear' => $nextMonthDate->year,
+                'daysInMonth' => $daysInMonth,
+                'firstDayOfMonth' => $firstDayOfMonth,
+                'date' => $date
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Schedule index error: ' . $e->getMessage());
+            return redirect()->back()->withErrors('Error loading schedules: ' . $e->getMessage());
         }
-
-        // Get the month and year from request or default to current
-        $month = $request->input('month', Carbon::now()->month);
-        $year = $request->input('year', Carbon::now()->year);
-
-        // Retrieve schedules using getAvailableSchedules method
-        $schedules = $this->getAvailableSchedules($doctor->doctor_id, $month, $year);
-
-        // Organize schedules by date for easier access in the view
-        $schedulesByDate = $schedules->groupBy(function ($schedule) {
-            return Carbon::parse($schedule->schedule_date)->toDateString();
-        });
-
-        // Calculate total days in the month
-        $daysInMonth = Carbon::createFromDate($year, $month, 1)->daysInMonth;
-
-        // Calculate the day of the week of the first day of the month (0 = Sunday, 6 = Saturday)
-        $firstDayOfMonth = Carbon::createFromDate($year, $month, 1)->dayOfWeek;
-
-        // Get previous and next months for navigation
-        $currentDate = Carbon::createFromDate($year, $month, 1);
-        $date = $currentDate->toDateString();
-        $prevMonthDate = $currentDate->copy()->subMonth();
-        $nextMonthDate = $currentDate->copy()->addMonth();
-
-        $prevMonth = $prevMonthDate->month;
-        $prevYear = $prevMonthDate->year;
-        $nextMonth = $nextMonthDate->month;
-        $nextYear = $nextMonthDate->year;
-
-        // Pass variables to the view
-        return view('doctor.schedules.index', compact(
-            'year',
-            'month',
-            'schedulesByDate',
-            'prevMonth',
-            'prevYear',
-            'nextMonth',
-            'nextYear',
-            'daysInMonth',
-            'firstDayOfMonth',
-            'date'
-        ));
     }
 
     public function create()
@@ -74,9 +80,9 @@ class ScheduleController extends Controller
         return view('doctor.schedules.create');
     }
 
+    // 2. Modify store method to ensure consistent date/time format
     public function store(Request $request)
     {
-        // Validate input data
         $validatedData = $request->validate([
             'schedule_date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
@@ -85,24 +91,37 @@ class ScheduleController extends Controller
             'is_available' => 'nullable|boolean',
         ]);
 
-        // Set default value for is_available if unchecked
-        $validatedData['is_available'] = $request->has('is_available');
+        try {
+            $doctor = Auth::user()->doctor;
+            if (!$doctor) {
+                return redirect()->back()->withErrors('No associated doctor found.');
+            }
 
-        // Retrieve the doctor associated with the authenticated user
-        $doctor = Auth::user()->doctor;
+            // Format dates consistently
+            $scheduleDate = Carbon::parse($validatedData['schedule_date'])->format('Y-m-d');
+            $startTime = Carbon::parse($validatedData['start_time'])->format('H:i');
+            $endTime = Carbon::parse($validatedData['end_time'])->format('H:i');
 
-        if (!$doctor) {
-            return redirect()->back()->withErrors('No associated doctor found for the authenticated user.');
+            $schedule = Schedule::create([
+                'doctor_id' => $doctor->doctor_id,
+                'schedule_date' => $scheduleDate,
+                'start_time' => $startTime,
+                'end_time' => $endTime,
+                'max_patients' => $validatedData['max_patients'],
+                'is_available' => $validatedData['is_available'] ?? true,
+                'booked_patients' => 0,
+                'day_of_week' => Carbon::parse($scheduleDate)->dayOfWeek
+            ]);
+
+            return redirect()
+                ->route('doctor.schedules.index')
+                ->with('success', 'Schedule added successfully.');
+        } catch (\Exception $e) {
+            Log::error('Schedule creation error: ' . $e->getMessage());
+            return redirect()
+                ->back()
+                ->withErrors('Failed to create schedule: ' . $e->getMessage());
         }
-
-        // Add doctor_id and day_of_week
-        $validatedData['doctor_id'] = $doctor->doctor_id;
-        $validatedData['day_of_week'] = Carbon::parse($validatedData['schedule_date'])->dayOfWeek;
-
-        // Create schedule
-        Schedule::create($validatedData);
-
-        return redirect()->route('doctor.schedules.index')->with('success', 'Schedule added successfully.');
     }
 
     public function show($id)
@@ -169,22 +188,31 @@ class ScheduleController extends Controller
     }
 
 
-    public function getAvailableSchedules($doctorId)
+    public function getSchedulesForPatient($doctorId)
     {
         try {
-            if (!Auth::check() || Auth::user()->role !== 'doctor') {
-                return response()->json(['error' => 'Unauthorized'], 403);
-            }
-
-            // Remove the is_available filter to show all schedules
             $schedules = Schedule::where('doctor_id', $doctorId)
-                ->where('schedule_date', '>=', now()->toDateString())
-                ->get();
+                ->where('schedule_date', '>=', Carbon::now()->startOfDay())
+                ->where('is_available', true)
+                ->orderBy('schedule_date')
+                ->orderBy('start_time')
+                ->get()
+                ->map(function ($schedule) {
+                    return [
+                        'schedule_id' => $schedule->schedule_id,
+                        'schedule_date' => Carbon::parse($schedule->schedule_date)->format('Y-m-d'),
+                        'start_time' => Carbon::parse($schedule->start_time)->format('H:i'),
+                        'end_time' => Carbon::parse($schedule->end_time)->format('H:i'),
+                        'max_patients' => (int) $schedule->max_patients,
+                        'booked_patients' => (int) $schedule->booked_patients ?? 0,
+                        'is_available' => (bool) $schedule->is_available
+                    ];
+                });
 
-            return $schedules;
+            return response()->json(['schedules' => $schedules]);
         } catch (\Exception $e) {
             Log::error('Schedule loading error: ' . $e->getMessage());
-            return response()->json(['error' => $e->getMessage()], 500);
+            return response()->json(['error' => 'Failed to load schedules'], 500);
         }
     }
 

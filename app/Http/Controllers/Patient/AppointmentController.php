@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentController extends Controller
 {
@@ -156,42 +157,68 @@ class AppointmentController extends Controller
     }
 
 
-    public function getDoctorSchedules(Doctor $doctor)
-    {
-        // Check if patient is authorized
-        if (!Auth::user()->patient) {
-            abort(403, 'Unauthorized');
-        }
+    
+public function getDoctorSchedules(Doctor $doctor)
+{
+    try {
+        // Add logging
+        Log::info('Getting schedules for doctor:', ['doctor_id' => $doctor->doctor_id]);
 
-        $now = now();
+        $tomorrow = now()->addDay()->startOfDay();
 
-        $schedules = $doctor->schedules()
+        $schedules = Schedule::where('doctor_id', $doctor->doctor_id)
+            ->where('schedule_date', '>=', $tomorrow)
             ->where('is_available', true)
-            ->where('schedule_date', '>=', $now->toDateString())
             ->orderBy('schedule_date')
             ->orderBy('start_time')
-            ->get()
-            ->map(function ($schedule) {
-                $bookedPatients = $schedule->appointments()
-                    ->whereIn('status', ['CONFIRMED', 'PENDING_CONFIRMATION'])
-                    ->count();
+            ->get();
 
-                return [
-                    'schedule_id' => $schedule->schedule_id,
-                    'schedule_date' => $schedule->schedule_date->format('Y-m-d'),
-                    'day_of_week' => $schedule->schedule_date->dayOfWeek,
-                    'start_time' => $schedule->start_time->format('H:i'),
-                    'end_time' => $schedule->end_time->format('H:i'),
-                    'max_patients' => $schedule->max_patients,
-                    'booked_patients' => $bookedPatients,
-                    'is_available' => $schedule->is_available
-                ];
-            });
+        // Log found schedules
+        Log::info('Found schedules:', ['count' => $schedules->count()]);
+
+        $formattedSchedules = $schedules->map(function ($schedule) {
+            // Get booked appointments count
+            $bookedCount = Appointment::where('schedule_id', $schedule->schedule_id)
+                ->whereIn('status', ['CONFIRMED', 'PENDING'])
+                ->count();
+
+            return [
+                'schedule_id' => $schedule->schedule_id,
+                'schedule_date' => $schedule->schedule_date instanceof Carbon 
+                    ? $schedule->schedule_date->format('Y-m-d')
+                    : Carbon::parse($schedule->schedule_date)->format('Y-m-d'),
+                'start_time' => $schedule->start_time instanceof Carbon
+                    ? $schedule->start_time->format('H:i')
+                    : Carbon::parse($schedule->start_time)->format('H:i'),
+                'end_time' => $schedule->end_time instanceof Carbon
+                    ? $schedule->end_time->format('H:i')
+                    : Carbon::parse($schedule->end_time)->format('H:i'),
+                'max_patients' => (int) $schedule->max_patients,
+                'booked_patients' => (int) $bookedCount,
+                'is_available' => (bool) $schedule->is_available,
+                'day_of_week' => Carbon::parse($schedule->schedule_date)->dayOfWeek
+            ];
+        });
 
         return response()->json([
-            'schedules' => $schedules
+            'success' => true,
+            'schedules' => $formattedSchedules
         ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error getting doctor schedules:', [
+            'doctor_id' => $doctor->doctor_id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Failed to load doctor schedules',
+            'error' => $e->getMessage()
+        ], 500);
     }
+}
 
 
     public function confirmAppointment(Request $request, Appointment $appointment)

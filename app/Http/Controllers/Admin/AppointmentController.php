@@ -8,6 +8,7 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use Illuminate\Http\Request;
 use App\Models\UserNotification;
+use Illuminate\Support\Facades\Log;
 
 class AppointmentController extends Controller
 {
@@ -46,7 +47,7 @@ class AppointmentController extends Controller
             'title' => 'Doctor Assigned to Your Appointment',
             'type' => 'APPOINTMENT',
             'data' => json_encode([
-                'message' => "Dr. {$appointment->doctor->user->username} has been assigned to your appointment. Please confirm your attendance.",
+                'message' => "{$appointment->doctor->user->username} has been assigned to your appointment. Please confirm your attendance.",
                 'appointment_id' => $appointment->appointment_id
             ]),
             'notifiable_type' => 'App\Models\Appointment',
@@ -90,26 +91,33 @@ class AppointmentController extends Controller
 
     public function getDoctorSchedules(Doctor $doctor)
     {
-        $now = now(); // Carbon instance of current date/time
-
-        $schedules = $doctor->schedules()
-            ->where('is_available', true)
-            ->where('schedule_date', '>=', $now->toDateString())
-            ->orderBy('schedule_date')
-            ->orderBy('start_time')
-            ->get()
-            ->map(function ($schedule) {
-                return [
-                    'schedule_id' => $schedule->schedule_id,
-                    'schedule_date' => $schedule->schedule_date->format('Y-m-d'),
-                    'day_of_week' => $schedule->day_of_week,
-                    'start_time' => $schedule->start_time->format('H:i'),
-                    'end_time' => $schedule->end_time->format('H:i')
-                ];
-            });
-
-        return response()->json([
-            'schedules' => $schedules
-        ]);
+        try {
+            $tomorrow = now()->addDay()->startOfDay(); // Get tomorrow's date
+    
+            $schedules = $doctor->schedules()
+                ->where('is_available', true)
+                ->where('schedule_date', '>=', $tomorrow->toDateString())
+                ->orderBy('schedule_date')
+                ->orderBy('start_time')
+                ->get()
+                ->map(function ($schedule) {
+                    return [
+                        'schedule_id' => $schedule->schedule_id,
+                        'schedule_date' => $schedule->schedule_date->format('Y-m-d'),
+                        'day_of_week' => $schedule->day_of_week,
+                        'start_time' => $schedule->start_time->format('H:i'),
+                        'end_time' => $schedule->end_time->format('H:i'),
+                        'max_patients' => (int) $schedule->max_patients,
+                        'booked_patients' => (int) $schedule->booked_patients ?? 0
+                    ];
+                });
+    
+            return response()->json([
+                'schedules' => $schedules
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching doctor schedules: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to load schedules'], 500);
+        }
     }
 }

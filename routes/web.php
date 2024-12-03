@@ -209,6 +209,10 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
         Route::get('doctors/{doctor}/schedules', 'getDoctorSchedules')->name('doctors.schedules');
     });
 
+    Route::get('/doctors/{doctor}/schedules', [PatientAppointmentController::class, 'getDoctorSchedules'])
+        ->name('doctors.schedules');
+    
+
     // Medical Records
     Route::controller(PatientMedicalRecordController::class)->group(function () {
         Route::get('medical-records', 'myRecords')->name('medical-records');
