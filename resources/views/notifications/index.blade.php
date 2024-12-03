@@ -4,11 +4,12 @@
 @section('content')
 <div class="container mx-auto px-4 py-6">
     <!-- Header Section -->
-    <div class="flex justify-between items-center">
-        <h1 class="text-2xl font-bold">Notifikasi Saya</h1>
+    <div class="flex items-center">
+        <div class="flex items-center gap-2 mb-6 bg-gradient-to-r from-red-400 to-red-600 p-4 rounded-lg shadow-lg w-full">
+            <h1 class="text-3xl font-bold text-white">Notifikasi Saya</h1>
+        </div>
     </div>
-    
-  
+
     <!-- Red Divider -->
     <div class="h-1 bg-red-500 my-4 rounded-full"></div>
 
@@ -16,7 +17,7 @@
     <div class="grid gap-4">
         @forelse ($notifications as $notification)
             <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition p-6 border-l-4 
-                        {{ $notification->read_at ? 'border-gray-300' : 'border-blue-500' }}">
+                        {{ $notification->read_at ? 'border-gray-300' : 'border-red-500' }}">
                 <div class="flex justify-between items-start">
                     <div>
                         @php
@@ -37,7 +38,7 @@
                     </div>
                     
                     @unless($notification->read_at)
-                        <span class="px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                        <span class="px-3 py-1 rounded-full text-sm bg-red-100 text-red-800">
                             Belum dibaca
                         </span>
                     @endunless
@@ -49,7 +50,7 @@
                             @csrf
                             @method('PATCH')
                             <button type="submit" 
-                                class="text-blue-500 hover:text-blue-700 font-medium">
+                                class="text-red-500 hover:text-red-700 font-medium">
                                 Tandai sudah dibaca
                             </button>
                         </form>
@@ -69,7 +70,7 @@
                 @csrf
                 @method('PATCH')
                 <button type="submit" 
-                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+                    class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
                     Tandai semua sudah dibaca
                 </button>
             </form>

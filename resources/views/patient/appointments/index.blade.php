@@ -3,14 +3,12 @@
 @section('content')
     <div class="container mx-auto px-4 py-6">
         <!-- Header Section -->
-        <div class="flex justify-between items-center">
-            <h1 class="text-2xl font-bold">Janji Temu Saya</h1>
-            <a href="{{ route('patient.appointments.create') }}"
-                class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
-                Tambah
-            </a>
+        <div class="flex items-center">
+            <div class="flex items-center gap-2 mb-6 bg-gradient-to-r from-blue-400 to-blue-500 p-4 rounded-lg shadow-lg w-full">
+                <h1 class="text-3xl font-bold text-white">Janji Temu</h1>
+            </div>
         </div>
-        
+
         <!-- Blue Divider -->
         <div class="h-1 bg-blue-500 my-4 rounded-full"></div>
 
@@ -21,19 +19,28 @@
                     <select name="status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500">
                         <option value="">Semua Status</option>
                         <option value="PENDING" {{ request('status') == 'PENDING' ? 'selected' : '' }}>Pending</option>
-                        <option value="PENDING_CONFIRMATION" {{ request('status') == 'PENDING_CONFIRMATION' ? 'selected' : '' }}>Pending Confirmation</option>
-                        <option value="CONFIRMED" {{ request('status') == 'CONFIRMED' ? 'selected' : '' }}>Confirmed</option>
-                        <option value="CANCELLED" {{ request('status') == 'CANCELLED' ? 'selected' : '' }}>Cancelled</option>
-                        <option value="COMPLETED" {{ request('status') == 'COMPLETED' ? 'selected' : '' }}>Completed</option>
+                        <option value="PENDING_CONFIRMATION"
+                            {{ request('status') == 'PENDING_CONFIRMATION' ? 'selected' : '' }}>Pending Confirmation
+                        </option>
+                        <option value="CONFIRMED" {{ request('status') == 'CONFIRMED' ? 'selected' : '' }}>Confirmed
+                        </option>
+                        <option value="CANCELLED" {{ request('status') == 'CANCELLED' ? 'selected' : '' }}>Cancelled
+                        </option>
+                        <option value="COMPLETED" {{ request('status') == 'COMPLETED' ? 'selected' : '' }}>Completed
+                        </option>
                     </select>
                 </div>
                 <div class="flex-1 min-w-[200px]">
-                    <input type="date" name="date" value="{{ request('date') }}" 
-                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500">
+                    <input type="date" name="date" value="{{ request('date') }}"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500">
                 </div>
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
                     Filter
                 </button>
+                <a href="{{ route('patient.appointments.create') }}"
+                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">
+                    Tambah
+                </a>
             </form>
         </div>
 
@@ -49,35 +56,36 @@
                 'PENDING' => [
                     'border' => 'border-yellow-500',
                     'bg' => 'bg-yellow-100',
-                    'text' => 'text-yellow-800'
+                    'text' => 'text-yellow-800',
                 ],
                 'PENDING_CONFIRMATION' => [
                     'border' => 'border-orange-500',
                     'bg' => 'bg-orange-100',
-                    'text' => 'text-orange-800'
+                    'text' => 'text-orange-800',
                 ],
                 'CONFIRMED' => [
                     'border' => 'border-green-500',
                     'bg' => 'bg-green-100',
-                    'text' => 'text-green-800'
+                    'text' => 'text-green-800',
                 ],
                 'CANCELLED' => [
                     'border' => 'border-red-500',
                     'bg' => 'bg-red-100',
-                    'text' => 'text-red-800'
+                    'text' => 'text-red-800',
                 ],
                 'COMPLETED' => [
                     'border' => 'border-blue-500',
                     'bg' => 'bg-blue-100',
-                    'text' => 'text-blue-800'
-                ]
+                    'text' => 'text-blue-800',
+                ],
             ];
         @endphp
 
         <!-- Appointments Grid -->
         <div class="grid gap-4">
             @forelse($appointments as $appointment)
-                <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition p-6 border-l-4 
+                <div
+                    class="bg-white rounded-lg shadow-md hover:shadow-lg transition p-6 border-l-4 
                     {{ $statusColors[$appointment->status]['border'] }}">
                     <div class="flex justify-between items-start">
                         <div>
@@ -104,7 +112,8 @@
                             </p>
                             <p class="mt-2 text-gray-700">{{ $appointment->reason }}</p>
                         </div>
-                        <span class="px-3 py-1 rounded-full text-sm 
+                        <span
+                            class="px-3 py-1 rounded-full text-sm 
                             {{ $statusColors[$appointment->status]['bg'] }} 
                             {{ $statusColors[$appointment->status]['text'] }}">
                             {{ str_replace('_', ' ', $appointment->status) }}
