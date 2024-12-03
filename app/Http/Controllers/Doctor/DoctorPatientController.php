@@ -12,25 +12,33 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class DoctorPatientController extends Controller
 {
     use AuthorizesRequests;
-    public function index(Request $request)
-    {
-        $query = User::role('patient')
-            ->whereHas('medicalRecords', function($q) {
-                $q->where('doctor_id', Auth::id());
-            });
+    
+public function index(Request $request)
+{
+    $doctor = Auth::user()->doctor;
 
-        // Search functionality
-        if ($request->search) {
-            $query->where(function($q) use ($request) {
-                $q->where('username', 'like', "%{$request->search}%")
-                  ->orWhere('email', 'like', "%{$request->search}%");
-            });
-        }
+    // Get patients who have confirmed appointments with this doctor
+    $query = User::role('patient')
+        ->whereHas('patient.appointments', function ($query) use ($doctor) {
+            $query->where('doctor_id', $doctor->doctor_id)
+                ->where('status', 'CONFIRMED')
+                ->where(function ($q) {
+                    $q->whereDate('appointment_date', '<=', now());
+                });
+        });
 
-        $patients = $query->paginate(10);
-
-        return view('doctor.patients.index', compact('patients'));
+    // Search functionality
+    if ($request->search) {
+        $query->where(function($q) use ($request) {
+            $q->where('username', 'like', "%{$request->search}%")
+              ->orWhere('email', 'like', "%{$request->search}%");
+        });
     }
+
+    $patients = $query->paginate(10);
+
+    return view('doctor.patients.index', compact('patients'));
+}
 
     public function show(User $patient)
     {
