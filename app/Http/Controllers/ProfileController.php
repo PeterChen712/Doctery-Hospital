@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -44,6 +45,48 @@ class ProfileController extends Controller
             'user' => $user,
             'additionalData' => $additionalData
         ]);
+    }
+
+    
+    public function store(Request $request)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'date_of_birth' => 'required|date',
+            'phone' => 'required|string|max:15',
+            'address' => 'required|string|max:255',
+            'blood_type' => 'required|string|in:A+,A-,B+,B-,O+,O-,AB+,AB-',
+        ]);
+
+        try {
+            DB::beginTransaction();
+            
+            // Create or update patient profile
+            $patient = Patient::updateOrCreate(
+                ['user_id' => Auth::id()],
+                [
+                    'date_of_birth' => $validated['date_of_birth'],
+                    'phone_number' => $validated['phone'],
+                    'address' => $validated['address'],
+                    'blood_type' => $validated['blood_type'],
+                ]
+            );
+
+            DB::commit();
+
+            // Flash success message
+            return redirect()
+                ->route('patient.dashboard')
+                ->with('success', 'Profile created successfully!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            // Flash error message
+            return back()
+                ->withInput()
+                ->with('error', 'Failed to create profile. Please try again.');
+        }
     }
 
     /**

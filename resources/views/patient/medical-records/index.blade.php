@@ -152,8 +152,8 @@
                         @endif
 
                         {{-- feedback --}}
-
-                        {{-- @if ($record->feedback)
+{{-- 
+                        @if ($record->feedback)
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <h4 class="font-medium text-gray-700 mb-2 flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor"

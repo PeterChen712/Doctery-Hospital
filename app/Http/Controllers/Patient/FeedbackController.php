@@ -9,6 +9,7 @@ use App\Models\MedicalRecord;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class FeedbackController extends Controller
 {
@@ -40,60 +41,41 @@ class FeedbackController extends Controller
             ], 500);
         }
     }
-    
+
     // Update your FeedbackController store method:
-    public function store(Request $request, int $recordId)
+
+    public function store(Request $request)
     {
         try {
-            // Find medical record first
-            $medicalRecord = MedicalRecord::findOrFail($recordId);
+            DB::beginTransaction();
 
-            // Check if user owns this record
-            if ($medicalRecord->patient_id !== Auth::user()->patient->patient_id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Unauthorized access'
-                ], 403);
-            }
-
-            // Check if feedback already exists
-            if ($medicalRecord->feedback()->exists()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Feedback has already been submitted for this record'
-                ], 422);
-            }
-
-            // Validate input
+            // Validate request
             $validated = $request->validate([
-                'overall_rating' => 'required|integer|between:1,5',
-                'category' => 'required|string|in:GENERAL,DOCTOR_SERVICE,FACILITY,STAFF_SERVICE,WAIT_TIME,TREATMENT_QUALITY,COMMUNICATION',
-                'review' => 'required|string|min:10',
+                'medical_record_id' => 'required|exists:medical_records,record_id',
+                'overall_rating' => 'required|integer|min:1|max:5',
+                'review' => 'required|string|max:500',
             ]);
 
             // Create feedback
-            $feedback = new Feedback([
-                'record_id' => $medicalRecord->record_id,
+            $feedback = Feedback::create([
+                'medical_record_id' => $validated['medical_record_id'],
                 'patient_id' => Auth::user()->patient->patient_id,
-                'doctor_id' => $medicalRecord->doctor_id,
                 'overall_rating' => $validated['overall_rating'],
-                'category' => $validated['category'],
                 'review' => $validated['review'],
-                'status' => 'PENDING'
             ]);
 
-            $feedback->save();
+            DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Feedback submitted successfully',
+                'message' => 'Feedback submitted successfully!',
                 'feedback' => $feedback
             ]);
         } catch (\Exception $e) {
-            Log::error('Feedback submission error: ' . $e->getMessage());
+            DB::rollBack();
             return response()->json([
                 'success' => false,
-                'message' => 'Error submitting feedback'
+                'message' => 'Failed to submit feedback: ' . $e->getMessage()
             ], 500);
         }
     }

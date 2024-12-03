@@ -48,9 +48,37 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('user.profile.destroy'); // Changed name
     Route::get('/avatar/{id}', [ProfileController::class, 'showAvatar'])->name('avatar.show');
+
+    Route::prefix('patient')->name('patient.')->group(function () {
+        // Feedback routes
+        Route::post('/feedback', [FeedbackController::class, 'store'])->name('feedback.store');
+    });
+
+    // Route::post('/patient/feedback', [FeedbackController::class, 'store'])->name('patient.feedback.store');
+    
 });
 
 
+
+// Route::middleware(['auth', 'verified'])->group(function () {
+//     // Common Dashboard Route
+//     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+//     // Profile Routes
+//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.delete');
+//     Route::get('/profile/avatar/{id}', [ProfileController::class, 'showAvatar'])->name('profile.avatar');
+
+//     // Patient Profile Setup
+//     Route::get('/user/setup', [CompleteProfileController::class, 'create'])->name('user.setup');
+//     Route::post('/user/setup', [CompleteProfileController::class, 'store'])->name('user.setup.store');
+
+//     // Notifications
+//     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+//     Route::patch('/notifications/{notification}', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
+//     Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+// });
 
 
 // Admin Routes

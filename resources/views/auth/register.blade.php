@@ -79,6 +79,19 @@
                 overflow-y: visible;
             }
         }
+
+        body {
+            background-image: url('/assets/images/home/blurbg3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+        .overlay {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
     </style>
 
 </head>

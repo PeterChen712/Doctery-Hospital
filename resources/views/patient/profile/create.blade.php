@@ -7,7 +7,7 @@
             <div class="p-6">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Complete Your Patient Profile</h2>
 
-                <form method="POST" action="{{ route('patient.profile.store') }}">
+                <form method="POST" action="{{ route('patient.profile.store') }}" enctype="multipart/form-data">
                     @csrf
 
                     <!-- Date of Birth -->

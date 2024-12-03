@@ -13,7 +13,10 @@ class Patient extends Model
         'blood_type',
         'allergies',
         'medical_history',
-        'emergency_contact'
+        'emergency_contact',
+        'phone_number',
+        'address',
+        'blood_type'
     ];
 
     protected $casts = [
