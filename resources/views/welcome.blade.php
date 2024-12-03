@@ -357,7 +357,7 @@
                         <div class="review-box">
                             <img src="assets/images/home/pic1.png" alt="">
 
-                            <h2>Lara John</h2>
+                            <h2>Hery Mangalikah</h2>
                             <div class="review-stars">
                                 <i class="fa-solid fa-star"></i>
                                 <i class="fa-solid fa-star"></i>
@@ -367,8 +367,7 @@
                             </div>
 
                             <div class="review-text">
-                                <p>Saya sangat puas dengan layanan yang diberikan, tim medis sangat profesional dan
-                                    berpengalaman.</p>
+                                <p>Sa puas sekali deng rumah sakit pu pelayanan kesehatan seksual. Walaupun sa pu penyakit menular, sa pu penyakit bisa sembuh total.</p>
                             </div>
 
                         </div>
