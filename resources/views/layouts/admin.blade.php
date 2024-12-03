@@ -127,7 +127,7 @@
                 </li>
 
                 <!-- Reports -->
-                <li>
+                {{-- <li>
                     <button type="button" data-collapse-toggle="dropdown-reports"
                         class="flex items-center w-full p-2 text-gray-200 rounded-lg hover:bg-gray-700 group">
                         <svg class="w-5 h-5 text-gray-400 transition duration-75 group-hover:text-white" fill="none"
@@ -157,7 +157,7 @@
                             </a>
                         </li>
                     </ul>
-                </li>
+                </li> --}}
 
                 <!-- Appointments -->
                 <li>

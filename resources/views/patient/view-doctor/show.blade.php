@@ -28,7 +28,7 @@
                             </div>
                         @endif
                         <div class="ml-6">
-                            <h1 class="text-2xl font-bold text-white">Dr. {{ $doctor->user->username }}</h1>
+                            <h1 class="text-2xl font-bold text-white">{{ $doctor->user->username }}</h1>
                             <p class="text-blue-100">{{ $doctor->specialization }}</p>
                         </div>
                     </div>

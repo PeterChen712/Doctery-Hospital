@@ -32,7 +32,7 @@
                             <h3 class="text-gray-600 font-medium text-sm uppercase tracking-wide">Dokter</h3>
                             <p class="text-gray-900 font-medium">
                                 @if($appointment->doctor)
-                                    Dr. {{ $appointment->doctor->user->username }}
+                                    {{ $appointment->doctor->user->username }}
                                 @else
                                     Belum Ditugaskan
                                 @endif

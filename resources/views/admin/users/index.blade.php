@@ -18,9 +18,9 @@
         <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
             <form method="GET" class="flex flex-wrap gap-4">
                 <div class="flex-1 min-w-[200px]">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Peran</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
                     <select name="role" class="w-full rounded-lg border-gray-200 focus:border-blue-500 focus:ring focus:ring-blue-200">
-                        <option value="">Semua Peran</option>
+                        <option value="">Semua Role</option>
                         @foreach ($roles as $role)
                             <option value="{{ $role->name }}" {{ request('role') == $role->name ? 'selected' : '' }}>
                                 {{ ucfirst($role->name) }}
@@ -49,7 +49,7 @@
                         <tr>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peran</th>
+                            <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                             <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>

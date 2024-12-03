@@ -11,7 +11,7 @@
                     <div class="flex justify-between items-start">
                         <div>
                             <h3 class="font-semibold text-lg">{{ $prescription->medicine_name }}</h3>
-                            <p class="text-gray-600">Prescribed by Dr. {{ $record->doctor->user->username }}</p>
+                            <p class="text-gray-600">Prescribed by {{ $record->doctor->user->username }}</p>
                             <p class="text-gray-600">{{ $record->treatment_date->format('M d, Y') }}</p>
                             
                             <div class="mt-4">

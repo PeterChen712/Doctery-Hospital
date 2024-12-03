@@ -106,7 +106,7 @@ class MedicalRecordController extends Controller
             'user_id' => $record->patient->user->user_id,
             'title' => 'New Medical Record Created',
             'data' => [
-                'message' => 'Dr. ' . Auth::user()->username . ' has created a new medical record.',
+                'message' => Auth::user()->username . ' has created a new medical record.',
                 'record_id' => $record->record_id,
                 'doctor_name' => Auth::user()->username,
                 'treatment_date' => $record->treatment_date->format('Y-m-d H:i:s')

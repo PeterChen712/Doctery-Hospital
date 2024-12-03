@@ -52,7 +52,7 @@
             <div id="menu-bars" class="fas fa-bars"></div>
 
             @auth
-                <a href="{{ route('dashboard') }}" class="btn">Dasbor</a>
+                <a href="{{ route('dashboard') }}" class="btn">Dashboard</a>
             @else
                 <div class="auth-buttons">
                     <a href="{{ route('login') }}" class="btn login-btn">Masuk</a>

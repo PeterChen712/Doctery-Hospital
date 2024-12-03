@@ -66,7 +66,7 @@
                     </div>
 
                     <div class="group">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Peran</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
                                 <i class="fas fa-user-tag"></i>

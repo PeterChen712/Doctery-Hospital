@@ -29,7 +29,7 @@
                                     <h3 class="font-semibold text-lg text-gray-900">
                                         <a href="{{ route('patient.doctors.show', $record->doctor->doctor_id) }}"
                                             class="hover:text-blue-600 transition-colors duration-200">
-                                            Dr. {{ $record->doctor->user->username }}
+                                            {{ $record->doctor->user->username }}
                                         </a>
                                     </h3>
                                     <p class="text-sm text-gray-500">{{ $record->treatment_date->format('F d, Y - h:i A') }}
