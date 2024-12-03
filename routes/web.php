@@ -47,8 +47,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('user.profile.destroy'); // Changed name
     Route::get('/avatar/{id}', [ProfileController::class, 'showAvatar'])->name('avatar.show');
-
-    
 });
 
 
@@ -142,6 +140,8 @@ Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(fu
 
     // Doctor resources
     Route::resource('appointments', DoctorAppointmentController::class);
+    Route::get('/doctor/appointments', [DoctorAppointmentController::class, 'index'])->name('doctor.appointments.index');
+    
     Route::resource('medical-records', DoctorMedicalRecordController::class);
     // Route::resource('records', DoctorMedicalRecordController::class);
     Route::resource('patients', DoctorPatientController::class);
@@ -164,7 +164,7 @@ Route::middleware(['auth', 'doctor'])->prefix('doctor')->as('doctor.')->group(fu
         ->name('schedules.by-date');
 
 
-        Route::post('feedback/{feedback}/response', [FeedbackResponseController::class, 'store'])
+    Route::post('feedback/{feedback}/response', [FeedbackResponseController::class, 'store'])
         ->name('feedback.response');
 
     // Route::get('schedules/{id}/edit-data', [DoctorScheduleController::class, 'getScheduleEditData']);
@@ -209,9 +209,10 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
         Route::get('doctors/{doctor}/schedules', 'getDoctorSchedules')->name('doctors.schedules');
     });
 
+
     Route::get('/doctors/{doctor}/schedules', [PatientAppointmentController::class, 'getDoctorSchedules'])
         ->name('doctors.schedules');
-    
+
 
     // Medical Records
     Route::controller(PatientMedicalRecordController::class)->group(function () {
@@ -238,6 +239,5 @@ Route::middleware('auth')->prefix('patient')->as('patient.')->group(function () 
     Route::controller(FeedbackController::class)->group(function () {
         Route::post('medical-records/{medicalRecord}/feedback', 'store')->name('medical-records.feedback.store');
     });
-    
 });
 require __DIR__ . '/auth.php';

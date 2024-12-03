@@ -7,32 +7,52 @@ use App\Models\Appointment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class AppointmentController extends Controller
 {
     use AuthorizesRequests;
 
+
+
     public function index(Request $request)
     {
-        $query = Appointment::with('patient.user')
-            ->where('doctor_id', Auth::id());
-
-        // Filter by date
+        // Get doctor_id first
+        $doctorId = DB::table('doctors')
+            ->where('user_id', Auth::id())
+            ->value('doctor_id');
+    
+        // Debug doctor info
+        Log::info('Doctor Info:', [
+            'user_id' => Auth::id(),
+            'doctor_id' => $doctorId
+        ]);
+    
+        // Build query with correct joins
+        $query = Appointment::with(['patient.user'])
+            ->where('appointments.doctor_id', $doctorId);
+    
+        // Add filters
         if ($request->date) {
-            $query->whereDate('appointment_date', $request->date);
+            $query->whereDate('appointments.appointment_date', $request->date);
         }
-
-        // Filter by status
+    
         if ($request->status) {
-            $query->where('status', $request->status);
+            $query->where('appointments.status', $request->status);
         }
-
-        $appointments = $query->orderBy('appointment_date')
-            ->orderBy('appointment_time')
-            ->paginate(10);
-
+    
+        // Join schedule_appointments
+        $query->join('schedule_appointments', 'appointments.appointment_id', '=', 'schedule_appointments.appointment_id');
+    
+        // Select appointments columns to avoid ambiguity
+        $query->select('appointments.*');
+    
+        $appointments = $query->paginate(10);
+    
         return view('doctor.appointments.index', compact('appointments'));
     }
+
 
     public function show(Appointment $appointment)
     {

@@ -9,7 +9,7 @@
                 <input type="date" name="date" value="{{ request('date') }}"
                     class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                 <select name="status" class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    <option value="">All Status</option>
+                <option value="">All Status</option>
                     <option value="PENDING" {{ request('status') === 'PENDING' ? 'selected' : '' }}>Pending</option>
                     <option value="CONFIRMED" {{ request('status') === 'CONFIRMED' ? 'selected' : '' }}>Confirmed</option>
                     <option value="COMPLETED" {{ request('status') === 'COMPLETED' ? 'selected' : '' }}>Completed</option>
@@ -37,9 +37,6 @@
                         </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Status
-                        </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            Actions
                         </th>
                     </tr>
                 </thead>
@@ -69,16 +66,10 @@
                                     {{ $appointment->status }}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <a href="{{ route('doctor.appointments.show', $appointment) }}" 
-                                   class="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400">
-                                    View Details
-                                </a>
-                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="3" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                                 No appointments found
                             </td>
                         </tr>

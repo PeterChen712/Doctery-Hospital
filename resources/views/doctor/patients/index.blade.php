@@ -1,7 +1,6 @@
 <!-- resources/views/doctor/patients/index.blade.php -->
 @extends('layouts.doctor')
 
-@section('header')
     <div class="flex justify-between items-center">
         <h2 class="text-xl font-semibold">Patient List</h2>
         <div class="flex gap-2">
@@ -15,7 +14,6 @@
             </form>
         </div>
     </div>
-@endsection
 
 @section('content')
     <div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg">
@@ -35,9 +33,6 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                             Last Visit
                         </th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                            Actions
-                        </th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
@@ -55,16 +50,10 @@
                             <td class="px-6 py-4 whitespace-nowrap">
                                 {{ $patient->medicalRecords->sortByDesc('created_at')->first()?->created_at?->format('d M Y') ?? 'No visits' }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <a href="{{ route('doctor.patients.show', $patient) }}" 
-                                   class="text-blue-600 hover:text-blue-900 dark:hover:text-blue-400">
-                                    View Details
-                                </a>
-                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
+                            <td colspan="4" class="px-6 py-4 text-center text-gray-500 dark:text-gray-400">
                                 No patients found
                             </td>
                         </tr>
